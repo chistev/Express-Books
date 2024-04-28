@@ -1,0 +1,56 @@
+.custom-navbar-brand {
+    color: #422e20;
+    font-family: Helvetica, sans-serif;
+}
+
+.custom-navbar-brand span {
+    color: #372213;
+    font-family: Helvetica, sans-serif;
+}
+
+.nav-link.my-books {
+    color: #7a6a5d;
+    font-family: Helvetica, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-link.my-books:hover {
+    background-color: #382110;
+    color: white;
+}
+
+.signup-body {
+    background-color: #e9e7db;
+    padding: 20px;
+}
+
+.sign-up-custom-card {
+    color: #333333;
+    font-family: Helvetica, sans-serif;
+}
+
+.sign-up-custom-card h2{
+    color: #333333;
+}
+
+.sign-up-custom-card p{
+    color: #333333;
+}
+
+.btn-sign-up {
+    background-color: #382110;
+    color: white;
+    font-family: Helvetica, sans-serif;
+    width: 50%;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-sign-up:hover {
+    background-color: #54351e;
+    color: #f0f0f0;
+}
+
+.sign-up-small{
+        font-family: Helvetica, sans-serif;
+        font-size: smaller;
+}

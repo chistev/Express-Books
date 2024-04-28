@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const port = 3000; // Choose a port for your server
 
+// Use express.static middleware to serve static files
+app.use(express.static('public'));
+
 // Set EJS as the view engine
 app.set('view engine', 'ejs');
 
