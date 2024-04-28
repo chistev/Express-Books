@@ -11,6 +11,7 @@
   "author": "chistev stephenowabie@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "ejs": "^3.1.10",
     "express": "^4.19.2"
   }
 }
