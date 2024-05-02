@@ -54,3 +54,34 @@
         font-family: Helvetica, sans-serif;
         font-size: smaller;
 }
+
+.create-account {
+    color: #111111;
+    font-family: copernicus, serif;
+}
+
+.register-form-label {
+    color: #1e1915;
+    font-family: proxima nova, sans-serif;
+}
+
+.register-border-custom {
+    border: 1px solid #333333;
+}
+
+.register-custom-button {
+background-color: #1e1915;
+border-radius: 15%;
+color: white;
+width: 100%;
+}
+
+.register-custom-button:hover {
+    background-color: #333333; /* Change background color on hover */
+}
+
+#register-error-message {
+    width: 290px;
+    background-color: #fff5f3;
+    color: #382110;
+}
