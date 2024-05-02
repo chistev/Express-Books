@@ -85,3 +85,16 @@ width: 100%;
     background-color: #fff5f3;
     color: #382110;
 }
+
+.otp-request-body{
+    background-color: #ffffff;
+}
+
+.otp-request-verify-email{
+    font-family: Helvetica, sans-serif; 
+    width: 440px;
+}
+
+.otp-request-resent-otp{
+    font-family: Helvetica, sans-serif;
+}

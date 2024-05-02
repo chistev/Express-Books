@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
-    res.render('register', { title: 'Register', errors: errors });
+    res.render('register', { title: 'Myreads Registration', errors: errors, content: '' });
 });
 
 router.post('/', async (req, res) => {
