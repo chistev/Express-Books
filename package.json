@@ -11,10 +11,16 @@
   "author": "chistev stephenowabie@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "csrf": "^3.1.0",
+    "csurf": "^1.11.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.5.0",
+    "mongoose": "^8.3.3",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {

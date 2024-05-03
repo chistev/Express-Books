@@ -1,6 +1,17 @@
 import express from 'express';
+import csrf from 'csrf';
 import { generateOTP, sendEmail } from './registerUtils.mjs';
+
 const router = express.Router();
+
+const tokens = new csrf();
+
+router.use((req, res, next) => {
+    const secret = tokens.secretSync();
+    const token = tokens.create(secret);
+    req.csrfToken = token;
+    next();
+});
 
 router.get('/', async (req, res) => {
     const email = req.session.email;

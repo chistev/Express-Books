@@ -18,6 +18,7 @@
     </div>
     <div class="container" style="width: 290px;">
         <form class="text-center" action="/register" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="mb-3 d-flex flex-column">
                 <label for="fullName" class="form-label me-auto">Your name</label>
                 <input type="text" class="form-control register-border-custom" id="fullName" name="fullName"  placeholder="First and last name" style="border-radius: 50px;">

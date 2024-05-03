@@ -98,3 +98,60 @@ width: 100%;
 .otp-request-resent-otp{
     font-family: Helvetica, sans-serif;
 }
+
+.favorite-genre-body{
+    background-color: #ffffff;
+}
+
+.favorite-genre-body .navbar{
+    background-color: #f4f1ea;
+}
+
+.favorite-genre-container-myreads{
+    max-width: 1000px; 
+    margin: 0 auto;
+}
+
+.favorite-genre-container-myreads .nabvar-text{
+    color: #382125;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.favorite-genre-message{
+    color: #382125;
+    font-family: Georgia, 'Times New Roman', serif;
+}
+
+.favorite-genre-second-message{
+    color: #4d5443; 
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: #e4f4da;
+    width: 80%;
+    font-size:smaller;
+    padding: 10px;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.favorite-genre-custom-checkbox {
+    background-color: #f7f7f7;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.favorite-genre-custom-checkbox:hover{
+    background-color: #e0e0e0;
+    cursor: pointer;
+}
+
+.favorite-genre-disabled-button{
+    background-color: #f3f3f3;
+    color: #cccccc;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.favorite-genre-enabled-button {
+    background-color: #cccccc;
+    color: #333333;
+    font-family: Helvetica, Arial, sans-serif;
+}

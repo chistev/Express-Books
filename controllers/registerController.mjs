@@ -1,19 +1,33 @@
 import express from 'express';
-import { validateEmail, generateOTP, sendEmail } from './registerUtils.mjs'; // Importing helper functions
+import { validateEmail, generateOTP, sendEmail } from './registerUtils.mjs';
+import { attachCSRFToken, verifyCSRFToken } from './csrfUtils.mjs';
+import User from '../models/User.mjs';
+
 const router = express.Router();
+
+router.use(attachCSRFToken);
 
 router.get('/', (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
-    res.render('register', { title: 'Myreads Registration', errors: errors, content: '' });
+    const csrfToken = req.csrfToken;
+    res.render('register', { title: 'Myreads Registration', errors: errors, content: '', csrfToken: csrfToken });
 });
 
-router.post('/', async (req, res) => {
+router.post('/', verifyCSRFToken, async (req, res) => {
     const fullName = req.body.fullName;
     const email = req.body.email;
     const password = req.body.password;
     const reEnteredPassword = req.body['re-enter-password']; // Accessing using bracket notation since the key contains hyphens
 
     const errors = [];
+
+    // CSRF token validation
+    const csrfToken = req.body._csrf;
+    if (!tokens.verify(secret, csrfToken)) {
+        // Invalid CSRF token
+        errors.push('CSRF token verification failed');
+        return res.redirect('/register?errors=' + encodeURIComponent(JSON.stringify(errors)));
+    }
 
     if (!(fullName && fullName.trim().includes(' '))) {
         errors.push('Please enter your full name (first and last name).');
@@ -32,6 +46,17 @@ router.post('/', async (req, res) => {
         errors.push('Passwords must be at least 6 characters long and match.');
     }
 
+    // Check if the email already exists in the database
+    try {
+        const existingUser = await User.findOne({ email: email });
+        if (existingUser) {
+            errors.push('Email address is already registered.');
+        }
+    } catch (error) {
+        console.error('Error checking existing user:', error);
+        errors.push('Error checking existing user');
+    }
+
     // If there are validation errors, redirect back to the registration page with errors in query parameters
     if (errors.length > 0) {
         return res.redirect('/register?errors=' + encodeURIComponent(JSON.stringify(errors)));
@@ -39,7 +64,7 @@ router.post('/', async (req, res) => {
 
     const otp = generateOTP();
     req.session.otp = otp;
-
+    req.session.password = password
     req.session.fullName = fullName;
     req.session.email = email;
     req.session.otpAttempts = 0; // Initialize OTP attempts counter

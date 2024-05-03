@@ -1,15 +1,20 @@
 import express from 'express';
 import { generateOTP } from './registerUtils.mjs';
+import { attachCSRFToken, verifyCSRFToken } from './csrfUtils.mjs';
 
 const router = express.Router();
 
+router.use(attachCSRFToken);
+
 // Set the maximum number of OTP attempts allowed
 const MAX_OTP_ATTEMPTS = 3;
+
 
 router.get('/', (req, res) => {
     if (!req.session.fullName || !req.session.email || !req.session.otp) {
         return res.redirect('/register?errors=' + encodeURIComponent(JSON.stringify(['Session data missing. Please complete the registration process.'])));
     }
+    const csrfToken = req.csrfToken;
     const email = req.session.email; 
     const errors = req.query.errors ? JSON.parse(req.query.errors) : []; 
     const otpAttempts = req.session.otpAttempts || 0; // Get the number of OTP attempts from the session or initialize to 0
@@ -18,10 +23,10 @@ router.get('/', (req, res) => {
     // Clear the newOTPRequest flag from the session
     req.session.newOTPRequest = false;
 
-    res.render('otp-request', { title: 'Verify email address', email: email,  errors: errors, otpAttempts: otpAttempts, newOTPRequest: newOTPRequest, content: ''});
+    res.render('otp-request', { title: 'Verify email address', email: email,  errors: errors, otpAttempts: otpAttempts, newOTPRequest: newOTPRequest, content: '', csrfToken: csrfToken});
 });
 
-router.post('/', async (req, res) => {
+router.post('/', verifyCSRFToken, async (req, res) => {
     const enteredOTP = req.body.otp; 
     const generatedOTP = req.session.otp;
     const fullName = req.session.fullName; 

@@ -23,6 +23,7 @@
     </div>
     <div class="container" style="width: 290px;">
         <form class="text-center" action="/otp-request" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="mb-3 d-flex flex-column">
                 <label for="otp" class="form-label me-auto fw-bold">Enter OTP</label>
                 <input type="number" class="form-control register-border-custom" id="otp" name="otp" style="border-radius: 50px;">
