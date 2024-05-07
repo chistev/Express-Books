@@ -1,5 +1,5 @@
 import express from 'express';
-import User from '../models/User.mjs'; 
+import User from '../../models/User.mjs'; 
 import bcrypt from 'bcryptjs'; 
 import jwt from 'jsonwebtoken';
 import { attachCSRFToken, verifyCSRFToken } from './csrfUtils.mjs';

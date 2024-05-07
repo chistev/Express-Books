@@ -1,0 +1,22 @@
+<%- include('layout') %>
+
+<title><%= title %></title>         
+
+<body class="signin-body">
+    <div class="row justify-content-center">
+        <div class="col-md-3">
+            <a class="custom-navbar-brand fs-3 text-decoration-none" href="/myreads">my<span class="fw-bold">reads</span></a>
+        </div>
+    
+        <div class="col-md-6 me-auto">
+            <div class="card sign-up-custom-card p-4">
+                <!-- Your sign up form or content goes here -->
+                <h2 class="text-center fs-4 fw-bold mb-3">Sign in to Myreads</h2>
+                <a href="/signin_with_email" class="btn btn-block mx-auto btn-sign-up">Sign in with email</a>
+                <p class="text-center mt-3 mb-0 sign-up-small" >Not a member? <a class="text-decoration-none" href="/signup">Sign up</a></p>
+                <p class="text-center mb-0 sign-up-small">By creating an account, you agree to the Myreads <a class="text-decoration-none" href="/terms_of_service"> Terms of Service</a> and <a class="text-decoration-none" href="/privacy_policy">Privacy Policy</a>.</p>
+            </div>
+        </div>
+    </div>
+    
+</body>

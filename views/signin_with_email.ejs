@@ -1,0 +1,52 @@
+<%- include('layout') %>
+
+<title><%= title %></title>
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand mx-auto fs-1" href="/myreads">my<span class="fw-bold">reads</span></a>
+        </div>
+    </nav>
+    <p class="create-account text-center fs-1 fw-bold">Sign in</p>
+    <div id="register-error-message" class="mx-auto p-2 fw-bold" style="display: <% if(errors && errors.length > 0) { %>block<% } else { %>none<% } %>;">
+        <% if(errors && errors.length > 0) { %>
+            <ul>
+                <% errors.forEach(error => { %>
+                    <li><%= error %></li>
+                <% }); %>
+            </ul>
+        <% } %>
+    </div>
+    <div class="container" style="width: 350px;">
+        <form class="text-center d-flex flex-column mb-4" action="/signin_with_email" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="mb-3 d-flex flex-column">
+                <label for="email" class="form-label register-form-label me-auto">Email</label>
+                <input type="email" class="form-control register-border-custom" id="email" name="email" style="border-radius: 50px;">
+            </div>
+            <div class="mb-3 d-flex flex-column">
+                <div class="d-flex">
+                    <label for="password" class="form-label me-auto">Password</label>
+                    <a href="/forgot_password" style="color:#000000">Forgot your password?</a>
+                </div>
+                <input type="password" class="form-control register-border-custom" id="password" name="password" style="border-radius: 50px;">
+            </div>
+            <button type="submit" class="register-custom-button mb-3">Sign in</button>
+            <div class="me-auto">
+                <input type="checkbox" name="keepSignedIn">
+                <label for="" style="color:#000000">Keep me signed in.</label>
+            </div>
+        </form>
+        <div class="d-flex justify-content-between align-items-center">
+            <!-- Horizontal line to the left -->
+            <hr class="flex-grow-1 mr-3" style="border-top: 2px solid #767676;">
+    
+            <p class="text-center fs-6" style="color: #000000;">New to Myreads?</p>
+    
+            <!-- Horizontal line to the right -->
+            <hr class="flex-grow-1 ml-3" style="border-top: 2px solid #767676;">
+        </div>
+        <a href="/signup">
+            <button type="submit" class="signin-custom-button mb-3">Sign up</button>
+        </a>
+        
+    </div>

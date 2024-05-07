@@ -22,7 +22,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    selectedGenres: [String]
+    selectedGenres: [String],
+    passwordResetToken: String,
+    passwordResetTokenExpires: Date,
 });
 
 // Create the User model

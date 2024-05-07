@@ -19,7 +19,7 @@
     color: white;
 }
 
-.signup-body {
+.signup-body, .signin-body {
     background-color: #e9e7db;
     padding: 20px;
 }
@@ -154,4 +154,31 @@ width: 100%;
     background-color: #cccccc;
     color: #333333;
     font-family: Helvetica, Arial, sans-serif;
+}
+
+.btn-google {
+    border: 1px solid #000000;
+    width: 50%;
+    color: #000000;
+}
+
+.signin-custom-button {
+    background-color: #ffffff;
+    border-radius: 15%;
+    color: #1e192b;
+    width: 100%;
+    }
+    
+.signin-custom-button:hover {
+    background-color: #1e192b; 
+    color: #ffffff; 
+}
+
+.forgot-password-create-account{
+    width: 25%; 
+    line-height: normal;
+}
+
+.password-reset-create-account{
+    width: 200px; line-height: normal;
 }

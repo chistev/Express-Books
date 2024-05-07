@@ -1,7 +1,7 @@
 import express from 'express';
 import { validateEmail, generateOTP, sendEmail } from './registerUtils.mjs';
-import { attachCSRFToken, verifyCSRFToken } from './csrfUtils.mjs';
-import User from '../models/User.mjs';
+import { attachCSRFToken, verifyCSRFToken } from './csrfUtils.mjs'
+import User from '../../models/User.mjs';
 
 const router = express.Router();
 
@@ -20,14 +20,6 @@ router.post('/', verifyCSRFToken, async (req, res) => {
     const reEnteredPassword = req.body['re-enter-password']; // Accessing using bracket notation since the key contains hyphens
 
     const errors = [];
-
-    // CSRF token validation
-    const csrfToken = req.body._csrf;
-    if (!tokens.verify(secret, csrfToken)) {
-        // Invalid CSRF token
-        errors.push('CSRF token verification failed');
-        return res.redirect('/register?errors=' + encodeURIComponent(JSON.stringify(errors)));
-    }
 
     if (!(fullName && fullName.trim().includes(' '))) {
         errors.push('Please enter your full name (first and last name).');
