@@ -93,6 +93,14 @@ app.get('/privacy_policy', (req, res) => {
     res.render('Privacy_policy', { title: 'Privacy Policy | Myreads', content: '', loggedIn });
 });
 
+app.get('/new_releases', async (req, res) => {
+    // Determine the loggedIn status
+    const loggedIn = determineLoggedInStatus(req);
+
+    res.render('new_releases', { title: 'New Releases for ', loggedIn, content: '' });
+});
+
+
 
 // Start the server
 app.listen(port, () => {

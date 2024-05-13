@@ -182,3 +182,93 @@ width: 100%;
 .password-reset-create-account{
     width: 200px; line-height: normal;
 }
+
+.dropdown-item.navbar-dropdown:hover {
+    text-decoration: underline;
+    background-color: transparent !important;
+}
+
+.new-releases .book-number{
+    color: #707070; 
+    font-family: Georgia, serif; 
+    font-style: italic; 
+    font-weight: 600px; 
+    font-size: 25px; 
+    line-height: 26px;
+}
+
+.new-releases .book-description{
+    font-family: Georgia, serif; 
+    font-weight: 700; 
+    font-size: 20px; 
+    line-height: 28px; 
+    color:#1e1915
+}
+
+.new-releases .book-authur{
+    font-family: Georgia, serif; 
+    font-weight: 400; 
+    font-size: 16px; 
+    line-height: 23px; 
+    color:#1e1915 !important
+}
+
+.new-releases .rating{
+    font-weight: 600; 
+    font-family: Arial, sans-serif; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #1e1915
+}
+
+.new-releases .content{
+    font-family: Arial, sans-serif; 
+    font-style: italic; 
+    font-weight: 400; 
+    font-size: 16px; 
+    line-height: 23px; 
+    color:#1e1915;
+}
+
+.image {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3); /* Adding shadow to the image */
+    transition: transform 0.3s ease; /* Adding transition effect */
+}
+
+.image-link:hover .image {
+    transform: translateY(-5px); /* Moving the image up on hover */
+}
+
+#expandable-content {
+    overflow: hidden;
+    height: 23px; /* Default line height */
+    transition: height 0.3s ease; /* Adding transition effect */
+    margin-bottom: 0; /* Remove margin bottom */
+}
+
+#show-more-button {
+    margin-top: -10px; /* Adjust button position */
+}
+
+.btn-want-to-read {
+    background-color: #3f8363;
+    color: #ffffff;
+    border-radius: 15%;
+    transition: background-color 0.3s ease; /* Add transition for smooth hover effect */
+}
+
+.btn-want-to-read:hover {
+    background-color: #609f7d !important; /* Change background color on hover */
+}
+
+.read-more-button {
+    background-color: #333333;
+    border-radius: 15%;
+    color: #1e192b;
+    width: 15%;
+    }
+    
+.read-more-button:hover {
+    background-color: #1e192b; 
+    color: #ffffff; 
+}
