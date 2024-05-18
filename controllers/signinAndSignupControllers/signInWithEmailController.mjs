@@ -37,7 +37,14 @@ router.post('/', verifyCSRFToken, async (req, res) => {
 
         // Authentication successful, generate JWT token
         if (keepSignedIn) {
-            const token = jwt.sign({ userId: user._id, email: user.email }, process.env.SECRET, { expiresIn: '7d' });
+            let tokenPayload = { userId: user._id, email: user.email };
+
+            // Check if the user is an admin before including the isAdmin property in the token payload
+            if (user.isAdmin) {
+                tokenPayload.isAdmin = true;
+            }
+            const token = jwt.sign(tokenPayload, process.env.SECRET, { expiresIn: '7d' });
+            console.log(tokenPayload)
             // Send JWT token to the client
             res.cookie('token', token, { maxAge: 7 * 24 * 60 * 60 * 1000 });
         } else{

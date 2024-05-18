@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs'; 
 dotenv.config();
 
 // Connect to MongoDB using mongoose
@@ -25,9 +26,14 @@ const userSchema = new mongoose.Schema({
     selectedGenres: [String],
     passwordResetToken: String,
     passwordResetTokenExpires: Date,
+    isAdmin: {
+        type: Boolean,
+        default: false
+    }
 });
 
 // Create the User model
 const User = mongoose.model('User', userSchema);
 
 export default User;
+

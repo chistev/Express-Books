@@ -15,6 +15,14 @@ import { determineLoggedInStatus } from './controllers/signinAndSignupController
 import signinWithEmailController from './controllers/signinAndSignupControllers/signInWithEmailController.mjs'
 import forgotPasswordController from './controllers/signinAndSignupControllers/forgotPasswordController.mjs'
 import passwordResetController from './controllers/signinAndSignupControllers/passwordResetController.mjs'
+import multer from 'multer';
+import Book from './models/Book.mjs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 dotenv.config();
 const app = express();
@@ -35,6 +43,7 @@ app.set('view engine', 'ejs');
 
 // Middleware to parse URL-encoded form data
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Use cookie-parser middleware
 app.use(cookieParser());
@@ -99,6 +108,117 @@ app.get('/new_releases', async (req, res) => {
 
     res.render('new_releases', { title: 'New Releases for ', loggedIn, content: '' });
 });
+
+app.use(attachCSRFToken);
+app.get('/admin', async (req, res) => {
+    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+    const csrfToken = req.csrfToken;
+    res.render('admin', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken });
+});
+
+app.post('/admin', verifyCSRFToken, async (req, res) => {
+    const errors = [];
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email: email });
+        if (user) { 
+            if (user.password) { 
+                const passwordMatch = await bcrypt.compare(password, user.password);
+                if (!passwordMatch) {
+                    errors.push("Your password is incorrect");
+                    return res.redirect('/admin?errors=' + encodeURIComponent(JSON.stringify(errors)));
+                }
+                if (user.isAdmin) {
+                    res.redirect('/admin/add_book');
+                } else {
+                    errors.push("User is not an admin");
+                    return res.redirect('/admin?errors=' + encodeURIComponent(JSON.stringify(errors)));
+                }
+            } 
+        } else {
+            errors.push("User does not exist.");
+            return res.redirect('/admin?errors=' + encodeURIComponent(JSON.stringify(errors)));
+            }
+        }
+    catch (error) {
+        errors.push("Error during sign in:", error);
+        return res.redirect('/admin?errors=' + encodeURIComponent(JSON.stringify(errors)));
+        }
+});
+
+// Set up multer for file upload
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    // Check if the file is an image
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+        return cb(new Error('Only image files are allowed!'), false);
+    }
+    cb(null, true);
+};
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: fileFilter
+});
+
+// Middleware to check if the user is an admin
+const isAdmin = (req, res, next) => {
+    // Extract the JWT token from the request cookies
+    const token = req.cookies.token;
+
+    // Check if the token exists
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.SECRET);
+
+        // Check if the decoded token contains the user's role (isAdmin)
+        if (decoded && decoded.isAdmin) {
+            // User is an admin, proceed to the next middleware
+            next();
+        } else {
+            // User is not an admin, return unauthorized
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+    } catch (error) {
+        console.error('Error verifying JWT token:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+app.get('/admin/add_book', isAdmin, async (req, res) => {
+    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+    const csrfToken = req.csrfToken;
+    res.render('add_book', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken });
+});
+
+app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req, res) => {
+    const errors = [];
+    const { title, author, rating, description } = req.body;
+    const imagePath = `/uploads/${req.file.filename}`;
+    const newBook = new Book({
+        image: imagePath,
+        title,
+        author,
+        rating,
+        description
+    });
+    await newBook.save();
+    console.log('Book created successfully:', newBook);
+    res.redirect('/');
+});
+
 
 
 

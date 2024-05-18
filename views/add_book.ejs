@@ -1,0 +1,66 @@
+<%- include('layout') %>
+
+<title><%= title %></title>
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand mx-auto fs-1" href="/myreads">my<span class="fw-bold">reads</span></a>
+        </div>
+    </nav>
+    
+    <div id="register-error-message" class="mx-auto p-2 fw-bold" style="display: <% if(errors && errors.length > 0) { %>block<% } else { %>none<% } %>;">
+        <% if(errors && errors.length > 0) { %>
+            <ul>
+                <% errors.forEach(error => { %>
+                    <li><%= error %></li>
+                <% }); %>
+            </ul>
+        <% } %>
+    </div>
+    <div class="container" style="width: 550px;">
+        <h1 class="mb-4">Add a New Book</h1>
+        <form id="add-book" action="/admin/add_book" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="form-group">
+                <label for="image">Upload Image:</label>
+                <input type="file" id="image" name="image" class="form-control-file" accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="author">Author:</label>
+                <input type="text" id="author" name="author" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="rating">Rating:</label>
+                <input type="number" id="rating" name="rating" class="form-control" step="0.1" min="1.0" max="5.0" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" class="form-control" rows="4"></textarea>
+            </div>
+            <button id="submitButton" type="submit" class="btn btn-primary">Add Book</button>
+        </form>
+    </div>
+
+<script>
+
+const form = document.getElementById('add-book');
+
+const submitButton = document.getElementById('submitButton');
+
+form.addEventListener('submit', function(event) {
+    // Trigger TinyMCE to save content to the textarea
+    tinymce.triggerSave();
+    
+    // Check if the textarea is empty
+    const description = document.getElementById('description').value;
+    console.log(description)
+    if (!description.trim()) {
+        event.preventDefault();
+        alert('Please fill in the required field.');
+    }
+});
+</script>
+    
