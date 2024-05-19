@@ -20,6 +20,10 @@ import Book from './models/Book.mjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import _ from 'lodash';
+import sanitizeHtml from 'sanitize-html';
+
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -105,8 +109,17 @@ app.get('/privacy_policy', (req, res) => {
 app.get('/new_releases', async (req, res) => {
     // Determine the loggedIn status
     const loggedIn = determineLoggedInStatus(req);
+    try {
+        // Fetch books from the database
+        const books = await Book.find().sort({ createdAt: -1 })
 
-    res.render('new_releases', { title: 'New Releases for ', loggedIn, content: '' });
+        // Render the template with the books
+        res.render('new_releases', { title: 'New Releases', loggedIn, content: '', books });
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
 });
 
 app.use(attachCSRFToken);
@@ -207,17 +220,28 @@ app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req,
     const errors = [];
     const { title, author, rating, description } = req.body;
     const imagePath = `/uploads/${req.file.filename}`;
+
+     // Sanitize the description
+     const sanitizedDescription = sanitizeHtml(description, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
+        allowedAttributes: {
+            a: ['href', 'name', 'target'],
+            img: ['src', 'alt'],
+            '*': ['style', 'class']
+        }
+    });
+
     const newBook = new Book({
         image: imagePath,
         title,
         author,
         rating,
-        description
+        description: sanitizedDescription
     });
     await newBook.save();
     console.log('Book created successfully:', newBook);
     res.redirect('/');
-});
+}); 
 
 
 
