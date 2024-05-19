@@ -22,6 +22,8 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import _ from 'lodash';
 import sanitizeHtml from 'sanitize-html';
+import { JSDOM } from 'jsdom';
+import createDOMPurify from 'dompurify';
 
 
 
@@ -113,6 +115,18 @@ app.get('/new_releases', async (req, res) => {
         // Fetch books from the database
         const books = await Book.find().sort({ createdAt: -1 })
 
+        // Modify the description of each book to include only the first 20 words
+        books.forEach(book => {
+            // Split the description into words
+            const words = book.description.split(' ');
+            // Take the first 20 words and join them back into a string
+            book.description = words.slice(0, 20).join(' ');
+            // Add "..." at the end
+            if (words.length > 20) {
+                book.description += ' ...';
+            }
+        });
+
         // Render the template with the books
         res.render('new_releases', { title: 'New Releases', loggedIn, content: '', books });
     } catch (error) {
@@ -121,6 +135,29 @@ app.get('/new_releases', async (req, res) => {
     }
 
 });
+
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
+
+app.get('/book/:id', async (req, res) => {
+    try {
+        // Fetch the book from the database by ID
+        const book = await Book.findById(req.params.id);
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+
+         // Sanitize the description
+         const sanitizedDescription = DOMPurify.sanitize(book.description);
+
+         // Send the sanitized description as a response
+        res.json({ description: sanitizedDescription });
+    } catch (error) {
+        console.error('Error fetching book:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 app.use(attachCSRFToken);
 app.get('/admin', async (req, res) => {
