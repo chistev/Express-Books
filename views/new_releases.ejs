@@ -11,7 +11,7 @@
             <div class="row">
                 <% books.forEach((book, index) => { %>
                 <div class="col-md-3">
-                    <a href="#" class="image-link">
+                    <a href="/book/<%= book._id %>/details" class="image-link">
                         <img src="<%= book.image %>" alt="<%= book.title %>" class="image">
                     </a>    
                 </div>       

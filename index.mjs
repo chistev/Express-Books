@@ -158,6 +158,24 @@ app.get('/book/:id', async (req, res) => {
     }
 });
 
+app.get('/book/:id/details', async (req, res) => {
+    try {
+        const loggedIn = determineLoggedInStatus(req);
+        // Fetch the book from the database by ID
+        const book = await Book.findById(req.params.id);
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+
+        // Render the book details page
+        res.render('book_details', { title: book.title, book, content:"", loggedIn });
+    } catch (error) {
+        console.error('Error fetching book details:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 
 app.use(attachCSRFToken);
 app.get('/admin', async (req, res) => {

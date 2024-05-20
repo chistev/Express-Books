@@ -1,0 +1,259 @@
+<%- include('layout') %>
+
+<title><%= title %></title>
+<%- include('navbar') %>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3 mt-2 d-flex flex-column ">
+            <div class="ms-3">
+                <img src="<%= book.image %>" alt="<%= book.title %>" class="image">
+            </div>
+            <div class="row">
+                <div class="col-5 col-md-12 col-lg-9 ">
+                    <button class="btn fw-bold mt-2 mb-1 btn-want-to-read" style="background-color: #3f8363; color: #ffffff; border-radius: 15%; width: 100%;">Want to read</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-5 col-md-12 col-lg-9 text-center">
+                    
+                    <% for (let i = 0; i < 5; i++) { %>
+                        <i class="bi bi-star fs-2"></i>
+                    <% } %>
+                    <p style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; color: #1e1915; line-height: 23px;">Rate this book</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="mb-1" style="font-family: Georgia, serif; font-weight: 600; font-size: 36px; line-height: 46px; color: #1e1915;">
+                    <%= book.title %>
+            </div>
+            <div class="mb-1">
+                <a class="text-decoration-none" href="" style="font-family: Georgia, serif; font-weight: 400; font-size: 20px; line-height: 28px; color: #1e1915;">
+                    <%= book.author %>
+                </a>
+            </div>
+            <div class="d-flex align-items-center ">
+                <div>
+                    <% for (let i = 0; i < 5; i++) { %>
+                        <i class="bi bi-star-fill fs-2"></i>
+                    <% } %>
+                </div>
+                <div class="d-flex align-items-center justify-content-center">
+                    <div class="ms-3" style="font-family: Georgia, serif; font-weight: 600; font-size: 26px; line-height: 37px; color: #1e1915;">
+                        <%= book.rating %>
+                    </div>
+                    <div class="ms-3" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                        15,689 ratings
+                    </div>
+                    <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                        2,685 reviews
+                    </div>
+                </div>  
+            </div>
+            <div class="description-container" id="description-container-<%= book._id %>">
+                <p class="mb-2 short-description">
+                    <%- book.description %>
+                </p>
+                <div class="show-more-button">
+                    <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link" data-book-id="<%= book._id %>" href="#">
+                        Show more &#9662;
+                    </a>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #707070;">Genres</div>
+                <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915; text-decoration: underline; text-decoration-color: #409970; text-decoration-thickness: 2px;">Romance</div>
+                <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915; text-decoration: underline; text-decoration-color: #409970; text-decoration-thickness: 2px;">Fiction</div>
+                <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915; text-decoration: underline; text-decoration-color: #409970; text-decoration-thickness: 2px;">Contemporary</div>
+            </div>
+            <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #707070;">320 pages, paperback</div>
+            <div class="show-more-button">
+                <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link" data-book-id="<%= book._id %>" href="#">
+                    Book Details & Editions &#9662;
+                </a>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between" style="font-weight: 400; font-size: 14px; line-height: 19px; color:#1e1915;">
+                <div >7,693 people are currently reading</div>
+                <div>180k people want to read</div>
+            </div>
+            <hr>
+            <div style="font-family: Georgia, serif; font-style: italic; font-weight: 600; font-size: 28px; line-height: 38px; color: #1e1915;">Ratings & Reviews</div>
+            <div class="d-flex align-items-center justify-content-center">
+                <div class="mt-5" style="font-family: Georgia, serif; font-style: italic; font-weight: 600; font-size: 32px; line-height: 46px; color: #1e1915;">
+                    What do you think?
+                </div>
+                
+            </div>
+            <div class="d-flex row align-items-center justify-content-center">
+                <div class="col-5 col-md-6 col-lg-5 text-center">
+                    
+                    <% for (let i = 0; i < 5; i++) { %>
+                        <i class="bi bi-star fs-2"></i>
+                    <% } %>
+                    <p style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; color: #1e1915; line-height: 23px;">Rate this book</p>
+                </div>
+                <div class="col-lg-6 col-md-6 col-5 mb-4">
+                    <button class="btn" style="background-color: #1e1915; color: #ffffff; border-radius: 20%; width: 50%;">
+                        Write a Review
+                    </button>
+                </div>
+                <hr>
+            </div>
+            <div style="font-family: Georgia, serif; font-weight: 600; font-size: 20px; line-height: 28px; color: #1e1915;">
+                Community Reviews
+            </div>
+            <div class="d-flex">
+                <div class="">
+                    
+                    <% for (let i = 0; i < 5; i++) { %>
+                        <i class="bi bi-star fs-2"></i>
+                    <% } %>
+                </div>
+                <div class="d-flex align-items-center justify-content-center">
+                    <div class="ms-3" style="font-family: Georgia, serif; font-weight: 600; font-size: 26px; line-height: 37px; color: #1e1915;">
+                        <%= book.rating %>
+                    </div>
+                    <div class="ms-3" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                        15,689 ratings
+                    </div>
+                    <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                        2,685 reviews
+                    </div>
+                </div>     
+            </div>
+            <div class="rating-bar">
+                <span class="rating-text">5 stars</span>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 42%;" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <span class="rating-text">6,894 (42%)</span>
+            </div>
+            <div class="rating-bar">
+                <span class="rating-text">4 stars</span>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 39%;" aria-valuenow="39" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <span class="rating-text">6,497 (39%)</span>
+            </div>
+            <div class="rating-bar">
+                <span class="rating-text">3 stars</span>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 14%;" aria-valuenow="14" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <span class="rating-text">2,408 (14%)</span>
+            </div>
+            <div class="rating-bar">
+                <span class="rating-text">2 stars</span>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 2%;" aria-valuenow="2" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <span class="rating-text">395 (2%)</span>
+            </div>
+            <div class="rating-bar">
+                <span class="rating-text">1 star</span>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 1%;" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <span class="rating-text">70 (<1%)</span>
+            </div>
+            
+            <div class="search-filter-container">
+                <div class="search-input">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Search review text">
+                </div>
+                <button class="filter-button">
+                    <i class="bi bi-funnel"></i> Filters
+                </button>
+            </div>
+            <div class="ms-3" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                Displaying 1 - 30 of 2,766 reviews
+            </div>
+            <div class="row mt-3">
+                <div class="col-2">
+                    <img src="https://images.gr-assets.com/users/1714842419p6/154684875.jpg" style="border-radius: 50%; width: 60%; object-fit: contain;" >
+                        <div style="font-family: Georgia, serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">Nilufer Ozmekik</div>
+                        <div class="" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                            2,544 reviews
+                        </div>
+                </div>
+                  
+                <div class="col-10">
+                    <div class="d-flex justify-content-between">
+                        <div class="">
+                            <% for (let i = 0; i < 5; i++) { %>
+                                <i class="bi bi-star fs-6"></i>
+                            <% } %>
+                        </div>
+                        <div>
+                            September 4, 2023
+                        </div>
+                    </div>
+                    <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+                        this summer will NOT be different if there’s another cheating trope…carley, side EYE. besties keep me posted when this comes out😂thanks😙
+
+                        ps: i don’t actually wanna read this🫣🫣🫣
+                    </div>
+                    <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                        335 likes 27 comments
+                    </div>
+                    <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
+                    <i class="bi bi-hand-thumbs-up"></i> Like
+                    <i class="bi bi-chat ms-3"></i> Comment
+                    </div>
+                <hr>
+                </div>
+                <div class="col-2">
+                    <img src="https://images.gr-assets.com/users/1714842419p6/154684875.jpg" style="border-radius: 50%; width: 60%; object-fit: contain;" >
+                        <div style="font-family: Georgia, serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">Nilufer Ozmekik</div>
+                        <div class="" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                            2,544 reviews
+                        </div>
+                </div>
+                  
+                <div class="col-10">
+                    <div class="d-flex justify-content-between">
+                        <div class="">
+                            <% for (let i = 0; i < 5; i++) { %>
+                                <i class="bi bi-star fs-6"></i>
+                            <% } %>
+                        </div>
+                        <div>
+                            September 4, 2023
+                        </div>
+                    </div>
+                    <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+                        this summer will NOT be different if there’s another cheating trope…carley, side EYE. besties keep me posted when this comes out😂thanks😙
+
+                        ps: i don’t actually wanna read this🫣🫣🫣
+                    </div>
+                    <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                        335 likes 27 comments
+                    </div>
+                    <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
+                    <i class="bi bi-hand-thumbs-up"></i> Like
+                    <i class="bi bi-chat ms-3"></i> Comment
+                    </div>
+                <hr>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Horizontal line to the left -->
+                    <hr class="flex-grow-1 mr-3" style="border-top: 2px solid #767676;">
+                    <div style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">More Reviews and ratings ></div>
+                    <!-- Horizontal line to the right -->
+                    <hr class="flex-grow-1 ml-3" style="border-top: 2px solid #767676;">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 d-flex ">
+            <div class="ms-auto">
+                <i class="bi bi-share fs-2"></i>
+            </div>
+            
+        </div>
+    </div>
+</div>
