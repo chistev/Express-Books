@@ -182,7 +182,10 @@ app.get('/book/:id/details', async (req, res) => {
     }
 });
 
-
+app.get('/genre/contemporary', async (req, res) => {
+    const loggedIn = determineLoggedInStatus(req);
+    res.render('category', { title: '', content: '', loggedIn });
+});
 
 app.use(attachCSRFToken);
 app.get('/admin', async (req, res) => {
