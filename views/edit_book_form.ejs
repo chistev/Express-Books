@@ -1,0 +1,54 @@
+<%- include('layout') %>
+
+<title><%= title %></title>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand fs-1" href="/myreads">my<span class="fw-bold">reads</span></a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h1>Edit Book</h1>
+    <form id="edit-book" action="/admin/update_book/<%= book._id %>" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="form-group">
+            <label for="image">Upload New Image:</label>
+            <input type="file" id="image" name="image" class="form-control-file" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" class="form-control" value="<%= book.title %>" required>
+        </div>
+        <div class="form-group">
+            <label for="author">Author:</label>
+            <input type="text" id="author" name="author" class="form-control" value="<%= book.author %>" required>
+        </div>
+        <div class="form-group">
+            <label for="rating">Rating:</label>
+            <input type="number" id="rating" name="rating" class="form-control" step="0.1" min="1.0" max="5.0" value="<%= book.rating %>" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" class="form-control" rows="4" required><%= book.description %></textarea>
+        </div>
+        <div class="form-group">
+            <label for="genre">Genre:</label>
+            <select id="genre" name="genre" class="form-control" multiple required>
+                <option value="Art" <%= book.genre.includes('Art') ? 'selected' : '' %>>Art</option>
+                <option value="Classics" <%= book.genre.includes('Classics') ? 'selected' : '' %>>Classics</option>
+                <option value="Contemporary" <%= book.genre.includes('Contemporary') ? 'selected' : '' %>>Contemporary</option>
+                <option value="Crime" <%= book.genre.includes('Crime') ? 'selected' : '' %>>Crime</option>
+                <option value="Fiction" <%= book.genre.includes('Fiction') ? 'selected' : '' %>>Fiction</option>
+                <option value="Historical Fiction" <%= book.genre.includes('Historical Fiction') ? 'selected' : '' %>>Historical Fiction</option>
+                <option value="History" <%= book.genre.includes('History') ? 'selected' : '' %>>History</option>
+                <option value="Humor and Comedy" <%= book.genre.includes('Humor and Comedy') ? 'selected' : '' %>>Humor and Comedy</option>
+                <option value="Nonfiction" <%= book.genre.includes('Nonfiction') ? 'selected' : '' %>>Nonfiction</option>
+                <option value="Religion" <%= book.genre.includes('Religion') ? 'selected' : '' %>>Religion</option>
+                <option value="Science" <%= book.genre.includes('Science') ? 'selected' : '' %>>Science</option>
+                <option value="Thriller" <%= book.genre.includes('Thriller') ? 'selected' : '' %>>Thriller</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Book</button>
+    </form>
+</div>

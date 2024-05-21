@@ -1,0 +1,57 @@
+<%- include('layout') %>
+
+<title><%= title %></title>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand fs-1" href="/myreads">my<span class="fw-bold">reads</span></a>
+    </div>
+</nav>
+
+<div id="register-error-message" class="mx-auto p-2 fw-bold" style="display: <% if(errors && errors.length > 0) { %>block<% } else { %>none<% } %>;">
+    <% if(errors && errors.length > 0) { %>
+        <ul>
+            <% errors.forEach(error => { %>
+                <li><%= error %></li>
+            <% }); %>
+        </ul>
+    <% } %>
+</div>
+
+<div class="container mt-4">
+    <h1>Edit Books</h1>
+    <% if (books.length > 0) { %>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Rating</th>
+                    <th>Description</th>
+                    <th>Genres</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% books.forEach(book => { %>
+                    <tr>
+                        <td>
+                            <a href="/admin/edit_book/<%= book._id %>">
+                                <img src="<%= book.image %>" alt="<%= book.title %>" style="max-width: 100px;">
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/admin/edit_book/<%= book._id %>"><%= book.title %></a>
+                        </td>
+                        <td><%= book.author %></td>
+                        <td><%= book.rating %></td>
+                        <td><%- book.description %></td>
+                        <td><%= book.genre.join(', ') %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No books found.</p>
+    <% } %>
+</div>

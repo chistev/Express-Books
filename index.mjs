@@ -278,6 +278,66 @@ app.get('/admin/add_book', isAdmin, async (req, res) => {
     res.render('add_book', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken });
 });
 
+app.get('/admin/edit_book', isAdmin, async (req, res) => {
+    try {
+        const books = await Book.find();
+        const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+        const csrfToken = req.csrfToken;
+        res.render('edit_book', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken, books });
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Route to display the edit form for a specific book
+app.get('/admin/edit_book/:id', isAdmin, async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.id);
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+        const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+        const csrfToken = req.csrfToken;
+        res.render('edit_book_form', { title: 'Edit Book', book, errors, csrfToken, content: '', });
+    } catch (error) {
+        console.error('Error fetching book:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, async (req, res) => {
+    try {
+        const { title, author, rating, description, genre } = req.body;
+        const book = await Book.findById(req.params.id);
+
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+
+        // Update book fields
+        book.title = title;
+        book.author = author;
+        book.rating = rating;
+        book.description = description;
+        book.genre = Array.isArray(genre) ? genre : [genre];
+
+        // If a new image is uploaded, update the image field
+        if (req.file) {
+            book.image = `/uploads/${req.file.filename}`;
+        }
+
+        await book.save();
+        console.log('Book updated successfully:', book);
+        res.redirect('/admin/edit_book');
+    } catch (error) {
+        console.error('Error updating book:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+
 app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req, res) => {
     const errors = [];
     const { title, author, rating, description } = req.body;
@@ -298,7 +358,8 @@ app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req,
         title,
         author,
         rating,
-        description: sanitizedDescription
+        description: sanitizedDescription,
+        genre: Array.isArray(genre) ? genre : [genre]
     });
     await newBook.save();
     console.log('Book created successfully:', newBook);

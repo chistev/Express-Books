@@ -354,3 +354,7 @@ width: 100%;
     overflow: hidden;
     white-space: nowrap;
 }
+
+.genre-link:hover {
+    text-decoration-color: #7FD7CC !important; 
+}
