@@ -167,6 +167,13 @@ app.get('/book/:id/details', async (req, res) => {
             return res.status(404).send('Book not found');
         }
 
+         // Create a truncated version of the description
+         const words = book.description.split(' ');
+         book.description = words.slice(0, 20).join(' ');
+         if (words.length > 20) {
+            book.description += ' ...';
+         }
+
         // Render the book details page
         res.render('book_details', { title: book.title, book, content:"", loggedIn });
     } catch (error) {
