@@ -329,3 +329,28 @@ width: 100%;
     cursor: pointer;
     transition: color 0.2s;
 }
+
+.star {
+    font-size: 2rem;
+    color: #e87400;
+    position: relative;
+    display: inline-block;
+}
+
+.empty-star {
+    color: #e0e0e0;
+}
+
+.half-star {
+    position: relative;
+    display: inline-block;
+    font-size: 2rem;
+}
+
+.half-star .half-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
