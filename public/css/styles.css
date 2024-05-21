@@ -324,3 +324,8 @@ width: 100%;
 .filter-button i {
     margin-right: 5px;
 }
+
+.bi-star {
+    cursor: pointer;
+    transition: color 0.2s;
+}

@@ -11,16 +11,23 @@
             </div>
             <div class="row">
                 <div class="col-5 col-md-12 col-lg-9 ">
-                    <button class="btn fw-bold mt-2 mb-1 btn-want-to-read" style="background-color: #3f8363; color: #ffffff; border-radius: 15%; width: 100%;">Want to read</button>
+                    <a href="/signup" class="btn fw-bold mt-2 mb-1 btn-want-to-read" style="background-color: #3f8363; color: #ffffff; border-radius: 15%; width: 100%; display: inline-block; text-align: center; padding: 0.375rem 0.75rem; text-decoration: none;">
+                        Want to read
+                    </a>
+                    
                 </div>
             </div>
             <div class="row">
                 <div class="col-5 col-md-12 col-lg-9 text-center">
+                    <div id="stars">
+                        <% for (let i = 0; i < 5; i++) { %>
+                            <a href="/signup" class="text-decoration-none" style="color: #1e1915;" data-index="<%= i %>">
+                                <i class="bi bi-star fs-2"></i>
+                            </a>
+                        <% } %>
+                        <p style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; color: #1e1915; line-height: 23px;">Rate this book</p>
+                    </div>
                     
-                    <% for (let i = 0; i < 5; i++) { %>
-                        <i class="bi bi-star fs-2"></i>
-                    <% } %>
-                    <p style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; color: #1e1915; line-height: 23px;">Rate this book</p>
                 </div>
             </div>
         </div>
@@ -257,3 +264,31 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stars = document.querySelectorAll('#stars .bi-star');
+        
+        stars.forEach((star, index) => {
+            star.addEventListener('mouseover', () => {
+                highlightStars(index);
+            });
+
+            star.addEventListener('mouseout', () => {
+                resetStars();
+            });
+        });
+
+        function highlightStars(index) {
+            for (let i = 0; i <= index; i++) {
+                stars[i].style.color = '#e87400';
+            }
+        }
+
+        function resetStars() {
+            stars.forEach(star => {
+                star.style.color = '';
+            });
+        }
+    });
+</script>
