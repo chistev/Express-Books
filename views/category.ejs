@@ -7,10 +7,14 @@
     <div class="row">
         <div class="col-md-8">
             <div class="mt-2" style="font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 24px; line-height: 24px; color: #382110;">
-                Contemporary
+                <% 
+                // Capitalize the first letter of the genre
+                const capitalizedGenre = title.charAt(0).toUpperCase() + title.slice(1);
+                %>
+                <%= capitalizedGenre %>
             </div>
             <div class="mt-4" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
-                Literature that largely takes place in the present time.
+                <%- description %>
             </div>
             <hr>
             <div class="row">

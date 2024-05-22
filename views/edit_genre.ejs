@@ -1,0 +1,22 @@
+<%- include('layout') %>
+
+<title><%= title %></title>
+<div class="container">
+    <h1 class="mb-4">Edit Genres</h1>
+    <% if (errors.length > 0) { %>
+        <div class="alert alert-danger">
+            <ul>
+                <% errors.forEach(error => { %>
+                    <li><%= error %></li>
+                <% }); %>
+            </ul>
+        </div>
+    <% } %>
+    <div class="list-group">
+        <% genres.forEach(genre => { %>
+            <a href="/admin/edit_genre/<%= genre %>" class="list-group-item list-group-item-action">
+                <%= genre %>
+            </a>
+        <% }); %>
+    </div>
+</div>

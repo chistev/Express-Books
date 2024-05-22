@@ -1,0 +1,24 @@
+<%- include('layout') %>
+
+<title><%= title %></title>
+<div class="container">
+    <h1 class="mb-4">Edit Genre: <%= genre %></h1>
+    <% if (errors.length > 0) { %>
+        <div class="alert alert-danger">
+            <ul>
+                <% errors.forEach(error => { %>
+                    <li><%= error %></li>
+                <% }); %>
+            </ul>
+        </div>
+    <% } %>
+    <form id="admin-panel" action="/admin/update_genre" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="genre" value="<%= genre %>">
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" class="form-control" rows="4" ><%= description %></textarea>
+        </div>
+        <button id="submitButton" type="submit" class="btn btn-primary">Update Genre</button>
+    </form>
+</div>

@@ -9,6 +9,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/admin/edit_book">Edit Book</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/edit_genre">Edit Genre</a> <!-- Added link for editing genres -->
+                    </li>
                 </ul>
             </div>
         </div>
@@ -24,7 +27,7 @@
     </div>
     <div class="container" style="width: 550px;">
         <h1 class="mb-4">Add a New Book</h1>
-        <form id="add-book" action="/admin/add_book" method="POST" enctype="multipart/form-data">
+        <form id="admin-panel" action="/admin/add_book" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="form-group">
                 <label for="image">Upload Image:</label>
@@ -69,7 +72,7 @@
 
 <script>
 
-const form = document.getElementById('add-book');
+const form = document.getElementById('admin-panel');
 
 const submitButton = document.getElementById('submitButton');
 
