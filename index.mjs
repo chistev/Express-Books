@@ -194,13 +194,17 @@ app.get('/genre/:genre', async (req, res) => {
         // Query the database for the genre description
         const genreDescription = await Genre.findOne({ name: genre });
 
+        // Query the database for all genres
+        const allGenres = await Genre.find({});
+
         // Render the category page with the list of books and genre description
         res.render('category', { 
             title: genre.charAt(0).toUpperCase() + genre.slice(1), // Capitalize the first letter
             description: genreDescription ? genreDescription.description : 'No description available.',
             content: '', 
             loggedIn, 
-            books 
+            books,
+            allGenres 
         });
     } catch (error) {
         console.error('Error fetching books by genre:', error);

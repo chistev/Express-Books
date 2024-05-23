@@ -23,6 +23,7 @@
                         <a href="/book/<%= book._id %>/details">
                             <img src="<%= book.image %>" class="img-fluid rounded" alt="<%= book.title %>">
                         </a>
+                        
                     </div>
                 <% }); %>
             </div>
@@ -33,24 +34,11 @@
             </div>
             <hr>
             <div class="d-flex">
-                <div class="ms-2" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    Fiction
-                </div>
-                <div class="ms-2" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    Fiction
-                </div>
-                <div class="ms-2" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    Fiction
-                </div>
-                <div class="ms-2" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    Fiction
-                </div>
-                <div class="ms-2" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    Fiction
-                </div>
-                <div class="ms-2" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    Fiction
-                </div>
+                <% allGenres.forEach(genre => { %>
+                    <div class="ms-2" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
+                        <a href="/genre/<%= genre.name %>" style="text-decoration: none; color: #00635d;"><%= genre.name %></a>
+                    </div>
+                <% }); %>
             </div>
             <div class="mt-5" style="font-family: Helvetica, Arial, sans-serif; font-weight: 700; font-size: 12px; line-height: 24px; color: #382110;">
                 QUOTES TAGGED “CONTEMPORARY”
