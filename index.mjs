@@ -300,6 +300,33 @@ const isAdmin = (req, res, next) => {
     }
 };
 
+// Route to display the delete book page
+app.get('/admin/delete_book', isAdmin, async (req, res) => {
+    try {
+        const books = await Book.find({});
+        const csrfToken = req.csrfToken;
+        res.render('delete_book', { title: 'Delete Book', books, csrfToken, content:''});
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Route to handle book deletion
+app.post('/admin/delete_book/:id', verifyCSRFToken, async (req, res) => {
+    try {
+        const book = await Book.findByIdAndDelete(req.params.id);
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+        console.log('Book deleted successfully:', book);
+        res.redirect('/admin/delete_book');
+    } catch (error) {
+        console.error('Error deleting book:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 app.get('/admin/add_book', isAdmin, async (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;
@@ -376,7 +403,7 @@ app.get('/admin/edit_book/:id', isAdmin, async (req, res) => {
 
 app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, async (req, res) => {
     try {
-        const { title, author, rating, description, genre } = req.body;
+        const { title, author, rating, description, genre, pages, mediaType } = req.body;
         const book = await Book.findById(req.params.id);
 
         if (!book) {
@@ -389,6 +416,8 @@ app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, asyn
         book.rating = rating;
         book.description = description;
         book.genre = Array.isArray(genre) ? genre : [genre];
+        book.pages = parseInt(pages, 10);
+        book.mediaType = mediaType;
 
         // If a new image is uploaded, update the image field
         if (req.file) {
@@ -408,7 +437,7 @@ app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, asyn
 
 app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req, res) => {
     const errors = [];
-    const { title, author, rating, description, genre } = req.body;
+    const { title, author, rating, description, genre, pages, mediaType } = req.body;
     const imagePath = `/uploads/${req.file.filename}`;
 
      // Sanitize the description
@@ -427,13 +456,14 @@ app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req,
         author,
         rating,
         description: sanitizedDescription,
-        genre: Array.isArray(genre) ? genre : [genre]
+        genre: Array.isArray(genre) ? genre : [genre],
+        pages: parseInt(pages, 10),
+        mediaType
     });
     await newBook.save();
     console.log('Book created successfully:', newBook);
     res.redirect('/');
 }); 
-
 
 
 

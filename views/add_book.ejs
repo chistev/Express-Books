@@ -10,7 +10,10 @@
                         <a class="nav-link" href="/admin/edit_book">Edit Book</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/edit_genre">Edit Genre</a> <!-- Added link for editing genres -->
+                        <a class="nav-link" href="/admin/edit_genre">Edit Genre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/delete_book">Delete Book</a>
                     </li>
                 </ul>
             </div>
@@ -64,6 +67,19 @@
                     <option value="Religion">Religion</option>
                     <option value="Science">Science</option>
                     <option value="Thriller">Thriller</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="pages">Pages:</label>
+                <input type="number" id="pages" name="pages" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="mediaType">Media Type:</label>
+                <select id="mediaType" name="mediaType" class="form-control" required>
+                    <option value="Hardcover">Hardcover</option>
+                    <option value="Paperback">Paperback</option>
+                    <option value="eBook">eBook</option>
+                    <option value="Audiobook">Audiobook</option>
                 </select>
             </div>
             <button id="submitButton" type="submit" class="btn btn-primary">Add Book</button>

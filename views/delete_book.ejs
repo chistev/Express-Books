@@ -1,0 +1,42 @@
+<%- include('layout') %>
+
+<title><%= title %></title>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand fs-1" href="/myreads">my<span class="fw-bold">reads</span></a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h1>Delete Book</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% books.forEach(book => { %>
+                <tr>
+                    <td><%= book.title %></td>
+                    <td><%= book.author %></td>
+                    <td>
+                        <form action="/admin/delete_book/<%= book._id %>" method="POST" style="display:inline;" onsubmit="return confirmDelete()">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function confirmDelete() {
+        return confirm('Are you sure you want to delete this book?');
+    }
+</script>

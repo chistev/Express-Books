@@ -28,6 +28,15 @@ const bookSchema = new mongoose.Schema({
         type: [String],
         enum: ["Art", "Classics", "Contemporary", "Crime", "Fiction", "Historical Fiction", "History", "Humor and Comedy", "Nonfiction", "Religion", "Science", "Thriller"],
         required: true
+    },
+    pages: {
+        type: Number,
+        required: true
+    },
+    mediaType: {
+        type: String,
+        enum: ["Hardcover", "Paperback", "eBook", "Audiobook"],
+        required: true
     }
 });
 
