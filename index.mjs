@@ -403,7 +403,7 @@ app.get('/admin/edit_book/:id', isAdmin, async (req, res) => {
 
 app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, async (req, res) => {
     try {
-        const { title, author, rating, description, genre, pages, mediaType } = req.body;
+        const { title, author, rating, description, genre, pages, mediaType, publishedDate } = req.body;
         const book = await Book.findById(req.params.id);
 
         if (!book) {
@@ -418,6 +418,7 @@ app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, asyn
         book.genre = Array.isArray(genre) ? genre : [genre];
         book.pages = parseInt(pages, 10);
         book.mediaType = mediaType;
+        book.publishedDate = new Date(publishedDate);
 
         // If a new image is uploaded, update the image field
         if (req.file) {
@@ -437,7 +438,7 @@ app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, asyn
 
 app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req, res) => {
     const errors = [];
-    const { title, author, rating, description, genre, pages, mediaType } = req.body;
+    const { title, author, rating, description, genre, pages, mediaType, publishedDate } = req.body;
     const imagePath = `/uploads/${req.file.filename}`;
 
      // Sanitize the description
@@ -458,7 +459,8 @@ app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req,
         description: sanitizedDescription,
         genre: Array.isArray(genre) ? genre : [genre],
         pages: parseInt(pages, 10),
-        mediaType
+        mediaType,
+        publishedDate: new Date(publishedDate)
     });
     await newBook.save();
     console.log('Book created successfully:', newBook);

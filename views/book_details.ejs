@@ -97,10 +97,8 @@
                 <% }); %>
             </div>
             <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #707070;"><%= book.pages %> pages, <%= book.mediaType %></div>
-            <div class="show-more-button">
-                <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link" data-book-id="<%= book._id %>" href="#">
-                    Book Details & Editions &#9662;
-                </a>
+            <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #707070;">
+                First published <%= new Date(book.publishedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
             </div>
             <hr>
             <div class="d-flex justify-content-between" style="font-weight: 400; font-size: 14px; line-height: 19px; color:#1e1915;">
@@ -116,18 +114,9 @@
                 
             </div>
             <div class="d-flex row align-items-center justify-content-center">
-                <div class="col-5 col-md-6 col-lg-5 text-center">
-                    
-                    <% for (let i = 0; i < 5; i++) { %>
-                        <i class="bi bi-star fs-2"></i>
-                    <% } %>
-                    <p style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; color: #1e1915; line-height: 23px;">Rate this book</p>
-                </div>
-                <div class="col-lg-6 col-md-6 col-5 mb-4">
-                    <button class="btn" style="background-color: #1e1915; color: #ffffff; border-radius: 20%; width: 50%;">
+                    <button class="btn mb-2" style="background-color: #1e1915; color: #ffffff; border-radius: 20%; width: 50%;">
                         Write a Review
                     </button>
-                </div>
                 <hr>
             </div>
             <div style="font-family: Georgia, serif; font-weight: 600; font-size: 20px; line-height: 28px; color: #1e1915;">

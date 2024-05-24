@@ -37,6 +37,10 @@ const bookSchema = new mongoose.Schema({
         type: String,
         enum: ["Hardcover", "Paperback", "eBook", "Audiobook"],
         required: true
+    },
+    publishedDate: {
+        type: Date,
+        required: true
     }
 });
 
