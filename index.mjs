@@ -467,6 +467,12 @@ app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req,
     res.redirect('/');
 }); 
 
+app.get('/user', async (req, res) => {
+    const loggedIn = determineLoggedInStatus(req);
+    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+    const csrfToken = req.csrfToken;
+    res.render('user', { title: 'user', errors: errors, content: '', csrfToken: csrfToken, loggedIn, book:''});
+});
 
 
 // Start the server
