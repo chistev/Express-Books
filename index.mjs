@@ -474,6 +474,13 @@ app.get('/user', async (req, res) => {
     res.render('user', { title: 'user', errors: errors, content: '', csrfToken: csrfToken, loggedIn, book:''});
 });
 
+app.get('/mybooks', async (req, res) => {
+    const loggedIn = determineLoggedInStatus(req);
+    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+    const csrfToken = req.csrfToken;
+    res.render('mybooks', { title: "Stephen Owabie's books on Myreads", errors: errors, content: '', csrfToken: csrfToken, loggedIn, book:''});
+});
+
 
 // Start the server
 app.listen(port, () => {
