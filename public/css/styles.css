@@ -363,3 +363,49 @@ width: 100%;
     background-color: #2b1a0b !important;
 }
 
+.modal-content {
+    padding: 20px;
+    width: 80%;
+}
+.modal-header {
+    border-bottom: none;
+}
+.modal-header .btn-close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+.modal-title {
+    font-weight: bold;
+    text-align: center;
+}
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.modal-body button {
+    margin: 5px 0;
+    width: 100%;
+    border-radius: 25px;
+    border: 1px solid #000;
+    color: #000000;
+}
+.modal-body button.active {
+    background-color: #d3d3d3;
+    border-color: #000;
+}
+.modal-body button svg {
+    margin-right: 10px;
+}
+.modal-footer {
+    display: flex;
+    justify-content: center;
+    border-top: none;
+}
+.modal-footer .btn {
+    background-color: #000;
+    color: #fff;
+    width: 100%;
+    border-radius: 25px;
+}
