@@ -20,11 +20,11 @@
                 <div class="col-9 col-md-12 col-lg-9 text-center">
                     <div id="stars">
                         <% for (let i = 0; i < 5; i++) { %>
-                            <a href="/signup" class="text-decoration-none" style="color: #1e1915;" data-index="<%= i %>">
+                            <a href="<%= loggedIn ? '#' : '/signup' %>" class="text-decoration-none star" style="color: #1e1915;" data-index="<%= i + 1 %>">
                                 <i class="bi bi-star fs-2"></i>
                             </a>
                         <% } %>
-                        <p style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; color: #1e1915; line-height: 23px;">Rate this book</p>
+                        <p id="rating-text" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; color: #1e1915; line-height: 23px;">Rate this book</p>
                     </div>
                     
                 </div>
@@ -312,5 +312,51 @@
                 star.style.color = '';
             });
         }
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const stars = document.querySelectorAll('.star');
+        const ratingText = document.getElementById('rating-text');
+        const wantToReadButton = document.querySelector('.btn-want-to-read');
+        let currentRating = 0; // Variable to keep track of the current rating
+
+        stars.forEach(star => {
+            star.addEventListener('click', (event) => {
+                event.preventDefault();
+                const rating = parseInt(star.getAttribute('data-index'));
+
+                if ('<%= loggedIn %>' === 'true') {
+                    if (rating === currentRating) {
+                        // If the clicked star's rating matches the current rating, clear the rating
+                        currentRating = 0;
+                        console.log('The book rating has been cleared');
+                        ratingText.textContent = 'Rate this book';
+                        wantToReadButton.innerHTML = 'Want to read';
+                    } else {
+                        // Otherwise, update the rating
+                        currentRating = rating;
+                        console.log(`The book has received a ${rating} star rating`);
+                        ratingText.innerHTML = 'Saved. <a style="color:#333333" href="/write_review">Write a review</a>';
+                        wantToReadButton.innerHTML = 'Read <i class="bi bi-pen"></i>';
+                    }
+
+                    // Update star classes based on the current rating
+                    stars.forEach((s, index) => {
+                        const icon = s.querySelector('i');
+                        if (index < currentRating) {
+                            icon.classList.remove('bi-star');
+                            icon.classList.add('bi-star-fill');
+                        } else {
+                            icon.classList.remove('bi-star-fill');
+                            icon.classList.add('bi-star');
+                        }
+                    });
+                } else {
+                    window.location.href = '/signup';
+                }
+            });
+        });
     });
 </script>
