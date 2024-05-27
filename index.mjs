@@ -481,6 +481,13 @@ app.get('/mybooks', async (req, res) => {
     res.render('mybooks', { title: "Stephen Owabie's books on Myreads", errors: errors, content: '', csrfToken: csrfToken, loggedIn, book:''});
 });
 
+app.get('/write_review', async (req, res) => {
+    const loggedIn = determineLoggedInStatus(req);
+    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+    const csrfToken = req.csrfToken;
+    res.render('write_review', { title: "Review", errors: errors, content: '', csrfToken: csrfToken, loggedIn, book:''});
+});
+
 
 // Start the server
 app.listen(port, () => {
