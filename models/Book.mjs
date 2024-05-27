@@ -41,6 +41,15 @@ const bookSchema = new mongoose.Schema({
     publishedDate: {
         type: Date,
         required: true
+    },
+    reviewContent: {
+        type: String,
+        default: ''
+    },
+    // Reference to the User who wrote the review
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }
 });
 

@@ -25,6 +25,7 @@ import _ from 'lodash';
 import sanitizeHtml from 'sanitize-html';
 import { JSDOM } from 'jsdom';
 import createDOMPurify from 'dompurify';
+import mongoose from 'mongoose';
 
 
 
@@ -497,6 +498,37 @@ app.get('/write_review/:bookId', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+app.post('/save_review_content/:bookId', async (req, res) => {
+    try {
+        console.log("reading")
+        const bookId = req.params.bookId;
+        const content = req.body.content;
+         // Determine user logged in status and get the user ID
+         const loggedIn = determineLoggedInStatus(req);
+         const userId = loggedIn ? req.userId : null;
+
+         // Check if bookId is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(bookId)) {
+            return res.status(400).json({ error: 'Invalid book ID' });
+        }
+        
+        // Update the book document with the new review content and associated user
+        const updatedBook = await Book.findByIdAndUpdate(bookId, { reviewContent: content, user: userId }, { new: true });
+
+        if (!updatedBook) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+
+        // Send a success response
+        console.log('Review content saved successfully');
+
+    } catch (error) {
+        console.error('Error saving review content:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 
 // Start the server

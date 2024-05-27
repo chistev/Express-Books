@@ -24,7 +24,7 @@
         </div>
         <form id="review-form" action="/submit_review" method="POST">
             <div class="form-group mt-2">
-                <textarea id="review" name="review" class="form-control" rows="4" required></textarea>
+                <textarea id="review" name="review" class="form-control" rows="4" ></textarea>
             </div>
             <hr>
             <a href="#" type="submit" class="btn message-btn" style="background-color: #382110; color: #ffffff;">
@@ -45,33 +45,7 @@
         </div>
     </div>
 
-    <script>
-        // Initialize TinyMCE for the review text area with specific features
-        tinymce.init({
-            selector: '#review',
-            plugins: 'link image lists',
-            toolbar: 'undo redo | bold italic underline strikethrough | blockquote | alignleft aligncenter alignright alignjustify | bullist numlist | link image | removeformat',
-            image_title: true,
-            automatic_uploads: true,
-            file_picker_types: 'image',
-            images_upload_handler: function (blobInfo, success, failure) {
-                // Here you can handle the image upload logic
-                // For now, we'll just simulate an image upload
-                setTimeout(function () {
-                    success('https://www.example.com/uploads/' + blobInfo.filename());
-                }, 2000);
-            },
-            images_upload_url: '/upload_images',
-            image_caption: true,
-            height: 400,
-            setup: function (editor) {
-                editor.on('change', function () {
-                    tinymce.triggerSave();
-                });
-            },
-            content_style: 'img {max-width: 400px; max-height: 1000px;}'
-        });
-    </script>
+    
 <script>
     const form = document.getElementById('review-form');
     const submitButton = document.getElementById('submitButton');
@@ -87,4 +61,54 @@
             alert('Please fill in the required field.');
         }
     });
+</script>
+
+<script>
+    // Get the current URL
+    const currentUrl = window.location.href;
+    console.log('Current URL:', currentUrl);
+    // Extract the book ID from the URL
+    const bookId = extractBookId(currentUrl);
+    console.log('Extracted Book ID:', bookId);
+    
+    function extractBookId(url) {
+    // Split the URL by '/' to get individual segments
+    const segments = url.split('/');
+
+    // Find the segment containing the book ID (assuming it's the last segment in the URL)
+    const lastSegment = segments[segments.length - 1];
+
+    // Assuming the book ID is present at the end of the URL
+    return lastSegment;
+}
+    const reviewForm = document.getElementById('review-form');
+    const reviewTextarea = document.getElementById('review');
+
+    reviewTextarea.addEventListener('input', function(event) {
+        // Save content to server after every keystroke or at a suitable interval
+        saveReviewContent(reviewTextarea.value);
+    });
+
+    function saveReviewContent(content) {
+        // Send AJAX request to save content to the server
+        fetch(`/save_review_content/${bookId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content: content }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to save review content');
+            }
+            return response.json();
+        })
+        .then(data => {
+    console.log('Review content saved successfully:', data); // Log success message
+})
+        .catch(error => {
+            console.error('Error saving review content:', error);
+        });
+    }
 </script>
