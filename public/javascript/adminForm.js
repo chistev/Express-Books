@@ -1,4 +1,3 @@
-console.log("loaded")
 const form = document.getElementById('admin-panel');
 
 const submitButton = document.getElementById('submitButton');

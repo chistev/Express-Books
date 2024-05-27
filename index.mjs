@@ -481,11 +481,21 @@ app.get('/mybooks', async (req, res) => {
     res.render('mybooks', { title: "Stephen Owabie's books on Myreads", errors: errors, content: '', csrfToken: csrfToken, loggedIn, book:''});
 });
 
-app.get('/write_review', async (req, res) => {
+app.get('/write_review/:bookId', async (req, res) => {
     const loggedIn = determineLoggedInStatus(req);
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;
-    res.render('write_review', { title: "Review", errors: errors, content: '', csrfToken: csrfToken, loggedIn, book:''});
+
+    try {
+        const book = await Book.findById(req.params.bookId);
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+        res.render('write_review', { title: "Review", errors: errors, csrfToken: csrfToken, loggedIn, book, content: '' });
+    } catch (error) {
+        console.error('Error fetching book details for review:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 

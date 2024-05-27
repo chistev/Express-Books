@@ -409,3 +409,7 @@ width: 100%;
     width: 100%;
     border-radius: 25px;
 }
+
+.review_title_link:hover{
+    text-decoration: underline !important;
+}

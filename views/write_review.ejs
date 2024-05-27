@@ -6,28 +6,32 @@
 <div class="container " style="width: 70%;">
 <div class="row">
     <div class="col-12">
-        <div>
-            Atheism: The Case Against God 
-        </div>
-        <div class="d-flex">
-            <div>
-                <img src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1369155534l/97078._SY75_.jpg">
+        <a href="<%= `/book/${book._id}/details` %>" class="review_title_link" style="font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 20px; line-height: 24px; color: #00635d; text-decoration: none;">
+            <%= book.title %>
+        </a>
+        
+        <div class="row align-items-center mt-2">
+            <div class="col-4 col-md-2">
+                <img src="<%= book.image %>" alt="<%= book.title %>" class="img-fluid rounded">
             </div>
-            <div class="ms-2">
-                by George H. Smith
+            <div class="col-8 col-md-10" style="font-family: Georgia, serif; font-weight: 400; font-size: 14px; line-height: 21px; color: #333333;">
+                <p class="text-muted mb-0"> <%= book.author %></p>
             </div>
         </div>
         <hr>
-        <div>
+        <div style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
             What did you think?
         </div>
-        <div class="form-group mt-2">
-            <textarea id="description" name="description" class="form-control" rows="4" required><%= book.description %></textarea>
-        </div>
-        <hr>
-        <a href="#" class="btn message-btn" style="background-color: #382110; color: #ffffff;">
-            Post
-        </a>
+        <form id="review-form" action="/submit_review" method="POST">
+            <div class="form-group mt-2">
+                <textarea id="review" name="review" class="form-control" rows="4" required></textarea>
+            </div>
+            <hr>
+            <a href="#" type="submit" class="btn message-btn" style="background-color: #382110; color: #ffffff;">
+                Post
+            </a>
+        </form>
+        
         <div class="d-flex">
             <div class="me-2">
                 preview
@@ -39,9 +43,48 @@
                 Remove from my books
             </div>
         </div>
-        
-
-       
-        
-
     </div>
+
+    <script>
+        // Initialize TinyMCE for the review text area with specific features
+        tinymce.init({
+            selector: '#review',
+            plugins: 'link image lists',
+            toolbar: 'undo redo | bold italic underline strikethrough | blockquote | alignleft aligncenter alignright alignjustify | bullist numlist | link image | removeformat',
+            image_title: true,
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            images_upload_handler: function (blobInfo, success, failure) {
+                // Here you can handle the image upload logic
+                // For now, we'll just simulate an image upload
+                setTimeout(function () {
+                    success('https://www.example.com/uploads/' + blobInfo.filename());
+                }, 2000);
+            },
+            images_upload_url: '/upload_images',
+            image_caption: true,
+            height: 400,
+            setup: function (editor) {
+                editor.on('change', function () {
+                    tinymce.triggerSave();
+                });
+            },
+            content_style: 'img {max-width: 400px; max-height: 1000px;}'
+        });
+    </script>
+<script>
+    const form = document.getElementById('review-form');
+    const submitButton = document.getElementById('submitButton');
+
+    form.addEventListener('submit', function(event) {
+        // Trigger TinyMCE to save content to the textarea
+        tinymce.triggerSave();
+        
+        // Check if the textarea is empty
+        const review = document.getElementById('review').value;
+        if (!review.trim()) {
+            event.preventDefault();
+            alert('Please fill in the required field.');
+        }
+    });
+</script>
