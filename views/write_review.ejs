@@ -26,6 +26,7 @@
             <div class="form-group mt-2">
                 <textarea id="review" name="review" class="form-control" rows="4" ></textarea>
             </div>
+            <div id="saveMessage" style="display: none; color: green;">Review saved!</div>
             <hr>
             <a href="#" type="submit" class="btn message-btn" style="background-color: #382110; color: #ffffff;">
                 Post
@@ -51,8 +52,6 @@
     const submitButton = document.getElementById('submitButton');
 
     form.addEventListener('submit', function(event) {
-        // Trigger TinyMCE to save content to the textarea
-        tinymce.triggerSave();
         
         // Check if the textarea is empty
         const review = document.getElementById('review').value;
@@ -83,13 +82,21 @@
 }
     const reviewForm = document.getElementById('review-form');
     const reviewTextarea = document.getElementById('review');
+    let saveTimeout; // Variable to store the timeout reference
 
     reviewTextarea.addEventListener('input', function(event) {
-        // Save content to server after every keystroke or at a suitable interval
-        saveReviewContent(reviewTextarea.value);
+        // Clear the previous timeout (if any)
+        clearTimeout(saveTimeout);
+
+        // Set a new timeout to save content after a delay (e.g., 500 milliseconds)
+        saveTimeout = setTimeout(function() {
+            console.log('Saving review content...');
+            saveReviewContent(reviewTextarea.value);
+        }, 500);
     });
 
     function saveReviewContent(content) {
+        console.log('Content to save:', content);
         // Send AJAX request to save content to the server
         fetch(`/save_review_content/${bookId}`, {
             method: 'POST',
@@ -105,7 +112,14 @@
             return response.json();
         })
         .then(data => {
-    console.log('Review content saved successfully:', data); // Log success message
+            console.log('Response from server:', data);
+        console.log('Review content saved successfully:', data); // Log success message
+        // Show the save message
+        document.getElementById('saveMessage').style.display = 'block';
+        // Hide the message after a few seconds (e.g., 3 seconds)
+        setTimeout(function() {
+            document.getElementById('saveMessage').style.display = 'none';
+        }, 3000);
 })
         .catch(error => {
             console.error('Error saving review content:', error);

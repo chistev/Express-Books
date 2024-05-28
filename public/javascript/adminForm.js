@@ -1,8 +1,8 @@
-const form = document.getElementById('admin-panel');
+const Adminform = document.getElementById('admin-panel');
 
-const submitButton = document.getElementById('submitButton');
+const AdminsubmitButton = document.getElementById('submitButton');
 
-form.addEventListener('submit', function(event) {
+Adminform.addEventListener('submit', function(event) {
     // Trigger TinyMCE to save content to the textarea
     tinymce.triggerSave();
     

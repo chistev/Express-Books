@@ -522,6 +522,7 @@ app.post('/save_review_content/:bookId', async (req, res) => {
 
         // Send a success response
         console.log('Review content saved successfully');
+        res.status(200).json({ message: 'Review content saved successfully' });
 
     } catch (error) {
         console.error('Error saving review content:', error);
