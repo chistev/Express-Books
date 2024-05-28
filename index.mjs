@@ -26,6 +26,8 @@ import sanitizeHtml from 'sanitize-html';
 import { JSDOM } from 'jsdom';
 import createDOMPurify from 'dompurify';
 import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import { body, validationResult } from 'express-validator';
 
 
 
@@ -492,18 +494,39 @@ app.get('/write_review/:bookId', async (req, res) => {
         if (!book) {
             return res.status(404).send('Book not found');
         }
-        res.render('write_review', { title: "Review", errors: errors, csrfToken: csrfToken, loggedIn, book, content: '' });
+        res.render('write_review', { title: "Review", errors: errors, csrfToken: csrfToken, loggedIn, book, content: '', review: book.reviewContent  });
     } catch (error) {
         console.error('Error fetching book details for review:', error);
         res.status(500).send('Internal Server Error');
     }
 });
 
-app.post('/save_review_content/:bookId', async (req, res) => {
+// Middleware to parse JSON bodies
+app.use(bodyParser.json());
+
+app.post('/save_review_content/:bookId', 
+[
+    body('content').trim().escape(), // Sanitizes the 'content' field
+],
+async (req, res) => {
     try {
         console.log("reading")
         const bookId = req.params.bookId;
-        const content = req.body.content;
+        let content = req.body.content;
+
+        // Additional sanitization
+        content = sanitizeHtml(content, {
+            allowedTags: ['p', 'a', 'b', 'i', 'em', 'strong'], // Add tags you want to allow
+            allowedAttributes: {
+                'a': ['href', 'target'], // Allow href and target attributes for <a> tags
+                // Add more allowed attributes as needed for other tags
+            },
+        });
+
+           // Log incoming data
+           console.log(`Book ID: ${bookId}`);
+           console.log(`Content: ${content}`);
+           
          // Determine user logged in status and get the user ID
          const loggedIn = determineLoggedInStatus(req);
          const userId = loggedIn ? req.userId : null;

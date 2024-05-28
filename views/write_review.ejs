@@ -24,7 +24,7 @@
         </div>
         <form id="review-form" action="/submit_review" method="POST">
             <div class="form-group mt-2">
-                <textarea id="review" name="review" class="form-control" rows="4" ></textarea>
+                <textarea id="review" name="review" class="form-control" rows="4" placeholder="Enter your review" ><%= review %></textarea>
             </div>
             <div id="saveMessage" style="display: none; color: green;">Review saved!</div>
             <hr>
@@ -33,17 +33,10 @@
             </a>
         </form>
         
-        <div class="d-flex">
-            <div class="me-2">
-                preview
-            </div>
-            <div>
-                |
-            </div>
-            <div class="ms-2">
-                Remove from my books
-            </div>
-        </div>
+        <a href="#" class="mt-2 me-2 preview-link" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #999999; text-decoration: none;">
+            preview
+        </a>
+        
     </div>
 
     
