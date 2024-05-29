@@ -22,15 +22,14 @@
         <div style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
             What did you think?
         </div>
-        <form id="review-form" action="/submit_review" method="POST">
+        <form id="review-form" action="/save_review_content/<%= bookId %>" method="POST">
             <div class="form-group mt-2">
-                <textarea id="review" name="review" class="form-control" rows="4" placeholder="Enter your review" ><%= review %></textarea>
+                <textarea id="review" name="content" class="form-control" rows="4" placeholder="Enter your review" ><%- review %></textarea>
             </div>
-            <div id="saveMessage" style="display: none; color: green;">Review saved!</div>
             <hr>
-            <a href="#" type="submit" class="btn message-btn" style="background-color: #382110; color: #ffffff;">
+            <button type="submit" class="btn message-btn" style="background-color: #382110; color: #ffffff;">
                 Post
-            </a>
+            </button>
         </form>
         
         <a href="#" class="mt-2 me-2 preview-link" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #999999; text-decoration: none;">
@@ -38,101 +37,19 @@
         </a>
         
     </div>
+<script>
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: '#review',
+            plugins: 'link image advlist autolink lists charmap print preview hr anchor pagebreak',
+            toolbar: 'bold italic underline strikethrough | blockquote | bullist numlist | link image',
+        tinycomments_mode: 'embedded',
+        tinycomments_author: 'Author name',
+        mergetags_list: [
+            { value: 'First.Name', title: 'First Name' },
+            { value: 'Email', title: 'Email' },
+        ],
+        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant"))
+    });
 
-    
-    <script>
-        const reviewForm = document.getElementById('review-form');
-        const postButton = document.querySelector('.message-btn');
-        const reviewTextarea = document.getElementById('review');
-    
-        // Get the current URL
-        const currentUrl = window.location.href;
-        console.log('Current URL:', currentUrl);
-        // Extract the book ID from the URL
-        const bookId = extractBookId(currentUrl);
-        console.log('Extracted Book ID:', bookId);
-        
-        function extractBookId(url) {
-            // Split the URL by '/' to get individual segments
-            const segments = url.split('/');
-            // Find the segment containing the book ID (assuming it's the last segment in the URL)
-            const lastSegment = segments[segments.length - 1];
-            // Assuming the book ID is present at the end of the URL
-            return lastSegment;
-        }
-    
-        reviewForm.addEventListener('submit', function(event) {
-            // Check if the textarea is empty
-            const review = reviewTextarea.value.trim();
-            if (!review) {
-                event.preventDefault();
-                alert('Please fill in the required field.');
-            }
-        });
-    
-        // Add event listener to the "Post" button
-        postButton.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent default form submission behavior
-            
-            // Get review content
-            const reviewContent = reviewTextarea.value.trim();
-            
-            // Call saveReviewContent function to save content
-            saveReviewContent(reviewContent);
-
-            // Redirect user to book details page after posting
-        window.location.href = `/book/${bookId}/details`;
-        });
-    
-        let saveTimeout; // Variable to store the timeout reference
-    
-        reviewTextarea.addEventListener('input', function(event) {
-            // Clear the previous timeout (if any)
-            clearTimeout(saveTimeout);
-    
-            // Set a new timeout to save content after a delay (e.g., 500 milliseconds)
-            saveTimeout = setTimeout(function() {
-                console.log('Saving review content...');
-                saveReviewContent(reviewTextarea.value);
-            }, 500);
-        });
-    
-        function saveReviewContent(content) {
-            console.log('Content to save:', content);
-    
-            // Check if the content is empty
-            if (!content.trim()) {
-                console.log('Content is empty. Skipping save.');
-                return; // Exit the function if content is empty
-            }
-    
-            // Send AJAX request to save content to the server
-            fetch(`/save_review_content/${bookId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ content: content }),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to save review content');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Response from server:', data);
-                console.log('Review content saved successfully:', data); // Log success message
-                // Show the save message
-                document.getElementById('saveMessage').style.display = 'block';
-                // Hide the message after a few seconds (e.g., 3 seconds)
-                setTimeout(function() {
-                    document.getElementById('saveMessage').style.display = 'none';
-                }, 3000);
-            })
-            .catch(error => {
-                console.error('Error saving review content:', error);
-            });
-        }
-    </script>
-    
+</script>

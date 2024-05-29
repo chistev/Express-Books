@@ -504,7 +504,7 @@ app.get('/write_review/:bookId', async (req, res) => {
             userReview = userId ? book.reviews.find(review => review.user && review.user.toString() === userId.toString()) : null;
         }
 
-        res.render('write_review', { title: "Review", errors: errors, csrfToken: csrfToken, loggedIn, book, content: '', review: userReview ? userReview.content : ''   });
+        res.render('write_review', { title: "Review", errors: errors, csrfToken: csrfToken, loggedIn, book, content: '', review: userReview ? userReview.content : '', bookId: req.params.bookId    });
     } catch (error) {
         console.error('Error fetching book details for review:', error);
         res.status(500).send('Internal Server Error');
@@ -515,23 +515,11 @@ app.get('/write_review/:bookId', async (req, res) => {
 app.use(bodyParser.json());
 
 app.post('/save_review_content/:bookId', 
-[
-    body('content').trim().escape(), // Sanitizes the 'content' field
-],
 async (req, res) => {
     try {
         console.log("reading")
         const bookId = req.params.bookId;
         let content = req.body.content;
-
-        // Additional sanitization
-        content = sanitizeHtml(content, {
-            allowedTags: ['p', 'a', 'b', 'i', 'em', 'strong'], // Add tags you want to allow
-            allowedAttributes: {
-                'a': ['href', 'target'], // Allow href and target attributes for <a> tags
-                // Add more allowed attributes as needed for other tags
-            },
-        });
 
            // Log incoming data
            console.log(`Book ID: ${bookId}`);
