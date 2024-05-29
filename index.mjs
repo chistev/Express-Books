@@ -165,8 +165,9 @@ app.get('/book/:id', async (req, res) => {
 
 app.get('/book/:id/details', async (req, res) => {
     try {
-        const loggedIn = determineLoggedInStatus(req);
-
+        // Determine user logged in status and get the user ID
+        const { loggedIn } = determineLoggedInStatus(req);
+        const userId = loggedIn.loggedIn ? loggedIn.userId : null;
         // Fetch the book from the database by ID and populate the user field in reviews
         const book = await Book.findById(req.params.id).populate('reviews.user', 'fullName');
         if (!book) {
@@ -204,7 +205,8 @@ console.log('Final reviews sent to template:', reviewsWithFormattedDate);
             book: { ...book._doc, reviews: reviewsWithFormattedDate },  
             content:"", 
             loggedIn, 
-            reviews: reviewsWithFormattedDate
+            reviews: reviewsWithFormattedDate,
+            userId
 
          });
     } catch (error) {
@@ -237,6 +239,39 @@ app.get('/book/:bookId/review/:reviewId', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+app.post('/book/:bookId/review/:reviewId/like', async (req, res) => {
+    try {
+        const { bookId, reviewId } = req.params;
+        // Determine user logged in status and get the user ID
+        const loggedInStatus = determineLoggedInStatus(req);
+        const userId = loggedInStatus.loggedIn ? loggedInStatus.userId : null;
+
+        const book = await Book.findById(bookId);
+        if (!book) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+
+        const review = book.reviews.id(reviewId);
+        if (!review) {
+            return res.status(404).json({ error: 'Review not found' });
+        }
+
+        const isLiked = review.likes.includes(userId);
+        if (isLiked) {
+            review.likes.pull(userId); // Unlike
+        } else {
+            review.likes.push(userId); // Like
+        }
+
+        await book.save();
+        res.json({ likes: review.likes.length, liked: !isLiked });
+    } catch (error) {
+        console.error('Error liking review:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 
 app.get('/genre/:genre', async (req, res) => {
