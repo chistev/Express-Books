@@ -14,12 +14,6 @@ const bookSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    rating: {
-        type: Number,
-        required: true,
-        min: 1.0,
-        max: 5.0
-    },
     description: {
         type: String,
         required: true
@@ -42,15 +36,21 @@ const bookSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    reviewContent: {
-        type: String,
-        default: ''
-    },
-    // Reference to the User who wrote the review
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }
+    reviews: [{
+        content: {
+            type: String,
+            required: true
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    }]
 });
 
 // Create the Book model

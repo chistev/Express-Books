@@ -70,7 +70,7 @@ app.use('/password_reset', passwordResetController)
 // Route for the home page
 app.get('/', async (req, res) => {
     // Determine the loggedIn status
-    const loggedIn = determineLoggedInStatus(req);
+    const { loggedIn } = determineLoggedInStatus(req);
 
     res.render('index', { title: 'Free Online Books', loggedIn, content: '' });
 });
@@ -179,7 +179,7 @@ app.get('/book/:id/details', async (req, res) => {
          }
 
         // Render the book details page
-        res.render('book_details', { title: book.title, book, content:"", loggedIn });
+        res.render('book_details', { title: book.title, book, content:"", loggedIn, reviews: book.reviews });
     } catch (error) {
         console.error('Error fetching book details:', error);
         res.status(500).send('Internal Server Error');
@@ -406,7 +406,7 @@ app.get('/admin/edit_book/:id', isAdmin, async (req, res) => {
 
 app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, async (req, res) => {
     try {
-        const { title, author, rating, description, genre, pages, mediaType, publishedDate } = req.body;
+        const { title, author, description, genre, pages, mediaType, publishedDate } = req.body;
         const book = await Book.findById(req.params.id);
 
         if (!book) {
@@ -416,7 +416,6 @@ app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, asyn
         // Update book fields
         book.title = title;
         book.author = author;
-        book.rating = rating;
         book.description = description;
         book.genre = Array.isArray(genre) ? genre : [genre];
         book.pages = parseInt(pages, 10);
@@ -441,7 +440,7 @@ app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, asyn
 
 app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req, res) => {
     const errors = [];
-    const { title, author, rating, description, genre, pages, mediaType, publishedDate } = req.body;
+    const { title, author, description, genre, pages, mediaType, publishedDate } = req.body;
     const imagePath = `/uploads/${req.file.filename}`;
 
      // Sanitize the description
@@ -458,7 +457,6 @@ app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req,
         image: imagePath,
         title,
         author,
-        rating,
         description: sanitizedDescription,
         genre: Array.isArray(genre) ? genre : [genre],
         pages: parseInt(pages, 10),
@@ -494,7 +492,19 @@ app.get('/write_review/:bookId', async (req, res) => {
         if (!book) {
             return res.status(404).send('Book not found');
         }
-        res.render('write_review', { title: "Review", errors: errors, csrfToken: csrfToken, loggedIn, book, content: '', review: book.reviewContent  });
+        // Determine user logged in status and get the user ID
+        const loggedInStatus = determineLoggedInStatus(req);
+        const userId = loggedInStatus.loggedIn ? loggedInStatus.userId : null;
+        
+        console.log('User ID:', userId);
+
+        // Find the user's review for this book
+        let userReview = null;
+        if (userId) {
+            userReview = userId ? book.reviews.find(review => review.user && review.user.toString() === userId.toString()) : null;
+        }
+
+        res.render('write_review', { title: "Review", errors: errors, csrfToken: csrfToken, loggedIn, book, content: '', review: userReview ? userReview.content : ''   });
     } catch (error) {
         console.error('Error fetching book details for review:', error);
         res.status(500).send('Internal Server Error');
@@ -528,25 +538,37 @@ async (req, res) => {
            console.log(`Content: ${content}`);
            
          // Determine user logged in status and get the user ID
-         const loggedIn = determineLoggedInStatus(req);
-         const userId = loggedIn ? req.userId : null;
+        const loggedInStatus = determineLoggedInStatus(req);
+        const userId = loggedInStatus.loggedIn ? loggedInStatus.userId : null;
+        
+         console.log(userId + "this is it")
 
          // Check if bookId is a valid ObjectId
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
             return res.status(400).json({ error: 'Invalid book ID' });
         }
-        
-        // Update the book document with the new review content and associated user
-        const updatedBook = await Book.findByIdAndUpdate(bookId, { reviewContent: content, user: userId }, { new: true });
 
-        if (!updatedBook) {
+        // Check if the user has already reviewed the book
+        const book = await Book.findById(bookId);
+        if (!book) {
             return res.status(404).json({ error: 'Book not found' });
         }
+
+        let userReview = book.reviews.find(review => review.user && review.user.toString() === userId.toString());
+
+        if (userReview) {
+            // Update the existing review
+            userReview.content = content;
+        } else {
+            // Add a new review
+            book.reviews.push({ content: content, user:  new mongoose.Types.ObjectId(userId) });
+        }
+
+        await book.save();
 
         // Send a success response
         console.log('Review content saved successfully');
         res.status(200).json({ message: 'Review content saved successfully' });
-
     } catch (error) {
         console.error('Error saving review content:', error);
         res.status(500).json({ error: 'Internal Server Error' });

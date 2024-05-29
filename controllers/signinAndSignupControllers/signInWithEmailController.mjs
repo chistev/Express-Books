@@ -47,10 +47,15 @@ router.post('/', verifyCSRFToken, async (req, res) => {
             console.log(tokenPayload)
             // Send JWT token to the client
             res.cookie('token', token, { maxAge: 7 * 24 * 60 * 60 * 1000 });
+            // Set the user ID in the session
+            req.session.userId = user._id;
         } else{
             // Generate a random token to sign the user in without keeping them signed in
             const signInToken = generateToken();
             req.session.signInToken = signInToken;
+
+            // Set the user ID in the session
+            req.session.userId = user._id;
         }
 
         res.redirect('/');

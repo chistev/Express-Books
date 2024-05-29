@@ -20,6 +20,7 @@ export function determineLoggedInStatus(req) {
         // Set userId if available in the session
         userId = req.session.userId;
     }
+    console.log("logged in " + loggedIn + "UserId " + userId)
     return { loggedIn, userId }; // Return loggedIn status and userId
 }
 

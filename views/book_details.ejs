@@ -9,26 +9,6 @@
             <div class="ms-3">
                 <img src="<%= book.image %>" alt="<%= book.title %>" class="image" style="width: 65%;">
             </div>
-            <div class="row">
-                <div class="col-9 col-md-12 col-lg-9 ">
-                    <a href="<%= loggedIn ? '#' : '/signup' %>" id="wantToReadButton" class="btn fw-bold mt-2 mb-1 btn-want-to-read" style="background-color: #3f8363; color: #ffffff; border-radius: 15%; width: 100%; display: inline-block; text-align: center; padding: 0.375rem 0.75rem; text-decoration: none;">
-                        Want to read
-                    </a>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-9 col-md-12 col-lg-9 text-center">
-                    <div id="stars">
-                        <% for (let i = 0; i < 5; i++) { %>
-                            <a href="<%= loggedIn ? '#' : '/signup' %>" class="text-decoration-none star" style="color: #1e1915;" data-index="<%= i + 1 %>">
-                                <i class="bi bi-star fs-2"></i>
-                            </a>
-                        <% } %>
-                        <p id="rating-text" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; color: #1e1915; line-height: 23px;">Rate this book</p>
-                    </div>
-                    
-                </div>
-            </div>
         </div>
 
         <div class="col-md-7">
@@ -41,35 +21,11 @@
                 </a>
             </div>
             <div class="d-flex align-items-center ">
-                <div>
-                    <% for (let i = 1; i <= 5; i++) { %>
-                        <% if (book.rating >= i) { %>
-                            <!-- Full star -->
-                            <i class="fas fa-star star"></i>
-                        <% } else if (book.rating > (i - 1) && book.rating < i) { %>
-                            <!-- Partial star -->
-                            <div class="half-star">
-                                <i class="far fa-star empty-star"></i>
-                                <div class="half-fill" style="width: <%= ((book.rating - (i - 1)) * 100) %>%;">
-                                    <i class="fas fa-star star"></i>
-                                </div>
-                            </div>
-                        <% } else { %>
-                            <!-- Empty star -->
-                            <i class="far fa-star empty-star"></i>
-                        <% } %>
-                    <% } %>
-                </div>
                 
                 
                 
                 <div class="d-flex align-items-center justify-content-center">
-                    <div class="ms-3" style="font-family: Georgia, serif; font-weight: 600; font-size: 26px; line-height: 37px; color: #1e1915;">
-                        <%= book.rating %>
-                    </div>
-                    <div class="ms-3" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                        15,689 ratings
-                    </div>
+                    
                     <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
                         2,685 reviews
                     </div>
@@ -100,12 +56,8 @@
                 First published <%= new Date(book.publishedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
             </div>
             <hr>
-            <div class="d-flex justify-content-between" style="font-weight: 400; font-size: 14px; line-height: 19px; color:#1e1915;">
-                <div >7,693 people are currently reading</div>
-                <div>180k people want to read</div>
-            </div>
-            <hr>
-            <div style="font-family: Georgia, serif; font-style: italic; font-weight: 600; font-size: 28px; line-height: 38px; color: #1e1915;">Ratings & Reviews</div>
+            
+            <div style="font-family: Georgia, serif; font-style: italic; font-weight: 600; font-size: 28px; line-height: 38px; color: #1e1915;">Reviews</div>
             <div class="d-flex align-items-center justify-content-center">
                 <div class="mt-5" style="font-family: Georgia, serif; font-style: italic; font-weight: 600; font-size: 32px; line-height: 46px; color: #1e1915;">
                     What do you think?
@@ -121,75 +73,9 @@
             <div style="font-family: Georgia, serif; font-weight: 600; font-size: 20px; line-height: 28px; color: #1e1915;">
                 Community Reviews
             </div>
-            <div class="d-flex">
-                <div>
-                    <% for (let i = 1; i <= 5; i++) { %>
-                        <% if (book.rating >= i) { %>
-                            <!-- Full star -->
-                            <i class="fas fa-star star"></i>
-                        <% } else if (book.rating > (i - 1) && book.rating < i) { %>
-                            <!-- Partial star -->
-                            <div class="half-star">
-                                <i class="far fa-star empty-star"></i>
-                                <div class="half-fill" style="width: <%= ((book.rating - (i - 1)) * 100) %>%;">
-                                    <i class="fas fa-star star"></i>
-                                </div>
-                            </div>
-                        <% } else { %>
-                            <!-- Empty star -->
-                            <i class="far fa-star empty-star"></i>
-                        <% } %>
-                    <% } %>
-                </div>
-                <div class="d-flex align-items-center justify-content-center">
-                    <div class="ms-3" style="font-family: Georgia, serif; font-weight: 600; font-size: 26px; line-height: 37px; color: #1e1915;">
-                        <%= book.rating %>
-                    </div>
-                    <div class="ms-3" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                        15,689 ratings
-                    </div>
-                    <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                        2,685 reviews
-                    </div>
-                </div>     
-            </div>
-            <div class="rating-bar mt-3">
-                <span class="rating-text">5 stars</span>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: 42%;" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <span class="rating-text">6,894 (42%)</span>
-            </div>
-            <div class="rating-bar">
-                <span class="rating-text">4 stars</span>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: 39%;" aria-valuenow="39" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <span class="rating-text">6,497 (39%)</span>
-            </div>
-            <div class="rating-bar">
-                <span class="rating-text">3 stars</span>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: 14%;" aria-valuenow="14" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <span class="rating-text">2,408 (14%)</span>
-            </div>
-            <div class="rating-bar">
-                <span class="rating-text">2 stars</span>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: 2%;" aria-valuenow="2" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <span class="rating-text">395 (2%)</span>
-            </div>
-            <div class="rating-bar">
-                <span class="rating-text">1 star</span>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: 1%;" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <span class="rating-text">70 (<1%)</span>
-            </div>
             
-            <div class="search-filter-container">
+                        
+            <div class="search-filter-container mt-2">
                 <div class="search-input">
                     <i class="bi bi-search"></i>
                     <input type="text" placeholder="Search review text">
@@ -201,15 +87,19 @@
             <div class="ms-3" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
                 Displaying 1 - 30 of 2,766 reviews
             </div>
+            <% if (reviews && reviews.length > 0) { %>
+                <% reviews.forEach(review => { %>
             <div class="row mt-3">
                 <div class="col-2">
                     <img src="https://images.gr-assets.com/users/1714842419p6/154684875.jpg" style="border-radius: 50%; width: 60%; object-fit: contain;" >
-                        <div style="font-family: Georgia, serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">Nilufer Ozmekik</div>
+                        <div style="font-family: Georgia, serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;"></div>
                         <div class="" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
                             2,544 reviews
                         </div>
                 </div>
-                  
+                <%= review.content %>
+                <% }) %>
+                <% } %>     
                 <div class="col-10">
                     <div class="d-flex justify-content-between">
                         <div class="">
@@ -287,151 +177,3 @@
     </div>
 </div>
 
-<!-- Modal HTML -->
-<div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header d-flex flex-column">
-                <h5 class="modal-title mx-auto" id="ratingModalLabel">Choose a shelf for this book</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <button type="button" class="btn btn-outline-secondary" id="modalWantToRead">Want to read</button>
-                <button type="button" class="btn btn-outline-secondary" id="modalCurrentlyReading">Currently reading</button>
-                <button type="button" class="btn btn-outline-secondary" id="modalRead">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4 4.5a.75.75 0 0 1-1.08 0l-2-2.25a.75.75 0 1 1 1.08-1.04L7.5 8.96l3.47-3.99z"/>
-                    </svg>
-                    Read
-                </button>
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                        <path d="M5.5 5.5A.5.5 0 0 1 6 5h4a.5.5 0 0 1 .5.5V6h3a.5.5 0 0 1 0 1h-1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7H2a.5.5 0 0 1 0-1h3v-.5zM11 6H5v7a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V6z"/>
-                        <path fill-rule="evenodd" d="M4.5 4.5V5h7v-.5H11a1 1 0 0 0-.217-.59l-.523-.606a2 2 0 0 0-1.566-.684h-1.388a2 2 0 0 0-1.566.684l-.523.606A1 1 0 0 0 4.5 4.5zM3.5 4.5V4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v.5H3.5z"/>
-                    </svg>
-                    Remove from my shelf
-                
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn" data-bs-dismiss="modal">Continue to tags</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const stars = document.querySelectorAll('#stars .bi-star');
-        
-        stars.forEach((star, index) => {
-            star.addEventListener('mouseover', () => {
-                highlightStars(index);
-            });
-
-            star.addEventListener('mouseout', () => {
-                resetStars();
-            });
-        });
-
-        function highlightStars(index) {
-            for (let i = 0; i <= index; i++) {
-                stars[i].style.color = '#e87400';
-            }
-        }
-
-        function resetStars() {
-            stars.forEach(star => {
-                star.style.color = '';
-            });
-        }
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const stars = document.querySelectorAll('.star');
-        const ratingText = document.getElementById('rating-text');
-        const wantToReadButton = document.querySelector('.btn-want-to-read');
-        const modalWantToRead = document.getElementById('modalWantToRead');
-        const modalCurrentlyReading = document.getElementById('modalCurrentlyReading');
-        const modalRead = document.getElementById('modalRead');
-        let currentRating = 0; // Variable to keep track of the current rating
-
-        stars.forEach(star => {
-            star.addEventListener('click', (event) => {
-                event.preventDefault();
-                const rating = parseInt(star.getAttribute('data-index'));
-
-                if ('<%= loggedIn %>' === 'true') {
-                    if (rating === currentRating) {
-                        // If the clicked star's rating matches the current rating, clear the rating
-                        currentRating = 0;
-                        console.log('The book rating has been cleared');
-                        ratingText.textContent = 'Rate this book';
-                        wantToReadButton.innerHTML = 'Want to read';
-                        wantToReadButton.style.backgroundColor = '#3f8363'; // Reset background color
-                        wantToReadButton.style.color = '#ffffff'; // Reset text color
-                        wantToReadButton.style.border = 'none'; 
-                    } else {
-                        // Otherwise, update the rating
-                        currentRating = rating;
-                        console.log(`The book has received a ${rating} star rating`);
-                        ratingText.innerHTML = 'Saved. <a style="color:#333333" href="/write_review">Write a review</a> <div class="mt-3"><i class="bi bi-pen me-2"></i>Edit my activity</div>';
-                        wantToReadButton.innerHTML = 'Read <i class="bi bi-pen"></i>';
-                        wantToReadButton.style.backgroundColor = 'transparent';
-                        wantToReadButton.style.color = '#333333';
-                        wantToReadButton.style.border = '1px solid #000000';
-                    }
-
-                    // Update star classes based on the current rating
-                    stars.forEach((s, index) => {
-                        const icon = s.querySelector('i');
-                        if (index < currentRating) {
-                            icon.classList.remove('bi-star');
-                            icon.classList.add('bi-star-fill');
-                        } else {
-                            icon.classList.remove('bi-star-fill');
-                            icon.classList.add('bi-star');
-                        }
-                    });
-                } else {
-                    window.location.href = '/signup';
-                }
-            });
-        });
-        
-        // Add an event listener to the "Want to read" button to change its text to "Read" when clicked, if the user is logged in
-        wantToReadButton.addEventListener('click', (event) => {
-            if ('<%= loggedIn %>' === 'true') {
-                event.preventDefault();
-                // Show the modal
-                const ratingModal = new bootstrap.Modal(document.getElementById('ratingModal'));
-                ratingModal.show();
-            }
-        });
-
-        // Consolidate event listeners for modal buttons
-modalWantToRead.addEventListener('click', () => {
-    updateButtonAndHideModal('Want to read', '#3f8363', '#ffffff', 'none');
-});
-
-modalCurrentlyReading.addEventListener('click', () => {
-    updateButtonAndHideModal('Currently Reading <i class="bi bi-pen"></i>', 'transparent', '#333333', '1px solid #000000');
-});
-
-modalRead.addEventListener('click', () => {
-    updateButtonAndHideModal('Read <i class="bi bi-pen"></i>', 'transparent', '#333333', '1px solid #000000');
-});
-
-// Function to update button text and styles and hide modal
-function updateButtonAndHideModal(buttonText, bgColor, textColor, border) {
-    wantToReadButton.innerHTML = buttonText;
-    wantToReadButton.style.backgroundColor = bgColor;
-    wantToReadButton.style.color = textColor;
-    wantToReadButton.style.border = border;
-    const ratingModal = bootstrap.Modal.getInstance(document.getElementById('ratingModal'));
-    ratingModal.hide();
-}
-
-});
-</script>
