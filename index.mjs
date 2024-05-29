@@ -180,7 +180,9 @@ const reviewsWithFormattedDate = book.reviews.map(review => {
     console.log(`Formatted date for review by ${review.user.fullName}: ${formattedDate}`);
     return {
         ...review._doc,
-        formattedDate: formattedDate
+        formattedDate: formattedDate,
+        // Slice the review content to a certain length
+        truncatedContent: review.content.length > 200 ? review.content.slice(0, 200) + '...' : review.content
     };
 });
 
@@ -210,6 +212,32 @@ console.log('Final reviews sent to template:', reviewsWithFormattedDate);
         res.status(500).send('Internal Server Error');
     }
 });
+
+app.get('/book/:bookId/review/:reviewId', async (req, res) => {
+    try {
+        const bookId = req.params.bookId;
+        const reviewId = req.params.reviewId;
+
+        // Find the book by ID
+        const book = await Book.findById(bookId);
+        if (!book) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+
+        // Find the review within the book's reviews array
+        const review = book.reviews.find(review => review._id.equals(reviewId));
+        if (!review) {
+            return res.status(404).json({ error: 'Review not found' });
+        }
+
+        // Return the review content
+        res.json({ content: review.content });
+    } catch (error) {
+        console.error('Error fetching review:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 app.get('/genre/:genre', async (req, res) => {
     const { genre } = req.params;
