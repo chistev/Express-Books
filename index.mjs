@@ -28,6 +28,7 @@ import createDOMPurify from 'dompurify';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import { body, validationResult } from 'express-validator';
+import moment from 'moment';
 
 
 
@@ -165,11 +166,26 @@ app.get('/book/:id', async (req, res) => {
 app.get('/book/:id/details', async (req, res) => {
     try {
         const loggedIn = determineLoggedInStatus(req);
-        // Fetch the book from the database by ID
-        const book = await Book.findById(req.params.id);
+
+        // Fetch the book from the database by ID and populate the user field in reviews
+        const book = await Book.findById(req.params.id).populate('reviews.user', 'fullName');
         if (!book) {
             return res.status(404).send('Book not found');
         }
+
+       // Format the review dates
+const reviewsWithFormattedDate = book.reviews.map(review => {
+    const formattedDate = moment(review.createdAt).format('MMMM D, YYYY');
+    console.log(`Review:`, review); // Log the entire review object
+    console.log(`Formatted date for review by ${review.user.fullName}: ${formattedDate}`);
+    return {
+        ...review._doc,
+        formattedDate: formattedDate
+    };
+});
+
+        // Check the book object to ensure reviews have formattedDate
+        console.log('Book with formatted review dates:', { ...book._doc, reviews: reviewsWithFormattedDate });
 
          // Create a truncated version of the description
          const words = book.description.split(' ');
@@ -177,9 +193,18 @@ app.get('/book/:id/details', async (req, res) => {
          if (words.length > 20) {
             book.description += ' ...';
          }
+// Check the book object to ensure reviews have formattedDate
+console.log('Final reviews sent to template:', reviewsWithFormattedDate);
 
         // Render the book details page
-        res.render('book_details', { title: book.title, book, content:"", loggedIn, reviews: book.reviews });
+        res.render('book_details', { 
+            title: book.title, 
+            book: { ...book._doc, reviews: reviewsWithFormattedDate },  
+            content:"", 
+            loggedIn, 
+            reviews: reviewsWithFormattedDate
+
+         });
     } catch (error) {
         console.error('Error fetching book details:', error);
         res.status(500).send('Internal Server Error');

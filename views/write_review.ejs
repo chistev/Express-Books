@@ -22,7 +22,7 @@
         <div style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
             What did you think?
         </div>
-        <form id="review-form" action="/save_review_content/<%= bookId %>" method="POST">
+        <form id="review-form" action="/save_review_content/<%= bookId %>" method="POST" onsubmit="return validateForm()">
             <div class="form-group mt-2">
                 <textarea id="review" name="content" class="form-control" rows="4" placeholder="Enter your review" ><%- review %></textarea>
             </div>
@@ -52,4 +52,23 @@
         ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant"))
     });
 
+</script>
+
+<script>
+    // Function to validate the form before submission
+    function validateForm() {
+        // Trigger TinyMCE to save content to the textarea
+    tinymce.triggerSave();
+    
+        // Get the value of the textarea
+        const reviewContent = document.getElementById('review').value;
+        
+        // Trim whitespace and check if empty
+        if (!reviewContent.trim()) {
+            // Show alert if textarea is empty
+            alert('Please fill in the required field.');
+            return false; // Prevent form submission
+        }
+        return true; // Allow form submission
+    }
 </script>
