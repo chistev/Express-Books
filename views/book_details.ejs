@@ -139,7 +139,6 @@
                                                     <div>Stephen Owabie</div> 
                                                     <div class="ms-2">1 hour ago</div> 
                                                 </div>
-                                                
                                                 <div>
                                                     <i class="bi bi-three-dots fs-5"></i>
                                                 </div>
@@ -148,12 +147,7 @@
                                                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus earum assumenda impedit quaerat suscipit consectetur fugiat recusandae unde ab debitis! Odit voluptate omnis adipisci repudiandae odio neque, eum sit illum quod minima non dolorem tempora facere officiis sunt ipsa ipsum quaerat maxime nulla quia saepe sequi. Doloribus ullam nobis est assumenda dolor? Nulla doloribus atque ipsum officiis quae sit veritatis. Excepturi pariatur quibusdam, ratione corporis accusantium molestiae error tenetur aperiam expedita magnam amet itaque ea eaque obcaecati cum! Error explicabo expedita rerum omnis, ipsam, aspernatur voluptate qui pariatur illo repellendus sapiente neque vitae animi incidunt. Sint voluptatem nobis cum, eveniet ipsum dignissimos dolor perspiciatis provident illum a alias quos ullam facilis corrupti itaque assumenda, ducimus porro nihil iste quidem sequi harum impedit maiores accusamus. Omnis quibusdam obcaecati ducimus deleniti necessitatibus autem provident quia est ex nostrum inventore sed similique amet temporibus quam magnam veniam assumenda saepe, debitis iste, quis perferendis voluptates expedita error. Repudiandae vitae reiciendis obcaecati eum deserunt sequi, perferendis perspiciatis quisquam, debitis nisi expedita quas ab! Aliquam commodi iusto dignissimos reprehenderit consequatur ullam deleniti doloribus minus molestias! Nisi, a aliquam sed atque quo similique nemo fugiat veniam, vitae natus aperiam illum ipsum sint provident aspernatur tempore voluptatibus consequatur deserunt facere consectetur, autem praesentium possimus? Ipsum repellendus voluptas aperiam dolore qui perferendis cum. Atque deleniti consequatur provident sint in ab neque impedit explicabo quisquam eum, error sed minima veritatis suscipit molestiae nisi. Sint eos ut nostrum nam fugiat suscipit, asperiores expedita id saepe recusandae harum voluptate nisi, accusantium rem nesciunt minus consequuntur quasi numquam, sequi blanditiis reprehenderit ducimus. Repellat exercitationem asperiores veniam, nihil facilis quaerat corrupti quam magnam deserunt inventore esse dolorum. Saepe, officia tenetur odio aliquid officiis voluptates cumque error quibusdam dolor eveniet asperiores obcaecati ex excepturi sapiente illum labore nobis itaque nihil. Id eveniet, fuga ea obcaecati fugiat quod, facilis qui explicabo, repudiandae magni doloribus cumque voluptatum autem iste a officia laboriosam! Architecto animi officiis fuga nisi, eos quod alias eveniet minima odio nemo repudiandae voluptatum obcaecati, exercitationem debitis perferendis, aperiam ipsa? Mollitia recusandae maiores fugit vero necessitatibus aliquid, labore tempore? Dignissimos quasi labore eligendi, aspernatur consequatur voluptatibus perspiciatis natus dolor illum culpa, magni perferendis unde officiis nemo omnis. Aspernatur ipsa, et eveniet, tempore ex cupiditate sit aliquid quibusdam, deleniti fuga consectetur numquam sunt modi consequatur blanditiis qui alias inventore nam illum quo repudiandae! Omnis, accusamus fugit itaque aspernatur dolorum explicabo quos beatae sunt odio deleniti nostrum obcaecati, ipsum sit. Minima unde in maiores ipsum perspiciatis quo ad illo consequatur quia odit dignissimos corrupti velit ullam nulla amet vel nostrum non rerum hic, accusamus aperiam. Molestias placeat aliquid quibusdam exercitationem veritatis laudantium eligendi! Porro officia, illum autem pariatur commodi libero odit cupiditate neque repudiandae quam reprehenderit tenetur dignissimos voluptate laborum mollitia, unde, optio quas. Adipisci, iure incidunt? Culpa, debitis doloribus doloremque quam ad blanditiis eligendi sed consequuntur error excepturi aspernatur animi odio, nulla incidunt aut amet dolorem omnis et veniam, distinctio quis sequi cumque! Aperiam minus magni, illo corporis consectetur itaque numquam quia iure nobis voluptatibus possimus.
                                             </div>
                                         </div>
-                                        
-                                             
-                                            
-                                        
                                     </div>
-                                    
                                 </div>
                             </div>
                             <div id="comment-box-<%= review._id %>" class="comment-box mt-2 d-flex flex-column" style="display: none !important">
@@ -161,11 +155,8 @@
                                     <div class="user-image-placeholder"></div> <!-- User image placeholder -->
                                     <textarea id="comment-input-<%= review._id %>" class="form-control comment-input" rows="2" placeholder="Add a comment" style="border-color: #707070;"></textarea>
                                 </div>
-                                <button style="background-color: #1e1915; color: #ffffff; border-radius: 30%; display: none;" id="comment-submit-<%= review._id %>" class="btn mt-1 comment-submit ms-auto">Post</button>
+                                <button style="background-color: #1e1915; color: #ffffff; border-radius: 30%;" id="comment-submit-<%= review._id %>" class="btn mt-1 comment-submit ms-auto" data-review-id="<%= review._id %>">Post</button>
                             </div>
-                            
-                            
-                            
                         </div>
                     </div>
                     
@@ -299,7 +290,98 @@ commentLinks.forEach(function(commentLink) {
                 }
             });
     });
+    
 });
 });
 
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM fully loaded and parsed');
+
+        document.querySelectorAll('.comment-submit').forEach(button => {
+            console.log('Setting up event listener for comment submit button:', button);
+
+            button.addEventListener('click', async (event) => {
+                const reviewId = event.target.dataset.reviewId;
+                console.log('Review ID:', reviewId);
+
+                const contentElement = document.getElementById(`comment-input-${reviewId}`);
+                console.log('Content element:', contentElement);
+
+                if (!contentElement) {
+                    console.error(`No comment input found for reviewId: ${reviewId}`);
+                    return;
+                }
+
+                let content = contentElement.value;
+                console.log('Raw content:', content);
+
+                if (typeof content !== 'string') {
+                    console.error('Content is not a string:', content);
+                    return;
+                }
+
+                content = content.trim();
+                console.log('Trimmed content:', content);
+
+                if (!content) {
+                    console.warn('Comment content is empty, ignoring submission.');
+                    return; // Ignore empty comments
+                }
+
+                try {
+                    console.log('Sending fetch request to submit comment with content:', content);
+
+                    const response = await fetch(`/book/${reviewId}/comment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ content })
+                    });
+
+                    console.log('Fetch response received');
+
+                    const data = await response.json();
+                    console.log('Response data:', data);
+
+                    if (data.success) {
+                        console.log('Comment submission successful, updating UI...');
+
+                        const commentHtml = `
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-1 mt-2">
+                                        <div class="user-image-placeholder"></div>
+                                    </div>
+                                    <div class="col-10 mt-2">
+                                        <div class="d-flex justify-content-between">
+                                            <div class="d-flex">
+                                                <div>${data.comment.userFullName}</div>
+                                                <div class="ms-2">${data.comment.formattedDate}</div>
+                                            </div>
+                                            <div>
+                                                <i class="bi bi-three-dots fs-5"></i>
+                                            </div>
+                                        </div>
+                                        <div>${data.comment.content}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById(`comment-box-${reviewId}`).insertAdjacentHTML('beforeend', commentHtml);
+                        contentElement.value = ''; // Clear input
+                        document.getElementById(`comment-box-${reviewId}`).style.display = 'block'; // Show comments section
+                    } else {
+                        console.error('Error from server:', data.error);
+                    }
+                } catch (error) {
+                    console.error('Error submitting comment:', error);
+                }
+            });
+        });
+    });
+</script>
+ 

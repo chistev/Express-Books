@@ -68,6 +68,9 @@ app.use('/signin_with_email', signinWithEmailController);
 app.use('/forgot_password', forgotPasswordController)
 app.use('/password_reset', passwordResetController)
 
+// Middleware to parse JSON bodies
+app.use(bodyParser.json());
+
 // Route for the home page
 app.get('/', async (req, res) => {
     // Determine the loggedIn status
@@ -217,6 +220,63 @@ app.get('/book/:id/details', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+app.post('/book/:reviewId/comment', async (req, res) => {
+    try {
+        const  { content }  = req.body;
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+
+        console.log('Received comment content:', content);
+        console.log('User logged in:', loggedIn);
+        console.log('User ID:', userId);
+
+        if (!loggedIn || !userId) {
+            console.log('User not logged in or userId not found.');
+            return res.status(401).json({ success: false, error: 'User not logged in' });
+        }
+
+        const user = await User.findById(userId);
+        console.log('User found:', user);
+
+        const book = await Book.findOne({ 'reviews._id': req.params.reviewId });
+        console.log('Book found:', book);
+
+        if (!user || !book) {
+            console.log('User or book not found.');
+            return res.status(404).json({ success: false, error: 'User or book not found' });
+        }
+
+        const review = book.reviews.id(req.params.reviewId);
+        console.log('Review found:', review);
+
+        if (typeof content !== 'string') {
+            console.log('Invalid content type:', typeof content);
+            return res.status(400).json({ success: false, error: 'Invalid content type' });
+        }
+
+        const trimmedContent = content.trim();
+        console.log('Trimmed comment content:', trimmedContent);
+
+        if (!trimmedContent) {
+            console.log('Comment content is empty.');
+            return res.status(400).json({ success: false, error: 'Comment content cannot be empty' });
+        }
+
+        review.comments.push({ content: trimmedContent, user: userId });
+        console.log('Comment added to review:', review.comments);
+
+        await book.save();
+        console.log('Book saved after adding comment.');
+
+        const formattedDate = new Date().toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' });
+
+        res.json({ success: true, comment: { content: trimmedContent, userFullName: user.fullName, formattedDate } });
+    } catch (error) {
+        console.error('Error submitting comment:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+});
+
 
 app.get('/book/:bookId/review/:reviewId', async (req, res) => {
     try {
@@ -608,8 +668,6 @@ app.get('/write_review/:bookId', async (req, res) => {
     }
 });
 
-// Middleware to parse JSON bodies
-app.use(bodyParser.json());
 
 app.post('/save_review_content/:bookId', 
 async (req, res) => {
