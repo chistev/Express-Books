@@ -166,38 +166,42 @@ app.get('/book/:id', async (req, res) => {
 app.get('/book/:id/details', async (req, res) => {
     try {
         // Determine user logged in status and get the user ID
-        const { loggedIn } = determineLoggedInStatus(req);
-        const userId = loggedIn.loggedIn ? loggedIn.userId : null;
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        const userIdStr = userId ? userId.toString() : null;
+
         // Fetch the book from the database by ID and populate the user field in reviews
         const book = await Book.findById(req.params.id).populate('reviews.user', 'fullName');
         if (!book) {
             return res.status(404).send('Book not found');
         }
 
-       // Format the review dates
-const reviewsWithFormattedDate = book.reviews.map(review => {
-    const formattedDate = moment(review.createdAt).format('MMMM D, YYYY');
-    console.log(`Review:`, review); // Log the entire review object
-    console.log(`Formatted date for review by ${review.user.fullName}: ${formattedDate}`);
-    return {
-        ...review._doc,
-        formattedDate: formattedDate,
-        // Slice the review content to a certain length
-        truncatedContent: review.content.length > 200 ? review.content.slice(0, 200) + '...' : review.content
-    };
-});
+        // Format the review dates and process likes array
+        const reviewsWithFormattedDate = book.reviews.map(review => {
+            const formattedDate = moment(review.createdAt).format('MMMM D, YYYY');
+
+            const filteredLikes = review.likes.filter(like => like !== null);
+            const likedByUser = userIdStr ? filteredLikes.map(like => like.toString()).includes(userIdStr) : false;
+
+            return {
+                ...review._doc,
+                formattedDate: formattedDate,
+                truncatedContent: review.content.length > 200 ? review.content.slice(0, 200) + '...' : review.content,
+                likedByUser: likedByUser
+            };
+        });
 
         // Check the book object to ensure reviews have formattedDate
         console.log('Book with formatted review dates:', { ...book._doc, reviews: reviewsWithFormattedDate });
 
-         // Create a truncated version of the description
-         const words = book.description.split(' ');
-         book.description = words.slice(0, 20).join(' ');
-         if (words.length > 20) {
+        // Create a truncated version of the description
+        const words = book.description.split(' ');
+        book.description = words.slice(0, 20).join(' ');
+        if (words.length > 20) {
             book.description += ' ...';
-         }
-// Check the book object to ensure reviews have formattedDate
-console.log('Final reviews sent to template:', reviewsWithFormattedDate);
+        }
+
+        // Check the book object to ensure reviews have formattedDate
+        console.log('Final reviews sent to template:', reviewsWithFormattedDate);
 
         // Render the book details page
         res.render('book_details', { 
@@ -206,9 +210,8 @@ console.log('Final reviews sent to template:', reviewsWithFormattedDate);
             content:"", 
             loggedIn, 
             reviews: reviewsWithFormattedDate,
-            userId
-
-         });
+            userId: userIdStr
+        });
     } catch (error) {
         console.error('Error fetching book details:', error);
         res.status(500).send('Internal Server Error');
@@ -244,8 +247,12 @@ app.post('/book/:bookId/review/:reviewId/like', async (req, res) => {
     try {
         const { bookId, reviewId } = req.params;
         // Determine user logged in status and get the user ID
-        const loggedInStatus = determineLoggedInStatus(req);
-        const userId = loggedInStatus.loggedIn ? loggedInStatus.userId : null;
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        const userIdStr = userId ? userId.toString() : null;
+
+        if (!userIdStr) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
 
         const book = await Book.findById(bookId);
         if (!book) {
@@ -257,11 +264,14 @@ app.post('/book/:bookId/review/:reviewId/like', async (req, res) => {
             return res.status(404).json({ error: 'Review not found' });
         }
 
-        const isLiked = review.likes.includes(userId);
+        // Filter out null values from the likes array
+        review.likes = review.likes.filter(like => like !== null);
+
+        const isLiked = review.likes.map(like => like.toString()).includes(userIdStr);
         if (isLiked) {
-            review.likes.pull(userId); // Unlike
+            review.likes.pull(userIdStr); // Unlike
         } else {
-            review.likes.push(userId); // Like
+            review.likes.push(userIdStr); // Like
         }
 
         await book.save();
@@ -271,7 +281,6 @@ app.post('/book/:bookId/review/:reviewId/like', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
 
 
 app.get('/genre/:genre', async (req, res) => {

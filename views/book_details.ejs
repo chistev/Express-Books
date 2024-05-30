@@ -118,12 +118,12 @@
                     
                     <div class="review-container" data-review-id="<%= review._id %>">
                         <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                            <span class="like-count"><%= review.likes.length %></span> likes 27 comments
+                            <span class="like-count"><%= review.likes.length %></span> likes 234 comments
                         </div>
                         <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
-                            <button style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; background: none; border: none; color: #1e1915;" class="text-decoration-none like-link" data-review-id="<%= review._id %>" data-liked="<%= review.likes.includes(userId) %>">
-                                <i class="bi bi-hand-thumbs-up" style="color: <%= review.likes.includes(userId) ? 'green' : '#1e1915' %>;"></i> Like
-                            </button>                 
+                            <button style="color: <%= review.likedByUser ? '#377458' : '#1e1915' %>; font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; background: none; border: none;" class="text-decoration-none like-link" data-review-id="<%= review._id %>" data-liked="<%= review.likedByUser %>">
+                                <i class="bi bi-hand-thumbs-up"></i> Like
+                            </button>
                             <a style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" href="<%= loggedIn ? '#' : '/signup' %>" class="text-decoration-none ms-3">
                                 <i class="bi bi-chat"></i> Comment
                             </a>
@@ -188,33 +188,31 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         console.log("Script loaded and DOM content is ready.");
-
+    
         var likeLinks = document.querySelectorAll(".review-container .like-link");
         console.log("Like links found:", likeLinks);
-
+    
         likeLinks.forEach(function(link) {
             link.addEventListener("click", function(event) {
                 event.preventDefault();
                 console.log("Like link clicked:", this);
-
-                // Access loggedIn status from the data attribute
+    
                 var loggedInStatus = document.getElementById('loggedInStatus').getAttribute('data-logged-in');
-                var loggedIn = loggedInStatus === 'true'; // Convert string to boolean
-
+                var loggedIn = loggedInStatus === 'true';
+    
                 if (!loggedIn) {
                     console.log("User not logged in, redirecting to signup.");
                     window.location.href = '/signup';
                     return;
                 }
-
+    
                 var reviewId = this.getAttribute("data-review-id");
                 var liked = this.getAttribute("data-liked") === 'true';
                 console.log("Review ID:", reviewId, "Already liked:", liked);
-
+    
                 var reviewContainer = this.closest('.review-container');
                 var likeCountElement = reviewContainer.querySelector('.like-count');
-                var likeIcon = this.querySelector('.bi-hand-thumbs-up');
-
+    
                 fetch(`/book/<%= book._id %>/review/${reviewId}/like`, {
                     method: 'POST',
                     headers: {
@@ -224,9 +222,11 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log("Like response data:", data);
-                    likeCountElement.textContent = data.likes
-                    this.setAttribute("data-liked", data.liked);
-                    likeIcon.style.color = data.liked ? 'green' : '#1e1915';
+                    likeCountElement.textContent = data.likes;
+    
+                    // Toggle the liked status
+                    this.setAttribute("data-liked", !liked);
+                    this.style.color = !liked ? '#377458' : '#1e1915';
                 })
                 .catch(error => {
                     console.error('Error liking review:', error);
@@ -234,4 +234,5 @@
             });
         });
     });
-</script>
+    </script>
+    
