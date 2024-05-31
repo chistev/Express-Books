@@ -139,14 +139,20 @@
                                                 <div class="col-lg-10 col-md-10 mt-2">
                                                     <div class="d-flex justify-content-between">
                                                         <div class="d-flex">
-                                                            <div><%= comment.user.fullName %></div>
-                                                            <div class="ms-2"><%= comment.formattedDate %></div>
+                                                            <div style="font-family: Arial, sans-serif; font-weight: 700; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                                                <%= comment.user.fullName %>
+                                                            </div>
+                                                            <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                                                                <%= comment.formattedDate %>
+                                                            </div>
                                                         </div>
                                                         <div>
                                                             <i class="bi bi-three-dots fs-5"></i>
                                                         </div>
                                                     </div>
-                                                    <div><%= comment.content %></div>
+                                                    <div style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                                        <%- comment.content %>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -302,95 +308,104 @@ commentLinks.forEach(function(commentLink) {
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOM fully loaded and parsed');
+    console.log('DOM fully loaded and parsed');
 
-        document.querySelectorAll('.comment-submit').forEach(button => {
-            console.log('Setting up event listener for comment submit button:', button);
+    document.querySelectorAll('.comment-submit').forEach(button => {
+        console.log('Setting up event listener for comment submit button:', button);
 
-            button.addEventListener('click', async (event) => {
-                const reviewId = event.target.dataset.reviewId;
-                console.log('Review ID:', reviewId);
+        button.addEventListener('click', async (event) => {
+            const reviewId = event.target.dataset.reviewId;
+            console.log('Review ID:', reviewId);
 
-                const contentElement = document.getElementById(`comment-input-${reviewId}`);
-                console.log('Content element:', contentElement);
+            const contentElement = document.getElementById(`comment-input-${reviewId}`);
+            console.log('Content element:', contentElement);
 
-                if (!contentElement) {
-                    console.error(`No comment input found for reviewId: ${reviewId}`);
-                    return;
-                }
+            if (!contentElement) {
+                console.error(`No comment input found for reviewId: ${reviewId}`);
+                return;
+            }
 
-                let content = contentElement.value;
-                console.log('Raw content:', content);
+            let content = contentElement.value;
+            console.log('Raw content:', content);
 
-                if (typeof content !== 'string') {
-                    console.error('Content is not a string:', content);
-                    return;
-                }
+            if (typeof content !== 'string') {
+                console.error('Content is not a string:', content);
+                return;
+            }
 
-                content = content.trim();
-                console.log('Trimmed content:', content);
+            content = content.trim();
+            console.log('Trimmed content:', content);
 
-                if (!content) {
-                    console.warn('Comment content is empty, ignoring submission.');
-                    return; // Ignore empty comments
-                }
+            if (!content) {
+                console.warn('Comment content is empty, ignoring submission.');
+                return; // Ignore empty comments
+            }
 
-                try {
-                    console.log('Sending fetch request to submit comment with content:', content);
+            try {
+                console.log('Sending fetch request to submit comment with content:', content);
 
-                    const response = await fetch(`/book/${reviewId}/comment`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ content })
-                    });
+                const response = await fetch(`/book/${reviewId}/comment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content })
+                });
 
-                    console.log('Fetch response received');
+                console.log('Fetch response received');
 
-                    const data = await response.json();
-                    console.log('Response data:', data);
+                const data = await response.json();
+                console.log('Response data:', data);
 
-                    if (data.success) {
-                        console.log('Comment submission successful, updating UI...');
+                if (data.success) {
+                    console.log('Comment submission successful, updating UI...');
 
-                        const commentHtml = `
-                            <div class="col-12 mb-3">
-                                <div class="row">
-                                    <div class="col-lg-1 col-md-2 col-1 mt-2">
-                                        <div class="user-image-placeholder"></div>
-                                    </div>
-                                    <div class="col-lg-10 col-md-10 mt-2">
-                                        <div class="d-flex justify-content-between">
-                                            <div class="d-flex">
-                                                <div>${data.comment.userFullName}</div>
-                                                <div class="ms-2">${data.comment.formattedDate}</div>
+                    const commentHtml = `
+                        <div class="col-12 mb-3">
+                            <div class="row">
+                                <div class="col-lg-1 col-md-2 col-1 mt-2">
+                                    <div class="user-image-placeholder"></div>
+                                </div>
+                                <div class="col-lg-10 col-md-10 mt-2">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="d-flex">
+                                            <div style="font-family: Arial, sans-serif; font-weight: 700; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                                ${data.comment.userFullName}
                                             </div>
-                                            <div>
-                                                <i class="bi bi-three-dots fs-5"></i>
+                                            <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                                                ${data.comment.formattedDate}
                                             </div>
                                         </div>
-                                        <div style="color:red">${data.comment.content}</div>
+                                        <div>
+                                            <i class="bi bi-three-dots fs-5"></i>
+                                        </div>
+                                    </div>
+                                    <div style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                        ${data.comment.content}
                                     </div>
                                 </div>
                             </div>
-                        `;
-                        document.getElementById(`comment-box-${reviewId}`).insertAdjacentHTML('afterbegin', commentHtml);
-                        contentElement.value = ''; // Clear input
+                        </div>
+                    `;
 
-                        // Update comment count
-                        const commentCountElement = document.querySelector(`[data-review-id="${reviewId}"] .comment-count`);
-                        commentCountElement.textContent = parseInt(commentCountElement.textContent) + 1;
+                    const commentBox = document.getElementById(`comment-box-${reviewId}`);
+                    commentBox.insertAdjacentHTML('afterbegin', commentHtml);
+                    
+                    contentElement.value = ''; // Clear input
 
-                        document.getElementById(`comment-box-${reviewId}`).style.display = 'block'; // Show comments section
-                    } else {
-                        console.error('Error from server:', data.error);
-                    }
-                } catch (error) {
-                    console.error('Error submitting comment:', error);
+                    // Update comment count
+                    const commentCountElement = document.querySelector(`[data-review-id="${reviewId}"] .comment-count`);
+                    commentCountElement.textContent = parseInt(commentCountElement.textContent) + 1;
+
+                    commentBox.style.display = 'block'; // Show comments section
+                } else {
+                    console.error('Error from server:', data.error);
                 }
-            });
+            } catch (error) {
+                console.error('Error submitting comment:', error);
+            }
         });
     });
+});
+
 </script>
- 

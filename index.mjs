@@ -273,7 +273,11 @@ app.post('/book/:reviewId/comment', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Comment content cannot be empty' });
         }
 
-        review.comments.push({ content: trimmedContent, user: userId });
+        // Replace newlines with paragraph tags
+        const formattedContent = trimmedContent.split('\n').map(line => `<p>${line}</p>`).join('');
+        console.log('Formatted comment content:', formattedContent);
+
+        review.comments.push({ content: formattedContent, user: userId });
         console.log('Comment added to review:', review.comments);
 
         await book.save();
@@ -281,7 +285,7 @@ app.post('/book/:reviewId/comment', async (req, res) => {
 
         const formattedDate = new Date().toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' });
 
-        res.json({ success: true, comment: { content: trimmedContent, userFullName: user.fullName, formattedDate } });
+        res.json({ success: true, comment: { content: formattedContent, userFullName: user.fullName, formattedDate } });
     } catch (error) {
         console.error('Error submitting comment:', error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
