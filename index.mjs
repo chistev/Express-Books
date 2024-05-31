@@ -232,6 +232,30 @@ app.get('/book/:id/details', async (req, res) => {
     }
 });
 
+app.get('/comment/:commentId', async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const book = await Book.findOne({ 'reviews.comments._id': commentId }, { 'reviews.$': 1 });
+
+        if (!book) {
+            return res.status(404).json({ success: false, error: 'Comment not found' });
+        }
+
+        const review = book.reviews[0];
+        const comment = review.comments.id(commentId);
+
+        if (!comment) {
+            return res.status(404).json({ success: false, error: 'Comment not found' });
+        }
+
+        res.json({ success: true, content: comment.content });
+    } catch (error) {
+        console.error('Error fetching comment:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+});
+
+
 app.post('/book/:reviewId/comment', async (req, res) => {
     try {
         const  { content }  = req.body;
@@ -273,8 +297,14 @@ app.post('/book/:reviewId/comment', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Comment content cannot be empty' });
         }
 
+        // Sanitize content to prevent XSS
+        const sanitizedContent = sanitizeHtml(trimmedContent, {
+            allowedTags: [ 'p', 'br', 'i', 'b', 'u' ], // Allow only paragraph and line break tags
+            allowedAttributes: {}
+        });
+
         // Replace newlines with paragraph tags
-        const formattedContent = trimmedContent.split('\n').map(line => `<p>${line}</p>`).join('');
+        const formattedContent = sanitizedContent.split('\n').map(line => `<p>${line}</p>`).join('');
         console.log('Formatted comment content:', formattedContent);
 
         review.comments.push({ content: formattedContent, user: userId });
@@ -291,6 +321,7 @@ app.post('/book/:reviewId/comment', async (req, res) => {
         res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
 });
+
 
 
 app.get('/book/:bookId/review/:reviewId', async (req, res) => {

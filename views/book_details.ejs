@@ -113,7 +113,7 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="mt-2 review-content-full" style="display: none;"></div> <!-- Placeholder for full review content -->
+                        <div class="mt-2 review-content-full" style="display: none; font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;"></div> <!-- Placeholder for full review content -->
                     </div>
                     
                     <div class="review-container" data-review-id="<%= review._id %>">
@@ -131,7 +131,7 @@
                                 <div class="col-12">
                                     <div class="row">
                                         <% review.comments.forEach(comment => { %>
-                                        <div class="col-12 mb-3">
+                                        <div class="col-12 mb-3 comment-container">
                                             <div class="row">
                                                 <div class="col-lg-1 col-md-2 col-1 mt-2">
                                                     <div class="user-image-placeholder"></div>
@@ -150,7 +150,21 @@
                                                             <i class="bi bi-three-dots fs-5"></i>
                                                         </div>
                                                     </div>
-                                                    <div style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+
+                                                    <% let truncatedContent = comment.content.length > 100 ? comment.content.substring(0, 100) + '...' : comment.content; %>
+
+                                                    <div class="mt-2 comment-content-short" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                                        <%- truncatedContent %>
+                                                        <% if (comment.content.length > 100) { %>
+                                                            <div class="show-more-button">
+                                                                <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link-comment" data-comment-id="<%= comment._id %>" href="#">
+                                                                    Show more &#9662;
+                                                                </a>
+                                                            </div>
+                                                        <% } %>
+                                                    </div>
+
+                                                    <div class="mt-2 comment-content-full" style="display: none; font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
                                                         <%- comment.content %>
                                                     </div>
                                                 </div>
@@ -408,4 +422,34 @@ commentLinks.forEach(function(commentLink) {
     });
 });
 
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var showMoreCommentLinks = document.querySelectorAll(".show-more-link-comment");
+        console.log("Found show more links for comments:", showMoreCommentLinks);
+
+        showMoreCommentLinks.forEach(function(link) {
+            link.addEventListener("click", function(event) {
+                event.preventDefault();
+                var commentId = this.getAttribute("data-comment-id");
+                var commentContentShort = this.closest('.comment-container').querySelector('.comment-content-short');
+                var commentContentFull = this.closest('.comment-container').querySelector('.comment-content-full');
+
+                console.log("Short comment content element:", commentContentShort);
+                console.log("Full comment content element:", commentContentFull);
+
+                fetch(`/comment/${commentId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        commentContentShort.style.display = 'none';
+                        commentContentFull.innerHTML = data.content;
+                        commentContentFull.style.display = 'block';
+                        console.log("Full comment content displayed");
+                    })
+                    .catch(error => console.error('Error fetching comment:', error));
+            });
+        });
+    });
 </script>
