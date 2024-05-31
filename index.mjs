@@ -172,8 +172,11 @@ app.get('/book/:id/details', async (req, res) => {
         const { loggedIn, userId } = determineLoggedInStatus(req);
         const userIdStr = userId ? userId.toString() : null;
 
-        // Fetch the book from the database by ID and populate the user field in reviews
-        const book = await Book.findById(req.params.id).populate('reviews.user', 'fullName');
+        // Fetch the book from the database by ID and populate the user field in reviews and comments
+        const book = await Book.findById(req.params.id)
+            .populate('reviews.user', 'fullName')
+            .populate('reviews.comments.user', 'fullName');
+
         if (!book) {
             return res.status(404).send('Book not found');
         }
@@ -185,11 +188,18 @@ app.get('/book/:id/details', async (req, res) => {
             const filteredLikes = review.likes.filter(like => like !== null);
             const likedByUser = userIdStr ? filteredLikes.map(like => like.toString()).includes(userIdStr) : false;
 
+            // Format comment dates
+            const commentsWithFormattedDate = review.comments.map(comment => ({
+                ...comment._doc,
+                formattedDate: moment(comment.createdAt).format('MMMM D, YYYY')
+            }));
+
             return {
                 ...review._doc,
                 formattedDate: formattedDate,
                 truncatedContent: review.content.length > 200 ? review.content.slice(0, 200) + '...' : review.content,
-                likedByUser: likedByUser
+                likedByUser: likedByUser,
+                comments: commentsWithFormattedDate
             };
         });
 
