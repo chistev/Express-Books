@@ -118,7 +118,7 @@
                     
                     <div class="review-container" data-review-id="<%= review._id %>">
                         <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                            <span class="like-count"><%= review.likes.length %></span> likes 234 comments
+                            <span class="like-count"><%= review.likes.length %></span> likes <span class="comment-count"><%= review.commentCount %></span> comments
                         </div>
                         <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
                             <button style="color: <%= review.likedByUser ? '#377458' : '#1e1915' %>; font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; background: none; border: none;" class="text-decoration-none like-link" data-review-id="<%= review._id %>" data-liked="<%= review.likedByUser %>">
@@ -377,6 +377,11 @@ commentLinks.forEach(function(commentLink) {
                         `;
                         document.getElementById(`comment-box-${reviewId}`).insertAdjacentHTML('afterbegin', commentHtml);
                         contentElement.value = ''; // Clear input
+
+                        // Update comment count
+                        const commentCountElement = document.querySelector(`[data-review-id="${reviewId}"] .comment-count`);
+                        commentCountElement.textContent = parseInt(commentCountElement.textContent) + 1;
+
                         document.getElementById(`comment-box-${reviewId}`).style.display = 'block'; // Show comments section
                     } else {
                         console.error('Error from server:', data.error);

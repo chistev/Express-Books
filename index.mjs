@@ -199,7 +199,8 @@ app.get('/book/:id/details', async (req, res) => {
                 formattedDate: formattedDate,
                 truncatedContent: review.content.length > 200 ? review.content.slice(0, 200) + '...' : review.content,
                 likedByUser: likedByUser,
-                comments: commentsWithFormattedDate
+                comments: commentsWithFormattedDate,
+                commentCount: review.comments.length // Include the total number of comments
             };
         });
 
