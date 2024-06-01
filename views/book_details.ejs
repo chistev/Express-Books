@@ -118,7 +118,7 @@
                     
                     <div class="review-container" data-review-id="<%= review._id %>">
                         <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                            <span class="like-count"><%= review.likes.length %></span> likes <span class="comment-count"><%= review.commentCount %></span> comments
+                            <span class="like-count"><%= review.likes.length %></span> likes <span class="comment-count" onclick="toggleComments('<%= review._id %>')" style="cursor: pointer;"><%= review.comments.length %></span> comments
                         </div>
                         <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
                             <button style="color: <%= review.likedByUser ? '#377458' : '#1e1915' %>; font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; background: none; border: none;" class="text-decoration-none like-link" data-review-id="<%= review._id %>" data-liked="<%= review.likedByUser %>">
@@ -127,26 +127,27 @@
                             <a id="comment-link-<%= review._id %>" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" href="<%= loggedIn ? '' : '/signup' %>" class="text-decoration-none ms-3">
                                 <i class="bi bi-chat"></i> Comment
                             </a>
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="row">
-                                        <% review.comments.forEach(comment => { %>
-                                        <div class="col-12 mb-3 comment-container">
-                                            <div class="row">
-                                                <div class="col-lg-1 col-md-2 col-1 mt-2">
-                                                    <div class="user-image-placeholder"></div>
-                                                </div>
-                                                <div class="col-lg-10 col-md-10 mt-2">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="d-flex">
-                                                            <div style="font-family: Arial, sans-serif; font-weight: 700; font-size: 16px; line-height: 23px; color: #1e1915;">
-                                                                <%= comment.user.fullName %>
+                            <div id="comments-container-<%= review._id %>" class="comments-container" style="display: none;">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <% review.comments.forEach(comment => { %>
+                                            <div class="col-12 mb-3 comment-container">
+                                                <div class="row">
+                                                    <div class="col-lg-1 col-md-2 col-1 mt-2">
+                                                        <div class="user-image-placeholder"></div>
+                                                    </div>
+                                                    <div class="col-lg-10 col-md-10 mt-2">
+                                                        <div class="d-flex justify-content-between">
+                                                            <div class="d-flex">
+                                                                <div style="font-family: Arial, sans-serif; font-weight: 700; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                                                    <%= comment.user.fullName %>
+                                                                </div>
+                                                                <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                                                                    <%= comment.formattedDate %>
+                                                                </div>
                                                             </div>
-                                                            <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                                                                <%= comment.formattedDate %>
-                                                            </div>
-                                                        </div>
-                                                        <% if (userId && comment.user._id.toString() === userId.toString()) { %>
+                                                            <% if (userId && comment.user._id.toString() === userId.toString()) { %>
                                                             <div class="comment-options">
                                                                 <i style="cursor: pointer;" class="bi bi-three-dots fs-5" data-comment-id="<%= comment._id %>" onclick="toggleDeletePopup(event)"></i>
                                                                 <div class="delete-popup" id="delete-popup-<%= comment._id %>" style="display: none;">
@@ -156,44 +157,44 @@
                                                                 </div>
                                                             </div>
                                                             <% } %>
-                                                        
-                                                    </div>
-
-                                                    <% let truncatedContent = comment.content.length > 100 ? comment.content.substring(0, 100) + '...' : comment.content; %>
-
-                                                    <div class="mt-2 comment-content-short" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
-                                                        <%- truncatedContent %>
-                                                        <% if (comment.content.length > 100) { %>
-                                                            <div class="show-more-button">
-                                                                <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link-comment" data-comment-id="<%= comment._id %>" href="#">
-                                                                    Show more &#9662;
-                                                                </a>
-                                                            </div>
-                                                        <% } %>
-                                                    </div>
-
-                                                    <div class="mt-2 comment-content-full" style="display: none; font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
-                                                        <%- comment.content %>
+                                                        </div>
+                
+                                                        <% let truncatedContent = comment.content.length > 100 ? comment.content.substring(0, 100) + '...' : comment.content; %>
+                
+                                                        <div class="mt-2 comment-content-short" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                                            <%- truncatedContent %>
+                                                            <% if (comment.content.length > 100) { %>
+                                                                <div class="show-more-button">
+                                                                    <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link-comment" data-comment-id="<%= comment._id %>" href="#">
+                                                                        Show more &#9662;
+                                                                    </a>
+                                                                </div>
+                                                            <% } %>
+                                                        </div>
+                
+                                                        <div class="mt-2 comment-content-full" style="display: none; font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                                            <%- comment.content %>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <% }) %>
                                         </div>
-                                        <% }) %>
                                     </div>
                                 </div>
-                            </div>
-                            <div id="comment-box-<%= review._id %>" class="comment-box mt-2 d-flex flex-column" style="display: none !important">
-                                <div class="comment-input-container">
-                                    <div class="user-image-placeholder"></div> <!-- User image placeholder -->
-                                    <textarea id="comment-input-<%= review._id %>" class="form-control comment-input" rows="2" placeholder="Add a comment" style="border-color: #707070;"></textarea>
+                                <div id="comment-box-<%= review._id %>" class="comment-box mt-2 d-flex flex-column" style="display: none;">
+                                    <div class="comment-input-container">
+                                        <div class="user-image-placeholder"></div> <!-- User image placeholder -->
+                                        <textarea id="comment-input-<%= review._id %>" class="form-control comment-input" rows="2" placeholder="Add a comment" style="border-color: #707070;"></textarea>
+                                    </div>
+                                    <button style="background-color: #1e1915; color: #ffffff; border-radius: 30%;" id="comment-submit-<%= review._id %>" class="btn mt-1 comment-submit ms-auto" data-review-id="<%= review._id %>">Post</button>
                                 </div>
-                                <button style="background-color: #1e1915; color: #ffffff; border-radius: 30%;" id="comment-submit-<%= review._id %>" class="btn mt-1 comment-submit ms-auto" data-review-id="<%= review._id %>">Post</button>
                             </div>
                         </div>
                     </div>
-                    
-                <hr>
+                    <hr>
                 </div>
+                
                 <% }) %>
             <% } %>
                 <div class="d-flex justify-content-between align-items-center">
@@ -319,11 +320,36 @@
     
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-var commentLinks = document.querySelectorAll('[id^="comment-link-"]');
-commentLinks.forEach(function(commentLink) {
-    commentLink.addEventListener("click", function(event) {
-        event.preventDefault();
-        var reviewId = this.getAttribute('id').split('-')[2];
+        var commentLinks = document.querySelectorAll('[id^="comment-link-"]');
+        var commentCounts = document.querySelectorAll('.comment-count');
+
+        commentLinks.forEach(function(commentLink) {
+            commentLink.addEventListener("click", function(event) {
+                event.preventDefault();
+                var reviewId = this.getAttribute('id').split('-')[2];
+                toggleComments(reviewId);
+                showCommentBox(reviewId, this);
+            });
+        });
+
+        commentCounts.forEach(function(commentCount) {
+            commentCount.addEventListener("click", function() {
+                var reviewId = this.closest('.review-container').getAttribute('data-review-id');
+                toggleComments(reviewId);
+            });
+        });
+    });
+
+    function toggleComments(reviewId) {
+        var commentsContainer = document.getElementById('comments-container-' + reviewId);
+        if (commentsContainer.style.display === 'none' || commentsContainer.style.display === '') {
+            commentsContainer.style.display = 'block';
+        } else {
+            commentsContainer.style.display = 'none';
+        }
+    }
+
+    function showCommentBox(reviewId, commentLink) {
         var commentBox = document.getElementById('comment-box-' + reviewId);
         var commentInput = document.getElementById('comment-input-' + reviewId);
         var postButton = document.getElementById('comment-submit-' + reviewId);
@@ -334,17 +360,13 @@ commentLinks.forEach(function(commentLink) {
 
         // Show post button when user starts typing
         commentInput.addEventListener("input", function() {
-                if (commentInput.value.trim() !== '') {
-                    postButton.style.display = 'block';
-                } else {
-                    postButton.style.display = 'none';
-                }
-            });
-    });
-    
-});
-});
-
+            if (commentInput.value.trim() !== '') {
+                postButton.style.display = 'block';
+            } else {
+                postButton.style.display = 'none';
+            }
+        });
+    }
 </script>
 
 <script>
