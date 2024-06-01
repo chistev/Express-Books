@@ -232,6 +232,38 @@ app.get('/book/:id/details', async (req, res) => {
     }
 });
 
+app.delete('/comment/:commentId', async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+
+        if (!loggedIn || !userId) {
+            return res.status(401).json({ success: false, error: 'User not logged in' });
+        }
+
+        const book = await Book.findOne({ 'reviews.comments._id': commentId });
+
+        if (!book) {
+            return res.status(404).json({ success: false, error: 'Comment not found' });
+        }
+
+        const review = book.reviews.find(review => review.comments.id(commentId));
+        const comment = review.comments.id(commentId);
+
+        if (comment.user.toString() !== userId.toString()) {
+            return res.status(403).json({ success: false, error: 'User not authorized to delete this comment' });
+        }
+
+        review.comments.pull(commentId);
+        await book.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+});
+
 app.get('/comment/:commentId', async (req, res) => {
     try {
         const { commentId } = req.params;

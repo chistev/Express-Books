@@ -146,9 +146,17 @@
                                                                 <%= comment.formattedDate %>
                                                             </div>
                                                         </div>
-                                                        <div>
-                                                            <i class="bi bi-three-dots fs-5"></i>
-                                                        </div>
+                                                        <% if (userId && comment.user._id.toString() === userId.toString()) { %>
+                                                            <div class="comment-options">
+                                                                <i style="cursor: pointer;" class="bi bi-three-dots fs-5" data-comment-id="<%= comment._id %>" onclick="toggleDeletePopup(event)"></i>
+                                                                <div class="delete-popup" id="delete-popup-<%= comment._id %>" style="display: none;">
+                                                                    <a href="#" onclick="deleteComment(event, '<%= comment._id %>')" class="text-decoration-none delete-link" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; color: #1e1915;">
+                                                                        <i class="bi bi-trash"></i> Delete this comment
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                            <% } %>
+                                                        
                                                     </div>
 
                                                     <% let truncatedContent = comment.content.length > 100 ? comment.content.substring(0, 100) + '...' : comment.content; %>
@@ -452,4 +460,34 @@ commentLinks.forEach(function(commentLink) {
             });
         });
     });
+</script>
+
+<script>
+    function toggleDeletePopup(event) {
+        var commentId = event.target.getAttribute("data-comment-id");
+        var popup = document.getElementById("delete-popup-" + commentId);
+        if (popup.style.display === "none") {
+            popup.style.display = "block";
+        } else {
+            popup.style.display = "none";
+        }
+    }
+
+    function deleteComment(event, commentId) {
+        event.preventDefault(); // Prevent the default action of the link
+        fetch(`/comment/${commentId}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                var commentElement = document.querySelector(`[data-comment-id="${commentId}"]`).closest('.comment-container');
+                commentElement.remove();
+                console.log("Comment deleted successfully");
+            } else {
+                console.error('Failed to delete comment');
+            }
+        })
+        .catch(error => console.error('Error deleting comment:', error));
+    }
 </script>
