@@ -118,7 +118,10 @@
                     
                     <div class="review-container" data-review-id="<%= review._id %>">
                         <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                            <span class="like-count"><%= review.likes.length %></span> likes <span class="comment-count" onclick="toggleComments('<%= review._id %>')" style="cursor: pointer;"><%= review.comments.length %></span> comments
+                            <span class="like-count"><%= review.likes.length %></span> likes 
+                            <span class="comments-toggle" style="cursor: pointer;">
+                                <span class="comment-count"><%= review.comments.length %></span> comments
+                            </span>
                         </div>
                         <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
                             <button style="color: <%= review.likedByUser ? '#377458' : '#1e1915' %>; font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; background: none; border: none;" class="text-decoration-none like-link" data-review-id="<%= review._id %>" data-liked="<%= review.likedByUser %>">
@@ -187,7 +190,7 @@
                                         <div class="user-image-placeholder"></div> <!-- User image placeholder -->
                                         <textarea id="comment-input-<%= review._id %>" class="form-control comment-input" rows="2" placeholder="Add a comment" style="border-color: #707070;"></textarea>
                                     </div>
-                                    <button style="background-color: #1e1915; color: #ffffff; border-radius: 30%;" id="comment-submit-<%= review._id %>" class="btn mt-1 comment-submit ms-auto" data-review-id="<%= review._id %>">Post</button>
+                                    <button style="background-color: #1e1915; color: #ffffff; border-radius: 30%; display: none;" id="comment-submit-<%= review._id %>" class="btn mt-1 comment-submit ms-auto" data-review-id="<%= review._id %>">Post</button>
                                 </div>
                             </div>
                         </div>
@@ -321,7 +324,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         var commentLinks = document.querySelectorAll('[id^="comment-link-"]');
-        var commentCounts = document.querySelectorAll('.comment-count');
+        var commentToggles = document.querySelectorAll('.comments-toggle');
 
         commentLinks.forEach(function(commentLink) {
             commentLink.addEventListener("click", function(event) {
@@ -332,8 +335,8 @@
             });
         });
 
-        commentCounts.forEach(function(commentCount) {
-            commentCount.addEventListener("click", function() {
+        commentToggles.forEach(function(commentToggle) {
+            commentToggle.addEventListener("click", function() {
                 var reviewId = this.closest('.review-container').getAttribute('data-review-id');
                 toggleComments(reviewId);
             });
@@ -368,6 +371,7 @@
         });
     }
 </script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
