@@ -189,10 +189,12 @@ app.get('/book/:id/details', async (req, res) => {
             const likedByUser = userIdStr ? filteredLikes.map(like => like.toString()).includes(userIdStr) : false;
 
             // Format comment dates
-            const commentsWithFormattedDate = review.comments.map(comment => ({
-                ...comment._doc,
-                formattedDate: moment(comment.createdAt).format('MMMM D, YYYY')
-            }));
+            const commentsWithFormattedDate = review.comments
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                .map(comment => ({
+                    ...comment._doc,
+                    formattedDate: moment(comment.createdAt).format('MMMM D, YYYY')
+                }));
 
             return {
                 ...review._doc,
@@ -248,6 +250,7 @@ app.get('/reviews/:reviewId/comments', async (req, res) => {
         }
 
         const comments = review.reviews[0].comments
+        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
             .slice(offset, offset + 5)
             .map(comment => ({
                 ...comment,
