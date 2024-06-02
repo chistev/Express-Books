@@ -232,6 +232,35 @@ app.get('/book/:id/details', async (req, res) => {
     }
 });
 
+// Route to get more comments for a specific review
+app.get('/reviews/:reviewId/comments', async (req, res) => {
+    try {
+        const { reviewId } = req.params;
+        const { offset } = req.query;
+
+        // Fetch the review with the specified ID and populate the comments
+        const review = await Book.findOne({ 'reviews._id': reviewId }, { 'reviews.$': 1 })
+            .populate('reviews.comments.user', 'fullName')
+            .lean();
+
+        if (!review) {
+            return res.status(404).send('Review not found');
+        }
+
+        const comments = review.reviews[0].comments
+            .slice(offset, offset + 5)
+            .map(comment => ({
+                ...comment,
+                formattedDate: moment(comment.createdAt).format('MMMM D, YYYY'),
+            }));
+
+        res.json({ comments });
+    } catch (error) {
+        console.error('Error fetching more comments:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 app.delete('/comment/:commentId', async (req, res) => {
     try {
         const { commentId } = req.params;
