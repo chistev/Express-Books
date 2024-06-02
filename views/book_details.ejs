@@ -105,6 +105,7 @@
                         </div>
                     </div>
                     <div class="review-container">
+                        
                         <div class="mt-2 review-content-short" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
                             <%- review.truncatedContent %>
                             <div class="show-more-button">
@@ -130,7 +131,17 @@
                             <a id="comment-link-<%= review._id %>" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" href="<%= loggedIn ? '' : '/signup' %>" class="text-decoration-none ms-3">
                                 <i class="bi bi-chat"></i> Comment
                             </a>
+                            
                             <div id="comments-container-<%= review._id %>" class="comments-container" style="display: none;">
+                                <% if (review.commentCount > 5) { %>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <!-- Horizontal line to the left -->
+                                    <hr class="flex-grow-1 mr-3" style="border-top: 2px solid #767676;">
+                                    <div style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">Show More Comments </div>
+                                    <!-- Horizontal line to the right -->
+                                    <hr class="flex-grow-1 ml-3" style="border-top: 2px solid #767676;">
+                                </div>
+                                <% } %>
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="row">
