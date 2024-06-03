@@ -181,6 +181,19 @@ app.get('/book/:id/details', async (req, res) => {
             return res.status(404).send('Book not found');
         }
 
+        // Fetch the total number of reviews for each user
+        const userIds = book.reviews.map(review => review.user._id);
+        const userReviewCounts = await Book.aggregate([
+            { $unwind: '$reviews' },
+            { $match: { 'reviews.user': { $in: userIds } } },
+            { $group: { _id: '$reviews.user', count: { $sum: 1 } } }
+        ]);
+
+        const reviewCountsMap = {};
+        userReviewCounts.forEach(userReview => {
+            reviewCountsMap[userReview._id.toString()] = userReview.count;
+        });
+
         // Format the review dates and process likes array
         const reviewsWithFormattedDate = book.reviews.map(review => {
             const formattedDate = moment(review.createdAt).format('MMMM D, YYYY');
@@ -202,7 +215,8 @@ app.get('/book/:id/details', async (req, res) => {
                 truncatedContent: review.content.length > 200 ? review.content.slice(0, 200) + '...' : review.content,
                 likedByUser: likedByUser,
                 comments: commentsWithFormattedDate,
-                commentCount: review.comments.length // Include the total number of comments
+                commentCount: review.comments.length, // Include the total number of comments
+                userReviewCount: reviewCountsMap[review.user._id.toString()] || 0 // Add total number of reviews for the user
             };
         });
 
