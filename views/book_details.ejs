@@ -5,31 +5,20 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-3 col-10 mt-2 d-flex flex-column ">
+        <div class="col-lg-3 col-md-3 col-10 d-flex flex-column ">
             <div class="ms-3">
                 <img src="<%= book.image %>" alt="<%= book.title %>" class="image" style="width: 65%;">
             </div>
         </div>
 
-        <div class="col-md-7">
+        <div class="col-lg-9 col-md-7 ">
             <div class="mb-1" style="font-family: Georgia, serif; font-weight: 600; font-size: 36px; line-height: 46px; color: #1e1915;">
                     <%= book.title %>
             </div>
             <div class="mb-1">
-                <a class="text-decoration-none" href="" style="font-family: Georgia, serif; font-weight: 400; font-size: 20px; line-height: 28px; color: #1e1915;">
+                <div style="font-family: Georgia, serif; font-weight: 400; font-size: 20px; line-height: 28px; color: #1e1915;">
                     <%= book.author %>
-                </a>
-            </div>
-            <div class="d-flex align-items-center ">
-                
-                
-                
-                <div class="d-flex align-items-center justify-content-center">
-                    
-                    <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                        2,685 reviews
-                    </div>
-                </div>  
+                </div>
             </div>
             <div class="description-container" id="description-container-<%= book._id %>" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 22px; color: #1e1915;">
                 <p class="mb-2 short-description">
@@ -74,18 +63,8 @@
                 Community Reviews
             </div>
             
-                        
-            <div class="search-filter-container mt-2">
-                <div class="search-input">
-                    <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Search review text">
-                </div>
-                <button class="filter-button">
-                    <i class="bi bi-funnel"></i> Filters
-                </button>
-            </div>
             <div class="ms-3" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                Displaying 1 - 30 of 2,766 reviews
+                Displaying <%= reviewCount %> reviews
             </div>
             <% if (reviews && reviews.length > 0) { %>
                 <% reviews.forEach(review => { %>
@@ -215,24 +194,11 @@
                 
                 <% }) %>
             <% } %>
-                <div class="d-flex justify-content-between align-items-center">
-                    <!-- Horizontal line to the left -->
-                    <hr class="flex-grow-1 mr-3" style="border-top: 2px solid #767676;">
-                    <div style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">More Reviews and ratings ></div>
-                    <!-- Horizontal line to the right -->
-                    <hr class="flex-grow-1 ml-3" style="border-top: 2px solid #767676;">
-                </div>
             </div>
-        </div>
-
-        <div class="col-md-2 d-flex ">
-            <div class="ms-auto">
-                <i class="bi bi-share fs-2"></i>
-            </div>
-            
         </div>
     </div>
 </div>
+
 <div id="loggedInStatus" data-logged-in="<%= loggedIn %>"></div>
 
 <!-- Delete Confirmation Modal -->

@@ -211,13 +211,16 @@ app.get('/book/:id/details', async (req, res) => {
 
         // Create a truncated version of the description
         const words = book.description.split(' ');
-        book.description = words.slice(0, 20).join(' ');
-        if (words.length > 20) {
+        book.description = words.slice(0, 50).join(' ');
+        if (words.length > 50) {
             book.description += ' ...';
         }
 
         // Check the book object to ensure reviews have formattedDate
         console.log('Final reviews sent to template:', reviewsWithFormattedDate);
+
+        // Calculate the total number of reviews
+        const reviewCount = book.reviews.length;
 
         // Render the book details page
         res.render('book_details', { 
@@ -226,7 +229,8 @@ app.get('/book/:id/details', async (req, res) => {
             content:"", 
             loggedIn, 
             reviews: reviewsWithFormattedDate,
-            userId: userIdStr
+            userId: userIdStr,
+            reviewCount // Pass the review count to the template
         });
     } catch (error) {
         console.error('Error fetching book details:', error);
