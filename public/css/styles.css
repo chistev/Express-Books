@@ -466,3 +466,8 @@ width: 100%;
     background-color: #f0f0f0;
     color: #1e1915;
 }
+
+.fixed-book-image-container {
+    position: sticky;
+    top: 1px;
+}

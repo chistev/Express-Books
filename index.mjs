@@ -753,11 +753,31 @@ app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req,
     res.redirect('/');
 }); 
 
-app.get('/user', async (req, res) => {
-    const loggedIn = determineLoggedInStatus(req);
+app.get('/user/:userId', async (req, res) => {
+    const { loggedIn } = determineLoggedInStatus(req);
+    const userId = req.params.userId;
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;
-    res.render('user', { title: 'user', errors: errors, content: '', csrfToken: csrfToken, loggedIn, book:''});
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        res.render('user', { 
+            title: 'User Profile', 
+            user, 
+            errors: errors, 
+            content: '', 
+            csrfToken: csrfToken, 
+            loggedIn, 
+            book: ''
+        });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 app.get('/mybooks', async (req, res) => {
