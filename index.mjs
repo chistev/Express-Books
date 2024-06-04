@@ -815,6 +815,57 @@ app.get('/mybooks', async (req, res) => {
     csrfToken: csrfToken, loggedIn, books: booksWithUserReviews, searchQuery: searchQuery});
 });
 
+app.get('/user/:userId/mybooks', async (req, res) => {
+    const { loggedIn, userId } = determineLoggedInStatus(req);
+    const targetUserId = req.params.userId;
+    
+    if (userId === targetUserId) {
+        res.redirect('/mybooks');
+    } else {
+        const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+        const csrfToken = req.csrfToken;
+        
+        const searchQuery = req.query.search || '';
+        
+        const targetUser = await User.findById(targetUserId);
+        if (!targetUser) {
+            return res.status(404).send('User not found');
+        }
+        
+        const reviewedBooks = await Book.find({
+            'reviews.user': new mongoose.Types.ObjectId(targetUserId),
+            $or: [
+                { title: { $regex: searchQuery, $options: 'i' } },
+                { author: { $regex: searchQuery, $options: 'i' } },
+                { 'reviews.content': { $regex: searchQuery, $options: 'i' } }
+            ]
+        });
+        
+        // Extract the target user's review for each book and include the review ID
+        const booksWithUserReviews = reviewedBooks.map(book => {
+            const userReview = book.reviews.find(review => review.user.equals(targetUserId));
+            return {
+                ...book.toObject(),
+                userReview: userReview ? {
+                    _id: userReview._id,
+                    fullContent: userReview.content,
+                    truncatedContent: userReview.content.length > 200 ? userReview.content.slice(0, 200) + '...' : userReview.content
+                } : null
+            };
+        });
+        
+        res.render('mybooks', { 
+            title: `${targetUserId === userId ? 'Your' : targetUser.fullName + "'s"} books on Myreads`, 
+            errors: errors, 
+            content: '', 
+            csrfToken: csrfToken, 
+            loggedIn, 
+            books: booksWithUserReviews, 
+            searchQuery: searchQuery 
+        });
+    }
+});
+
 app.delete('/book/:bookId/review/:reviewId', async (req, res) => {
     const { bookId, reviewId } = req.params;
     const { userId } = determineLoggedInStatus(req);

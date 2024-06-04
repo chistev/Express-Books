@@ -76,8 +76,10 @@
                         <div style="font-family: Georgia, serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
                             <%= review.user.fullName %>
                         </div>
-                        <div class="" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
-                            <%= review.userReviewCount %> reviews
+                        <div style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                            <a href="/user/<%= review.user._id %>/mybooks" style="color: inherit; text-decoration: none;">
+                                <%= review.userReviewCount %> reviews
+                            </a>
                         </div>
                 </div>
                   
