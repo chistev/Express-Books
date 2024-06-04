@@ -787,8 +787,16 @@ app.get('/mybooks', async (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;
 
-    // Fetch books that the user has reviewed
-    const reviewedBooks = await Book.find({ 'reviews.user': new mongoose.Types.ObjectId(userId) });
+    const searchQuery = req.query.search || '';
+
+    const reviewedBooks = await Book.find({
+        'reviews.user': new mongoose.Types.ObjectId(userId),
+        $or: [
+            { title: { $regex: searchQuery, $options: 'i' } },
+            { author: { $regex: searchQuery, $options: 'i' } },
+            { 'reviews.content': { $regex: searchQuery, $options: 'i' } }
+        ]
+    });
 
     // Extract the user's review for each book
     const booksWithUserReviews = reviewedBooks.map(book => {
@@ -800,7 +808,7 @@ app.get('/mybooks', async (req, res) => {
     });
 
     res.render('mybooks', { title: "Stephen Owabie's books on Myreads", errors: errors, content: '', 
-    csrfToken: csrfToken, loggedIn, books: booksWithUserReviews});
+    csrfToken: csrfToken, loggedIn, books: booksWithUserReviews, searchQuery: searchQuery});
 });
 
 app.get('/write_review/:bookId', async (req, res) => {
