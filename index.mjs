@@ -87,12 +87,10 @@ app.post('/logout', (req, res) => {
     res.redirect('/');
 });
 
-// Redirect users to the index page when they visit /myreads
 app.get('/myreads', (req, res) => {
     res.redirect('/');
 });
 
-// Redirect users to the sign-up page when they visit /signup
 app.get('/signup', (req, res) => {
     res.render('signup', { title: 'Sign Up', message: 'Sign up for MyReads!' });
 });
@@ -765,9 +763,13 @@ app.get('/user/:userId', async (req, res) => {
             return res.status(404).send('User not found');
         }
 
+        // Calculate the total number of reviews made by the user
+        const totalReviews = await Book.countDocuments({ 'reviews.user': userId });
+
         res.render('user', { 
             title: 'User Profile', 
             user, 
+            totalReviews, // Pass the total number of reviews to the view
             errors: errors, 
             content: '', 
             csrfToken: csrfToken, 
@@ -781,10 +783,24 @@ app.get('/user/:userId', async (req, res) => {
 });
 
 app.get('/mybooks', async (req, res) => {
-    const loggedIn = determineLoggedInStatus(req);
+    const { loggedIn, userId } = determineLoggedInStatus(req);
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;
-    res.render('mybooks', { title: "Stephen Owabie's books on Myreads", errors: errors, content: '', csrfToken: csrfToken, loggedIn, book:''});
+
+    // Fetch books that the user has reviewed
+    const reviewedBooks = await Book.find({ 'reviews.user': new mongoose.Types.ObjectId(userId) });
+
+    // Extract the user's review for each book
+    const booksWithUserReviews = reviewedBooks.map(book => {
+        const userReview = book.reviews.find(review => review.user.equals(userId));
+        return {
+            ...book.toObject(),
+            userReview: userReview ? userReview.content : null
+        };
+    });
+
+    res.render('mybooks', { title: "Stephen Owabie's books on Myreads", errors: errors, content: '', 
+    csrfToken: csrfToken, loggedIn, books: booksWithUserReviews});
 });
 
 app.get('/write_review/:bookId', async (req, res) => {

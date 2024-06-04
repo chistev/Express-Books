@@ -11,37 +11,22 @@
                 <div class="search-filter-container">
                     <div class="search-input">
                         <i class="bi bi-search"></i>
-                        <input type="text" placeholder="Search and add books">
+                        <input type="text" placeholder="Search books">
                     </div>
                 </div>
             </div>
         </div>
-        <hr>
-        <div class="row">
-            <div class="col-2">
-                <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    All (3)
-                </div>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    Read (1)
-                </div>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    Currenly Reading (0)
-                </div>
-                <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                    Want to Read (2)
-                </div>
-                <hr>
-            </div>
 
+        <div class="row">
+           
             <div class="col-10">
                 <div class="row">
-                    <div class="col-1">
+                    <div class="col-2">
                         <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
                             Cover
                         </div>
                     </div>
-                    <div class="col-1">
+                    <div class="col-2">
                         <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
                             Title
                         </div>
@@ -51,123 +36,58 @@
                             Authur
                         </div>
                     </div>
-                    <div class="col-1">
-                        <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                            Avg rating
-                        </div>
-                    </div>
-                    <div class="col-1">
-                        <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                            rating
-                        </div>
-                    </div>
-                    <div class="col-1">
-                        <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                            shelves
-                        </div>
-                    </div>
-                    <div class="col-2">
+            
+                    <div class="col-3">
                         <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
                             review
                         </div>
                     </div>
-                    <div class="col-1">
-                        <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                            date read
-                        </div>
-                    </div>
-                    <div class="col-1">
-                        <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                            date added
-                        </div>
-                    </div>
-                    <div class="col-1">
-                        <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                            asdf
-                        </div>
-                    </div>
+                    
                     <hr>
                     <div class="row">
                         <div class="col-12">
                              <div class="row">
-                                <div class="col-1">
-                                    <img src="https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1412532512i/23281637.jpg" style="width: 100%;">
+                                <% books.forEach(book => { %>
+                                <div class="col-2">
+                                    <img src="<%= book.image %>" alt="<%= book.title %>" style="width: 100%;">
                                 </div>
-                                <div class="col-1">
-                                    <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                        Faith Versus Fact: Why Science and Religion Are Incompatible
-                                    </div>
-                                </div>
+                                
                                 <div class="col-2">
                                     <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                        Coyne, Jerry A.
+                                        <%= book.title %>
                                     </div>
                                 </div>
-                                <div class="col-1">
-                                    <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                        4.12
-                                    </div>
-                                </div>
-                                <div class="col-1">
-                                    <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                        <div id="stars">
-                                            <% for (let i = 0; i < 5; i++) { %>
-                                                <a href="<%= loggedIn ? '#' : '/signup' %>" class="text-decoration-none star" style="color: #1e1915;" data-index="<%= i + 1 %>">
-                                                    <i class="bi bi-star" style="font-size:x-small;"></i>
-                                                </a>
-                                            <% } %>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-1">
-                                    <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                        to-read
-                                        [edit]
-                                    </div>
-                                </div>
+                                
                                 <div class="col-2">
                                     <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                        Write a review
+                                        <%= book.author %>
                                     </div>
                                 </div>
-                                <div class="col-1">
+                                
+                                <div class="col-5">
                                     <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                        date read
+                                        <%- book.userReview %>
                                     </div>
                                 </div>
+                                
                                 <div class="col-1">
                                     <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                        date added
-                                    </div>
-                                </div>
-                                <div class="col-1">
-                                    <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                        asdf
+                                        x
                                     </div>
                                 </div>
                                 <hr>
-                                <div class="row">
-                                    <div class="col-3">
-                                        sort
-                                    </div>
-                                    <div class="col-3">
-                                        Asc
-                                    </div>
-                                    <div class="col-3">
-                                        Desc
-                                    </div>
-                                    
-                                </div>
+                                <% }) %>
+                                
+                                
                              </div>       
                         </div>
                     </div>
                 </div>
-                
-            </div>
-            
-            
+            </div>    
         </div>
         
         
         
-        
+    </div>
+</div>
+</div>

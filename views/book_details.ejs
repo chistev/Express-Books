@@ -74,9 +74,7 @@
                 <div class="col-2">
                     <img src="https://images.gr-assets.com/users/1714842419p6/154684875.jpg" style="border-radius: 50%; width: 60%; object-fit: contain;" >
                         <div style="font-family: Georgia, serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
-                            <a href="/user/<%= review.user._id %>" style="color: #1e1915; text-decoration: none;">
-                                <%= review.user.fullName %>
-                            </a>
+                            <%= review.user.fullName %>
                         </div>
                         <div class="" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
                             <%= review.userReviewCount %> reviews
@@ -118,18 +116,6 @@
                             </a>
                             
                             <div id="comments-container-<%= review._id %>" class="comments-container" style="display: none;">
-                                <% if (review.commentCount > 5) { %>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <!-- Horizontal line to the left -->
-                                        <hr class="flex-grow-1 mr-3" style="border-top: 2px solid #767676;">
-                                        
-                                        <a href="#" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="show-more-comments text-decoration-none" data-review-id="<%= review._id %>" data-offset="5">Show More Comments </a>
-    
-                                        
-                                        <!-- Horizontal line to the right -->
-                                        <hr class="flex-grow-1 ml-3" style="border-top: 2px solid #767676;">
-                                    </div>
-                                <% } %>
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="row">
