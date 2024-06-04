@@ -91,7 +91,7 @@
                                     </div>
                                     <div class="col-1">
                                         <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">
-                                            x
+                                            <i class="bi bi-x-lg fs-1 delete-review" data-review-id="<%= book.userReview ? book.userReview._id : '' %>" data-book-title="<%= book.title %>" data-book-id="<%= book._id %>"></i>
                                         </div>
                                     </div>
                                     <hr>
@@ -139,6 +139,45 @@
                         reviewContentFull.innerHTML = '<p>Error loading review content.</p>';
                         reviewContentFull.style.display = 'block';
                     });
+            });
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var deleteReviewLinks = document.querySelectorAll(".delete-review");
+
+        deleteReviewLinks.forEach(function(link) {
+            link.addEventListener("click", function(event) {
+                event.preventDefault();
+                var reviewId = this.getAttribute("data-review-id");
+                var bookTitle = this.getAttribute("data-book-title");
+                var bookId = this.getAttribute("data-book-id");
+
+                if (reviewId) {
+                    var confirmation = confirm(`Are you sure you want to remove "${bookTitle}" from your books? This will permanently remove any review you have added.`);
+                    if (confirmation) {
+                        fetch(`/book/${bookId}/review/${reviewId}`, {
+                            method: 'DELETE'
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("Review deleted:", data);
+                            location.reload();
+                        })
+                        .catch(error => {
+                            console.error('Error deleting review:', error);
+                        });
+                    }
+                } else {
+                    alert("No review to delete.");
+                }
             });
         });
     });

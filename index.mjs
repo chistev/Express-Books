@@ -815,6 +815,30 @@ app.get('/mybooks', async (req, res) => {
     csrfToken: csrfToken, loggedIn, books: booksWithUserReviews, searchQuery: searchQuery});
 });
 
+app.delete('/book/:bookId/review/:reviewId', async (req, res) => {
+    const { bookId, reviewId } = req.params;
+    const { userId } = determineLoggedInStatus(req);
+
+    try {
+        // Find the book by ID and the review by ID, ensuring the review belongs to the user
+        const book = await Book.findOneAndUpdate(
+            { _id: bookId, 'reviews._id': reviewId, 'reviews.user': userId },
+            { $pull: { reviews: { _id: reviewId } } },
+            { new: true }
+        );
+
+        if (!book) {
+            return res.status(404).json({ message: 'Book or review not found' });
+        }
+
+        res.json({ message: 'Review deleted successfully', book });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
 app.get('/write_review/:bookId', async (req, res) => {
     const loggedIn = determineLoggedInStatus(req);
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
