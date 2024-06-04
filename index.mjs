@@ -798,12 +798,16 @@ app.get('/mybooks', async (req, res) => {
         ]
     });
 
-    // Extract the user's review for each book
+    // Extract the user's review for each book and include the review ID
     const booksWithUserReviews = reviewedBooks.map(book => {
         const userReview = book.reviews.find(review => review.user.equals(userId));
         return {
             ...book.toObject(),
-            userReview: userReview ? userReview.content : null
+            userReview: userReview ? {
+                _id: userReview._id,
+                fullContent: userReview.content,
+                truncatedContent: userReview.content.length > 200 ? userReview.content.slice(0, 200) + '...' : userReview.content
+            } : null
         };
     });
 
