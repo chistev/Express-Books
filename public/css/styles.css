@@ -471,3 +471,12 @@ width: 100%;
     position: sticky;
     top: 1px;
 }
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.pagination-container .btn {
+    margin: 0 5px;
+}

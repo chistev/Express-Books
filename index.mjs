@@ -116,10 +116,14 @@ app.get('/privacy_policy', (req, res) => {
 
 app.get('/new_releases', async (req, res) => {
     // Determine the loggedIn status
-    const loggedIn = determineLoggedInStatus(req);
+    const { loggedIn } = determineLoggedInStatus(req);
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10; // Number of books per page
+    const skip = (page - 1) * limit;
+
     try {
-        // Fetch books from the database
-        const books = await Book.find().sort({ createdAt: -1 })
+        const totalBooks = await Book.countDocuments();
+        const books = await Book.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
 
         // Modify the description of each book to include only the first 20 words
         books.forEach(book => {
@@ -134,7 +138,8 @@ app.get('/new_releases', async (req, res) => {
         });
 
         // Render the template with the books
-        res.render('new_releases', { title: 'New Releases', loggedIn, content: '', books });
+        res.render('new_releases', { title: 'New Releases', loggedIn, content: '', books, currentPage: page, 
+        totalPages: Math.ceil(totalBooks / limit) });
     } catch (error) {
         console.error('Error fetching books:', error);
         res.status(500).send('Internal Server Error');

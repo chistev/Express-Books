@@ -4,55 +4,58 @@
 <%- include('navbar') %>
 
 <div class="container">
-<div class="row">
-    <div class="col-md-12 ms-4" style="font-family: Georgia, serif;">
-        <p style="color: #1e1915; font-size: 36px;">Recently posted books</p>
-        <div class="container">
-            <div class="row">
-                <% books.forEach((book, index) => { %>
-                <div class="col-md-3">
-                    <a href="/book/<%= book._id %>/details" class="image-link">
-                        <img src="<%= book.image %>" alt="<%= book.title %>" class="image" style="width: 65%;">
-                    </a>    
-                </div>       
-                <div class="col-md-8 new-releases mb-5">
-                    <div class="mb-1 book-number">#<%= index + 1 %></div>
-                    <div class="mb-1">
-                        <a class="text-decoration-none book-description" href="">
-                            <%= book.title %>
+    <div class="row">
+        <div class="col-md-12 ms-4" style="font-family: Georgia, serif;">
+            <p style="color: #1e1915; font-size: 36px;">Recently posted books</p>
+            <div class="container">
+                <div class="row">
+                    <% books.forEach((book, index) => { %>
+                    <div class="col-md-3">
+                        <a href="/book/<%= book._id %>/details" class="image-link">
+                            <img src="<%= book.image %>" alt="<%= book.title %>" class="image" style="width: 65%;">
                         </a>
                     </div>
-                    <div class="mb-1">
-                        <a class="text-decoration-none book-authur" href="">
-                            <%= book.author %>
-                        </a>
-                    </div>
-                    <div class="mb-1">
-                        <i style="color: #e87400;" class="bi bi-star"></i> <span class="rating"><%= book.rating %></span>
-                    </div>
-                    <button class="btn fw-bold mt-2 mb-1 btn-want-to-read" style="background-color: #3f8363; color: #ffffff; border-radius: 15%;">Want to read</button>
-                    <!-- Description container -->
-                    <div class="description-container" id="description-container-<%= book._id %>">
-                        <p class="mb-2 short-description">
-                            <%- book.description %>
-                        </p>
-                        <div class="show-more-button">
-                            <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link" data-book-id="<%= book._id %>" href="#">
-                                Show more &#9662;
+                    <div class="col-md-8 new-releases mb-5">
+                        <div class="mb-1 book-number">#<%= index + 1 %></div>
+                        <div class="mb-1">
+                            <a class="text-decoration-none book-description" href="">
+                                <%= book.title %>
                             </a>
                         </div>
+                        <div class="mb-1">
+                            <a class="text-decoration-none book-authur" href="">
+                                <%= book.author %>
+                            </a>
+                        </div>
+                        <div class="mb-1">
+                            <i style="color: #e87400;" class="bi bi-star"></i> <span class="rating"><%= book.rating %></span>
+                        </div>
+                        <button class="btn fw-bold mt-2 mb-1 btn-want-to-read" style="background-color: #3f8363; color: #ffffff; border-radius: 15%;">Want to read</button>
+                        <div class="description-container" id="description-container-<%= book._id %>">
+                            <p class="mb-2 short-description">
+                                <%- book.description %>
+                            </p>
+                            <div class="show-more-button">
+                                <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link" data-book-id="<%= book._id %>" href="#">
+                                    Show more &#9662;
+                                </a>
+                            </div>
+                        </div>
                     </div>
+                    <% }); %>
                 </div>
-                <% }); %>
+                <div class="pagination-container">
+                    <% if (currentPage > 1) { %>
+                        <a href="/new_releases?page=<%= currentPage - 1 %>" class="btn btn-primary">Previous</a>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <a href="/new_releases?page=<%= i %>" class="btn <%= currentPage === i ? 'btn-secondary' : 'btn-primary' %>"><%= i %></a>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <a href="/new_releases?page=<%= currentPage + 1 %>" class="btn btn-primary">Next</a>
+                    <% } %>
+                </div>
             </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <!-- Horizontal line to the left -->
-                <hr class="flex-grow-1 mr-3" style="border-top: 2px solid #767676;">
-                <button type="submit" class="btn fs-6 read-more-button mb-5" style="color: #ffffff;" onclick="showMoreBooks()">Show more books</button>
-                <!-- Horizontal line to the right -->
-                <hr class="flex-grow-1 ml-3" style="border-top: 2px solid #767676;">
-            </div>
-        </div>    
+        </div>
     </div>
-</div>
 </div>
