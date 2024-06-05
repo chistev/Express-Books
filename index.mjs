@@ -818,10 +818,13 @@ app.get('/mybooks', async (req, res) => {
 app.get('/user/:userId/mybooks', async (req, res) => {
     const { loggedIn, userId } = determineLoggedInStatus(req);
     const targetUserId = req.params.userId;
-    
-    if (userId === targetUserId) {
+
+    const isOwner = userId === targetUserId;
+
+    if (isOwner) {
         res.redirect('/mybooks');
-    } else {
+    } 
+    else {
         const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
         const csrfToken = req.csrfToken;
         
@@ -860,6 +863,7 @@ app.get('/user/:userId/mybooks', async (req, res) => {
             content: '', 
             csrfToken: csrfToken, 
             loggedIn, 
+            isOwner, // Pass the ownership flag to the template
             books: booksWithUserReviews, 
             searchQuery: searchQuery 
         });
