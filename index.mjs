@@ -29,6 +29,7 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import { body, validationResult } from 'express-validator';
 import moment from 'moment';
+import addUserToLocals from './controllers/authmiddleware.mjs'
 
 
 
@@ -70,7 +71,8 @@ app.use('/password_reset', passwordResetController)
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
-
+// Add middleware to add user to locals
+app.use(addUserToLocals);
 // Route for the home page
 app.get('/', async (req, res) => {
     // Determine the loggedIn status
@@ -478,7 +480,7 @@ app.get('/genre/:genre', async (req, res) => {
     const { genre } = req.params;
 
     try {
-        const loggedIn = determineLoggedInStatus(req);
+        const { loggedIn } = determineLoggedInStatus(req);
         // Query the database for books belonging to the specified genre
         const books = await Book.find({ genre });
 

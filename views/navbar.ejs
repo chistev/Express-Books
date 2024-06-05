@@ -8,15 +8,41 @@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link my-books fw-bold" href="<%= loggedIn ? '/mybooks' : '/signup' %>">My Books</a>
-                </li>                
-                <li class="nav-item dropdown"> <!-- Added dropdown class -->
+                </li>
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle my-books fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Browse
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item navbar-dropdown" href="/new_releases" style="color: #5f5f5f;">New Releases</a></li>
-                        <!-- You can add more dropdown items here -->
-                    </ul>
+                    <div class="dropdown-menu dropdown-large" aria-labelledby="navbarDropdown">
+                        <div class="row">
+                            <div class="col-md-6 left-menu" style="background-color: #ffffff;">
+                                <h6 class="dropdown-header">BROWSE</h6>
+                                <a class="dropdown-item" href="/new_releases">New Releases</a>
+                            </div>
+                            <div class="col-md-6 right-menu" style="background-color: #f6f6f6;">
+                                <h6 class="dropdown-header"><%= loggedIn ? 'FAVORITE GENRES' : 'GENRES' %></h6>
+                                <% if (loggedIn && user) { %>
+                                    <% user.selectedGenres.forEach(genre => { %>
+                                        <a class="dropdown-item" href="/genre/<%= genre %>"><%= genre %></a>
+                                    <% }) %>
+                                <% } else { %>
+                                    <a class="dropdown-item" href="/genre/Art">Art</a>
+                                    <a class="dropdown-item" href="/genre/Classics">Classics</a>
+                                    <a class="dropdown-item" href="/genre/Contemporary">Contemporary</a>
+                                    <a class="dropdown-item" href="/genre/Crime">Crime</a>
+                                    <a class="dropdown-item" href="/genre/Fiction">Fiction</a>
+                                    <a class="dropdown-item" href="/genre/Historical Fiction">Historical Fiction</a>
+                                    <a class="dropdown-item" href="/genre/History">History</a>
+                                    <a class="dropdown-item" href="/genre/Humor and Comedy">Humor and Comedy</a>
+                                    <a class="dropdown-item" href="/genre/Nonfiction">Nonfiction</a>
+                                    <a class="dropdown-item" href="/genre/Religion">Religion</a>
+                                    <a class="dropdown-item" href="/genre/Science">Science</a>
+                                    <a class="dropdown-item" href="/genre/Thriller">Thriller</a>
+                                <% } %>
+                            </div>
+                        </div>
+                        
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Community</a>

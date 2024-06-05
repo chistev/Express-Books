@@ -480,3 +480,33 @@ width: 100%;
 .pagination-container .btn {
     margin: 0 5px;
 }
+
+.dropdown-large {
+    width: 400px; /* Adjust width as necessary */
+}
+.dropdown-header {
+    font-family: Helvetica, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 16px;
+    color: #382110;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.left-menu {
+    padding: 15px;
+}
+
+.right-menu {
+    padding: 15px;
+    width: auto;
+}
+
+.dropdown-item {
+    padding: 5px 10px;
+    color: #5f5f5f;
+}
+.dropdown-item:hover {
+    background-color: #e9ecef;
+}
