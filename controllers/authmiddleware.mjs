@@ -8,20 +8,29 @@ async function addUserToLocals(req, res, next) {
         try {
             const user = await User.findById(userId);
             if (user) {
+                const [firstName, lastName] = user.fullName.split(' ');
                 res.locals.loggedIn = true;
                 res.locals.user = user;
+                res.locals.firstName = firstName;
+                res.locals.lastName = lastName;
             } else {
                 res.locals.loggedIn = false;
                 res.locals.user = null;
+                res.locals.firstName = '';
+                res.locals.lastName = '';
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
             res.locals.loggedIn = false;
             res.locals.user = null;
+            res.locals.firstName = '';
+            res.locals.lastName = '';
         }
     } else {
         res.locals.loggedIn = false;
         res.locals.user = null;
+        res.locals.firstName = '';
+        res.locals.lastName = '';
     }
 
     next();

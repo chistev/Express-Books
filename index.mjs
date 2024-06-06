@@ -1011,7 +1011,8 @@ app.get('/search', async (req, res) => {
             books,
             currentPage: 1, // Assuming it's the first page
             totalPages: 1, // Assuming all results fit on one page
-            isSearchResult: true // Flag to indicate it's a search result page
+            isSearchResult: true, // Flag to indicate it's a search result page
+            query
         });
     } catch (err) {
         res.status(500).send(err);
