@@ -980,7 +980,20 @@ async (req, res) => {
     }
 });
 
-
+app.get('/search', async (req, res) => {
+    const query = req.query.query;
+    try {
+        const books = await Book.find({
+            $or: [
+                { title: new RegExp(query, 'i') },
+                { author: new RegExp(query, 'i') }
+            ]
+        }).limit(10);
+        res.json(books);
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
 
 // Start the server
 app.listen(port, () => {

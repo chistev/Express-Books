@@ -44,10 +44,19 @@
                         
                     </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Community</a>
-                </li>
+
+                
+                
             </ul>
+            <form class="d-flex ms-4 position-relative search" action="/search" method="get" style="flex-grow: 1;">
+                <input id="search-input" class="form-control" type="search" name="query" placeholder="Search books" aria-label="Search" style="width: 50%;">
+                <span class="position-absolute end-50 top-50 translate-middle-y me-3">
+                    <i class="bi bi-search"></i>
+                </span>
+                <div id="suggestions" class="position-absolute bg-white border mt-1" style="width: 50%; display: none;">
+                    <!-- Suggestions will be injected here -->
+                </div>
+            </form>
             <% if (loggedIn) { %>
                 <form action="/logout" method="post">
                     <button type="submit" class="btn btn-outline-danger">Sign Out</button>
@@ -56,3 +65,45 @@
         </div>
     </div>
 </nav>
+
+<script>
+    document.getElementById('search-input').addEventListener('input', function() {
+        const query = this.value;
+        const suggestions = document.getElementById('suggestions');
+        
+        if (!query.trim()) {
+            suggestions.innerHTML = ''; // Clear suggestions when query is empty
+            suggestions.style.display = 'none';
+            return;
+        }
+
+        fetch(`/search?query=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                suggestions.innerHTML = '';
+                if (data.length > 0) {
+                    data.forEach(book => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.classList.add('suggestion-item', 'p-2');
+                        suggestionItem.innerHTML = `
+                            <div class="d-flex">
+                                <img src="${book.image}" alt="${book.title}" class="me-2" style="width: 50px; height: auto;">
+                                <div>
+                                    <strong>${book.title}</strong><br>
+                                    <small>by ${book.author}</small>
+                                </div>
+                            </div>
+                        `;
+                        suggestionItem.addEventListener('click', function() {
+                            window.location.href = `/book/${book._id}/details`;
+                        });
+                        suggestions.appendChild(suggestionItem);
+                    });
+                    suggestions.style.display = 'block';
+                } else {
+                    suggestions.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error fetching search results:', error));
+    });
+</script>

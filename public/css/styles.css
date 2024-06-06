@@ -510,3 +510,32 @@ width: 100%;
 .dropdown-item:hover {
     background-color: #e9ecef;
 }
+
+.search .form-control:focus {
+    outline: none;
+    box-shadow: none;
+    border: 1px solid rgb(244,241,234);
+}
+
+.search .form-control {
+    border: 2px solid rgb(244,241,234);
+}
+
+.suggestion-item {
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background-color: #f8f9fa;
+}
+
+#suggestions {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 200px; /* Adjust the max-height according to your preference */
+    overflow-y: auto;
+    width: calc(100% - 8px); /* Adjust the width to match the search input */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 5% !important;
+}
