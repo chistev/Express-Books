@@ -818,20 +818,30 @@ app.get('/mybooks', async (req, res) => {
         };
     });
 
-    res.render('mybooks', { title: "Stephen Owabie's books on Myreads", errors: errors, content: '', 
-    csrfToken: csrfToken, loggedIn, books: booksWithUserReviews, searchQuery: searchQuery});
+    res.render('mybooks', { 
+        title: "Stephen Owabie's books on Myreads", 
+        errors: errors, 
+        content: '', 
+        csrfToken: csrfToken, 
+        loggedIn, 
+        isOwner: false, // Default value for isOwner
+        books: booksWithUserReviews, 
+        searchQuery: searchQuery
+    });
 });
 
 app.get('/user/:userId/mybooks', async (req, res) => {
     const { loggedIn, userId } = determineLoggedInStatus(req);
     const targetUserId = req.params.userId;
 
-    const isOwner = userId === targetUserId;
+    // Default value for isOwner
+    let isOwner = false;
 
-    if (isOwner) {
+    if (userId === targetUserId) {
+        // Update isOwner if the user is the owner
+        isOwner = true;
         res.redirect('/mybooks');
-    } 
-    else {
+    } else {
         const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
         const csrfToken = req.csrfToken;
         
@@ -1018,6 +1028,89 @@ app.get('/search', async (req, res) => {
         res.status(500).send(err);
     }
 });
+
+// Define formatDate function to format the date
+function formatDate(dateString) {
+    // Ensure dateString is parsed into a Date object
+    const date = new Date(dateString);
+    
+    const options = {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    };
+    const formattedDate = date.toLocaleDateString('en-US', options);
+    return formattedDate;
+}
+
+app.get('/comments/list', async (req, res) => {
+    try {
+        // Determine user logged in status and get the user ID
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        
+        if (!loggedIn) {
+            return res.redirect('/login'); // Redirect to login if user not logged in
+        }
+
+        // Fetch comments made by the current user
+        const userComments = await Book.find({'reviews.comments.user': userId})
+            .populate({
+                path: 'reviews',
+                populate: {
+                    path: 'user',
+                    select: 'fullName' // Select only the fullName field of the user who authored the review
+                }
+            })
+            .populate({
+                path: 'reviews.user', // Populate the user who authored the review
+                select: 'fullName _id' // Select fullName and _id
+            })
+            .populate({
+                path: 'reviews.comments.user',
+                select: 'fullName' // Select only the fullName field of the user who made the comment
+            });
+            
+
+        // Extract review details from userComments
+        const reviewsWithUserComments = userComments.map(book => {
+            return book.reviews.map(review => {
+                const userComment = review.comments.find(comment => comment.user._id.equals(userId));
+                if (userComment) {
+                    return {
+                        bookTitle: book.title,
+                        reviewContent: review.content,
+                        commenterName: userComment.user.fullName, // Access the commenter's fullName from the user object
+                        commenterId: userComment.user._id, // Access the commenter's ID from the user object
+                        commentCreatedAt: formatDate(userComment.createdAt), // Format the creation date of the comment
+                        reviewAuthorName: review.user.fullName, // Access the fullName of the user who authored the review
+                        reviewAuthorId: review.user._id, // Access the ID of the user who authored the review
+                        bookId: book._id,
+                    };
+                }
+                // If userComment is undefined, return an empty object
+                return {};
+            });
+        }).flat(); // Flatten the array of arrays
+
+        // Remove empty objects from the array
+        const filteredComments = reviewsWithUserComments.filter(comment => Object.keys(comment).length !== 0);
+
+        // Render the comments list page with formatted dates
+        res.render('comments', {
+            title: 'Your Comments',
+            comments: filteredComments,
+            content: '',
+            formatDate: formatDate // Pass the formatDate function to the template
+        });
+    } catch (error) {
+        console.error('Error fetching user comments:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 // Start the server
 app.listen(port, () => {
