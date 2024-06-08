@@ -824,7 +824,7 @@ app.get('/mybooks', async (req, res) => {
         content: '', 
         csrfToken: csrfToken, 
         loggedIn, 
-        isOwner: false, // Default value for isOwner
+        isOwner: true, // Default value for isOwner
         books: booksWithUserReviews, 
         searchQuery: searchQuery
     });
@@ -1088,6 +1088,8 @@ app.get('/comments/list', async (req, res) => {
                         reviewAuthorName: review.user.fullName, // Access the fullName of the user who authored the review
                         reviewAuthorId: review.user._id, // Access the ID of the user who authored the review
                         bookId: book._id,
+                        bookImage: book.image,
+                        commentContent: userComment.content
                     };
                 }
                 // If userComment is undefined, return an empty object
@@ -1111,6 +1113,30 @@ app.get('/comments/list', async (req, res) => {
     }
 });
 
+app.post('/comments/delete', async (req, res) => {
+    const { commenterId, bookId } = req.body;
+
+    try {
+        const book = await Book.findById(bookId);
+
+        if (book) {
+            for (let review of book.reviews) {
+                const commentIndex = review.comments.findIndex(comment => comment.user.equals(commenterId));
+
+                if (commentIndex > -1) {
+                    review.comments.splice(commentIndex, 1);
+                    await book.save();
+                    return res.json({ success: true });
+                }
+            }
+        }
+
+        res.json({ success: false });
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        res.status(500).json({ success: false });
+    }
+});
 
 // Start the server
 app.listen(port, () => {

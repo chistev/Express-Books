@@ -8,40 +8,41 @@
         <div class="col-md-8">
             <div class="mt-3" style="font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 24px; line-height: 24px; color: #382110;">My Recent Posts</div>
 
-            <% comments.forEach(comment => { %>
-                <div style="background-color: #f4f1ea;" class="mt-3 ms-2 d-flex p-2 justify-content-between align-items-center">
-                    <div>
-                        <a href="/user/<%= comment.reviewAuthorId %>/mybooks" style="text-decoration: none; color: #00635d; font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #00635d;">
-                            <%= comment.reviewAuthorName %>'s
-                        </a>
-
-                        <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;"> review of </span>
-        
-                        <a href="/book/<%= comment.bookId %>/details" style="text-decoration: none; color: #00635d;">
-                            <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #00635d;"><%= comment.bookTitle %>.</span>
-                        </a>
-                        
-                    </div>
-
-                    <div style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;"> <%= formatDate(comment.commentCreatedAt) %></div>
-
+            <% if (comments.length === 0) { %>
+                <div class="mt-3" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
+                    You have no comments.
                 </div>
+            <% } else { %>
+                <% comments.forEach(comment => { %>
+                    <div style="background-color: #f4f1ea;" class="mt-3 ms-2 d-flex p-2 justify-content-between align-items-center">
+                        <div>
+                            <a href="/user/<%= comment.reviewAuthorId %>/mybooks" style="text-decoration: none; color: #00635d; font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px;">
+                                <%= comment.reviewAuthorName %>'s
+                            </a>
 
-                <div class="row ms-1">
-                    <div class="col-1 mt-1">
-                        <img src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1369155534l/97078._SY75_.jpg">
-                    </div>
-                    <div class="col-10 mt-1 ms-2 ">
-                        <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
-                            <%= comment.reviewContent %>
+                            <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;"> review of </span>
+            
+                            <a href="/book/<%= comment.bookId %>/details" style="text-decoration: none; color: #00635d;">
+                                <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px;"><%= comment.bookTitle %>.</span>
+                            </a>
                         </div>
-                        <div style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 11px; line-height: 14px; color: #00635d;">
-                            delete
-                        </div>
-                    </div>
-                </div>
-            <% }); %>
 
+                        <div style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;"> <%= formatDate(comment.commentCreatedAt) %></div>
+                    </div>
+
+                    <div class="row ms-1">
+                        <div class="col-2 mt-1">
+                            <img src="<%= comment.bookImage %>" alt="<%= comment.bookTitle %>" style="width: 100%; height: auto;">
+                        </div>
+                        <div class="col-9 mt-1 ms-2 ">
+                            <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
+                                <%- comment.commentContent %>
+                            </div>
+                            <a class="text-decoration-none" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 11px; line-height: 14px; color: #00635d;" href="#" onclick="confirmDelete('<%= comment.commenterId %>', '<%= comment.bookId %>')">delete</a>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
         </div>
         <div class="col-md-4 mt-5">
             <div style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 11px; line-height: 14px; color: #00635d;">
@@ -50,3 +51,29 @@
         </div>
     </div>
 </div>
+
+<script>
+    function confirmDelete(commenterId, bookId) {
+        if (confirm("Are you sure you want to delete this comment?")) {
+            fetch(`/comments/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ commenterId, bookId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error deleting comment.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting comment.');
+            });
+        }
+    }
+</script>
