@@ -1,0 +1,41 @@
+<%- include('layout') %>
+
+<title><%= title %></title>
+<%- include('navbar') %>
+
+<div class="container" style="width: 70%;">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="mt-3" style="font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 24px; line-height: 24px; color: #382110;">My Recent Posts</div>
+
+            <div class="mt-3" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
+                This will delete your account. The reviews you've posted, your comments, etc. will be removed from the site.
+            </div>
+            <form id="deleteAccountForm" action="/delete_account" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="keepPostsAnonymously" id="keepPostsAnonymously">
+                    <label class="form-check-label" for="keepPostsAnonymously" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
+                        Keep all my discussion posts (anonymously, for other members' sake)
+                    </label>
+                </div>
+                <button type="button" class="btn mt-2" style="background-color: #f4f1ea; color: #333333; border: 1px solid;" onclick="confirmDeletion()">Delete my account</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDeletion() {
+    const checkbox = document.getElementById('keepPostsAnonymously');
+    if (checkbox.checked) {
+        if (confirm('Are you sure you want to delete your account but keep your posts anonymously?')) {
+            document.getElementById('deleteAccountForm').submit();
+        }
+    } else {
+        if (confirm('Are you sure you want to delete your account?')) {
+            document.getElementById('deleteAccountForm').submit();
+        }
+    }
+}
+</script>

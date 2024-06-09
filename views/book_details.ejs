@@ -138,7 +138,8 @@
                                                                     <%= comment.formattedDate %>
                                                                 </div>
                                                             </div>
-                                                            <% if (userId && comment.user._id.toString() === userId.toString()) { %>
+                                                            <% if (userId && comment.user && comment.user._id && comment.user._id.toString() === userId.toString()) { %>
+
                                                             <div class="comment-options">
                                                                 <i style="cursor: pointer;" class="bi bi-three-dots fs-5" data-comment-id="<%= comment._id %>" onclick="toggleDeletePopup(event)"></i>
                                                                 <div class="delete-popup" id="delete-popup-<%= comment._id %>" style="display: none;">

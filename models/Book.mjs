@@ -25,7 +25,6 @@ const bookSchema = new mongoose.Schema({
     },
     pages: {
         type: Number,
-        required: true
     },
     mediaType: {
         type: String,

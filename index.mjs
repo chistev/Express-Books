@@ -187,7 +187,9 @@ app.get('/book/:id/details', async (req, res) => {
         }
 
         // Fetch the total number of reviews for each user
-        const userIds = book.reviews.map(review => review.user._id);
+        const userIds = book.reviews
+            .map(review => review.user ? review.user._id : null)
+            .filter(id => id);  // Remove null values
         const userReviewCounts = await Book.aggregate([
             { $unwind: '$reviews' },
             { $match: { 'reviews.user': { $in: userIds } } },
@@ -205,15 +207,16 @@ app.get('/book/:id/details', async (req, res) => {
 
             const filteredLikes = review.likes.filter(like => like !== null);
             // Determine if the user has liked this review
-            const likedByUser = review.likes.some(like => like.user.equals(userId));
+            const likedByUser = review.likes.some(like => like.user && like.user.equals(userId));
             console.log(`Review ID: ${review._id}, Likes: ${filteredLikes.length}, Liked by User: ${likedByUser}`);
 
             // Format comment dates
             const commentsWithFormattedDate = review.comments
-            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map(comment => ({
                     ...comment._doc,
-                    formattedDate: moment(comment.createdAt).format('MMMM D, YYYY')
+                    formattedDate: moment(comment.createdAt).format('MMMM D, YYYY'),
+                    user: comment.user || { fullName: 'Anonymous' }  // Handle deleted user
                 }));
 
             return {
@@ -223,7 +226,8 @@ app.get('/book/:id/details', async (req, res) => {
                 likedByUser: likedByUser,
                 comments: commentsWithFormattedDate,
                 commentCount: review.comments.length, // Include the total number of comments
-                userReviewCount: reviewCountsMap[review.user._id.toString()] || 0 // Add total number of reviews for the user
+                userReviewCount: review.user ? reviewCountsMap[review.user._id.toString()] || 0 : 0,  // Add total number of reviews for the user
+                user: review.user || { fullName: 'Anonymous' }  // Handle deleted user
             };
         });
 
@@ -247,7 +251,7 @@ app.get('/book/:id/details', async (req, res) => {
         res.render('book_details', { 
             title: book.title, 
             book: { ...book._doc, reviews: reviewsWithFormattedDate },  
-            content:"", 
+            content: "", 
             loggedIn, 
             reviews: reviewsWithFormattedDate,
             userId: userIdStr,
@@ -347,10 +351,9 @@ app.get('/comment/:commentId', async (req, res) => {
 
 app.post('/book/:reviewId/comment', async (req, res) => {
     try {
-        const  { content }  = req.body;
+        const { content } = req.body;
         const { loggedIn, userId } = determineLoggedInStatus(req);
 
-        console.log('Received comment content:', content);
         console.log('User logged in:', loggedIn);
         console.log('User ID:', userId);
 
@@ -359,19 +362,22 @@ app.post('/book/:reviewId/comment', async (req, res) => {
             return res.status(401).json({ success: false, error: 'User not logged in' });
         }
 
+        // Fetch the user from the database
         const user = await User.findById(userId);
         console.log('User found:', user);
+        if (!user) {
+            console.log('User not found.');
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
 
         const book = await Book.findOne({ 'reviews._id': req.params.reviewId });
         console.log('Book found:', book);
-
-        if (!user || !book) {
-            console.log('User or book not found.');
-            return res.status(404).json({ success: false, error: 'User or book not found' });
+        if (!book) {
+            console.log('Book not found.');
+            return res.status(404).json({ success: false, error: 'Book not found' });
         }
 
         const review = book.reviews.id(req.params.reviewId);
-        console.log('Review found:', review);
 
         if (typeof content !== 'string') {
             console.log('Invalid content type:', typeof content);
@@ -379,7 +385,6 @@ app.post('/book/:reviewId/comment', async (req, res) => {
         }
 
         const trimmedContent = content.trim();
-        console.log('Trimmed comment content:', trimmedContent);
 
         if (!trimmedContent) {
             console.log('Comment content is empty.');
@@ -388,19 +393,19 @@ app.post('/book/:reviewId/comment', async (req, res) => {
 
         // Sanitize content to prevent XSS
         const sanitizedContent = sanitizeHtml(trimmedContent, {
-            allowedTags: [ 'p', 'br', 'i', 'b', 'u' ], // Allow only paragraph and line break tags
+            allowedTags: ['p', 'br', 'i', 'b', 'u'], // Allow only paragraph and line break tags
             allowedAttributes: {}
         });
 
         // Replace newlines with paragraph tags
         const formattedContent = sanitizedContent.split('\n').map(line => `<p>${line}</p>`).join('');
-        console.log('Formatted comment content:', formattedContent);
 
-        review.comments.push({ content: formattedContent, user: userId });
+        // Push the comment with the user field properly set
+        review.comments.push({ content: formattedContent, user: user._id });
+
         console.log('Comment added to review:', review.comments);
 
         await book.save();
-        console.log('Book saved after adding comment.');
 
         const formattedDate = new Date().toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' });
 
@@ -738,8 +743,8 @@ app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req,
     const { title, author, description, genre, pages, mediaType, publishedDate } = req.body;
     const imagePath = `/uploads/${req.file.filename}`;
 
-     // Sanitize the description
-     const sanitizedDescription = sanitizeHtml(description, {
+    // Sanitize the description
+    const sanitizedDescription = sanitizeHtml(description, {
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
         allowedAttributes: {
             a: ['href', 'name', 'target'],
@@ -748,20 +753,27 @@ app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req,
         }
     });
 
+    // Check if pages field is provided and not empty
+    let parsedPages = null;
+    if (pages && pages.trim() !== '') {
+        parsedPages = parseInt(pages, 10);
+    }
+
     const newBook = new Book({
         image: imagePath,
         title,
         author,
         description: sanitizedDescription,
         genre: Array.isArray(genre) ? genre : [genre],
-        pages: parseInt(pages, 10),
+        pages: parsedPages, // Assign parsedPages, which might be null if pages is empty or not provided
         mediaType,
         publishedDate: new Date(publishedDate)
     });
+
     await newBook.save();
     console.log('Book created successfully:', newBook);
     res.redirect('/');
-}); 
+});
 
 app.get('/user/:userId', async (req, res) => {
     const { loggedIn } = determineLoggedInStatus(req);
@@ -1320,6 +1332,117 @@ app.post('/upload_profile_photo', upload.single('profilePhoto'), async (req, res
     }
 });
 
+app.get('/delete_account', async (req, res) => {
+    try {
+        // Determine user logged in status and get the user ID
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        const csrfToken = req.csrfToken;
+
+        if (!loggedIn) {
+            return res.redirect('/login'); // Redirect to login if user not logged in
+        }
+
+        // Fetch user details to get the full name
+        const user = await User.findById(userId).select('fullName');
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        // Extract the first name from the full name
+        const firstName = user.fullName.split(' ')[0];
+
+        // Fetch comments made by the current user
+        const userComments = await Book.find({ 'reviews.comments.user': userId })
+            .populate({
+                path: 'reviews',
+                populate: {
+                    path: 'user',
+                    select: 'fullName' // Select only the fullName field of the user who authored the review
+                }
+            })
+            .populate({
+                path: 'reviews.user', // Populate the user who authored the review
+                select: 'fullName _id' // Select fullName and _id
+            })
+            .populate({
+                path: 'reviews.comments.user',
+                select: 'fullName' // Select only the fullName field of the user who made the comment
+            });
+
+        // Extract review details from userComments
+        const reviewsWithUserComments = userComments.map(book => {
+            return book.reviews.map(review => {
+                const userComment = review.comments.find(comment => comment.user._id.equals(userId));
+                if (userComment) {
+                    return {
+                        bookTitle: book.title,
+                        reviewContent: review.content,
+                        commenterName: userComment.user.fullName, // Access the commenter's fullName from the user object
+                        commenterId: userComment.user._id, // Access the commenter's ID from the user object
+                        commentCreatedAt: formatDate(userComment.createdAt), // Format the creation date of the comment
+                        reviewAuthorName: review.user.fullName, // Access the fullName of the user who authored the review
+                        reviewAuthorId: review.user._id, // Access the ID of the user who authored the review
+                        bookId: book._id,
+                        bookImage: book.image,
+                        commentContent: userComment.content
+                    };
+                }
+                // If userComment is undefined, return an empty object
+                return {};
+            });
+        }).flat(); // Flatten the array of arrays
+
+        // Remove empty objects from the array
+        const filteredComments = reviewsWithUserComments.filter(comment => Object.keys(comment).length !== 0);
+
+        // Render the comments list page with formatted dates
+        res.render('delete_account', {
+            title: 'Your Comments',
+            comments: filteredComments,
+            content: '',
+            formatDate: formatDate, // Pass the formatDate function to the template
+            firstName: firstName, // Pass the first name to the template
+            csrfToken:csrfToken
+        });
+    } catch (error) {
+        console.error('Error fetching user comments:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/delete_account', async (req, res) => {
+    try {
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        if (!loggedIn) {
+            return res.redirect('/login'); // Redirect to login if user not logged in
+        }
+
+        const { keepPostsAnonymously } = req.body;
+
+        if (keepPostsAnonymously) {
+            // Anonymize the user's reviews and comments
+            await Book.updateMany(
+                { 'reviews.user': userId },
+                { '$set': { 'reviews.$[elem].user': null } }, // Set user to null
+                { arrayFilters: [{ 'elem.user': userId }] }
+            );
+            await Book.updateMany(
+                { 'reviews.comments.user': userId },
+                { '$set': { 'reviews.$[review].comments.$[comment].user': null } }, // Set user to null
+                { arrayFilters: [{ 'review.comments.user': userId }, { 'comment.user': userId }] }
+            );
+        }
+
+        // Delete the user account
+        await User.findByIdAndDelete(userId);
+
+        res.redirect('/'); // Redirect to the homepage after account deletion
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 // Start the server
 app.listen(port, () => {
