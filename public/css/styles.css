@@ -546,3 +546,69 @@ width: 100%;
  padding: 5px;
  cursor: pointer;
 }
+
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.profile-image {
+    width: 150px;
+    height: 150px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit:cover;
+}
+
+.upload-button {
+    margin-bottom: 10px;
+}
+
+.delete-account {
+    color: red;
+    cursor: pointer;
+}
+
+.account-settings-header {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 24px;
+    color: #382110;
+    margin-top: 20px;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #ddd;
+    margin-top: 20px;
+}
+
+.nav-tabs .nav-link {
+    font-family: Helvetica, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 32px;
+    color: #333333;
+    margin-right: 10px;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 0;
+}
+
+.nav-tabs .nav-link.active {
+    color: #000;
+    border-color: #ddd #ddd #fff;
+    border-bottom: 2px solid #000;
+}

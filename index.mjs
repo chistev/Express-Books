@@ -1266,6 +1266,61 @@ app.post('/edit_favorite_genre', async (req, res) => {
     }
 });
 
+app.get('/account_settings', async (req, res) => {
+    try {
+        // Fetch user details for account settings
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        const csrfToken = req.csrfToken;
+
+        if (!loggedIn) {
+            return res.redirect('/login'); // Redirect to login if user not logged in
+        }
+
+        const user = await User.findById(userId).select('fullName email profilePhoto');
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        // Render the account settings page with user details
+        res.render('account_settings', {
+            title: 'Account Settings',
+            user: user,
+            csrfToken: csrfToken,
+            content: '',
+            loggedIn: loggedIn
+        });
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/upload_profile_photo', upload.single('profilePhoto'), async (req, res) => {
+    try {
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        if (!loggedIn) {
+            return res.redirect('/login'); // Redirect to login if user not logged in
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        // Update the user's profile photo path
+        user.profilePhoto = `/uploads/${req.file.filename}`;
+        await user.save();
+
+        console.log('Profile photo updated successfully:', user);
+        res.redirect('/account_settings');
+    } catch (error) {
+        console.error('Error uploading profile photo:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 // Start the server
 app.listen(port, () => {
     console.log(`MyReads app listening at http://localhost:${port}`);
