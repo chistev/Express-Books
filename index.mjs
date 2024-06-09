@@ -1210,6 +1210,61 @@ app.get('/likes/list', async (req, res) => {
     }
 });
 
+// app.get('/edit_favorite_genre' route handler
+app.get('/edit_favorite_genre', async (req, res) => {
+    try {
+        // Fetch user details to get the selected genres
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        const csrfToken = req.csrfToken;
+
+        if (!loggedIn) {
+            return res.redirect('/login'); // Redirect to login if user not logged in
+        }
+
+        const user = await User.findById(userId).select('selectedGenres');
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        const selectedGenres = user.selectedGenres;
+
+        // Render the edit favorite genres page with selected genres
+        res.render('edit_favorite_genres', {
+            title: 'Edit Favorite Genres',
+            selectedGenres: selectedGenres,
+            content: '',
+            csrfToken: csrfToken
+        });
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Add this POST route to handle the favorite genres form submission
+app.post('/edit_favorite_genre', async (req, res) => {
+    try {
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+
+        if (!loggedIn) {
+            return res.redirect('/login'); // Redirect to login if user not logged in
+        }
+
+        const { genre } = req.body;
+
+        // Ensure genre is an array, even if only one genre is selected
+        const selectedGenres = Array.isArray(genre) ? genre : [genre];
+
+        // Update the user's selected genres
+        await User.findByIdAndUpdate(userId, { selectedGenres: selectedGenres });
+
+        res.redirect('/'); // Redirect to a relevant page after updating
+    } catch (error) {
+        console.error('Error updating favorite genres:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 // Start the server
 app.listen(port, () => {

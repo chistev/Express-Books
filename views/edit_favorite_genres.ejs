@@ -1,0 +1,65 @@
+<%- include('layout') %>
+
+
+<title><%= title %></title>  
+<%- include('navbar') %>       
+    
+<body class="favorite-genre-body">
+    
+    <div class="favorite-genre-message fw-bold mt-2 fs-4 text-center">
+        Follow Your Favorite Genres
+    </div>
+    <div class="container">
+        <div class="favorite-genre-second-message fw-bold mt-2 text-center">
+            We use your favorite genres to make better book recommendations and tailor what you see in your Updates feed.
+        </div>
+    </div>
+    <div class="container">
+        <form action="/edit_favorite_genre" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="row">
+                <% const genres = ["art", "classics", "contemporary", "crime", "fiction", "historical-fiction", "history", "humor", "nonfiction", "religion", "science", "thriller"]; %>
+                <% genres.forEach(genre => { %>
+                    <div class="col-md-3">
+                        <div class="favorite-genre-custom-checkbox" onclick="toggleCheckbox('<%= genre %>Checkbox')">
+                            <input type="checkbox" id="<%= genre %>Checkbox" name="genre" value="<%= genre %>" <% if (selectedGenres.includes(genre)) { %>checked<% } %>>
+                            <label for="<%= genre %>Checkbox"><%= genre.charAt(0).toUpperCase() + genre.slice(1).replace('-', ' and ') %></label>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        
+            <div class="row mt-5 mb-5">
+                <div class="col-md-12 text-center">
+                    <button id="submitButton" class="btn favorite-genre-disabled-button" disabled>Select at least one genre to continue</button>
+                </div>
+            </div>
+        </form>
+        
+    </div>
+
+    <script>
+        function toggleCheckbox(checkboxId) {
+            var checkbox = document.getElementById(checkboxId);
+            checkbox.checked = !checkbox.checked;
+
+            // Check if at least one checkbox is checked
+            var checkboxes = document.querySelectorAll('input[name="genre"]');
+            var checked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+            // Enable or disable the button based on checkbox status
+            var submitButton = document.getElementById('submitButton');
+            if (checked) {
+                submitButton.classList.remove('favorite-genre-disabled-button');
+                submitButton.classList.add('favorite-genre-enabled-button');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Continue';
+            } else {
+                submitButton.classList.remove('favorite-genre-enabled-button');
+                submitButton.classList.add('favorite-genre-disabled-button');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Select at least one genre to continue';
+            }
+        }
+    </script>
+</body>
