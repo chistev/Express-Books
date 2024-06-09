@@ -1278,11 +1278,15 @@ app.post('/edit_favorite_genre', async (req, res) => {
     }
 });
 
-app.get('/account_settings', async (req, res) => {
+app.get('/account_settings', (req, res) => {
+    res.redirect('/account_settings/profile');
+});
+
+app.get('/account_settings/profile', async (req, res) => {
     try {
         // Fetch user details for account settings
         const { loggedIn, userId } = determineLoggedInStatus(req);
-        const csrfToken = req.csrfToken;
+        const csrfToken = req.csrfToken
 
         if (!loggedIn) {
             return res.redirect('/login'); // Redirect to login if user not logged in
@@ -1294,20 +1298,20 @@ app.get('/account_settings', async (req, res) => {
             return res.status(404).send('User not found');
         }
 
-        // Render the account settings page with user details
+        // Render the profile tab with user details
         res.render('account_settings', {
-            title: 'Account Settings',
+            title: 'Account Settings - Profile',
             user: user,
             csrfToken: csrfToken,
-            content: '',
-            loggedIn: loggedIn
+            activeTab: 'profile',
+            loggedIn: loggedIn,
+            content: ''
         });
     } catch (error) {
         console.error('Error fetching user details:', error);
         res.status(500).send('Internal Server Error');
     }
 });
-
 app.post('/upload_profile_photo', upload.single('profilePhoto'), async (req, res) => {
     try {
         const { loggedIn, userId } = determineLoggedInStatus(req);

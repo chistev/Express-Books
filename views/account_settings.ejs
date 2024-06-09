@@ -33,6 +33,7 @@
                     <a class="nav-link" href="/account_settings/purchases">Purchases</a>
                 </li>
             </ul>
+            <% if (activeTab === 'profile') { %>
             <div class="profile-container d-flex flex-column">
                 <div class="profile-image">
                     <% if (user.profilePhoto) { %>
@@ -48,6 +49,7 @@
                 </form>
                 <a href="/delete_account" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; color: #ff0000;" class="delete-account text-decoration-none">Delete my account</a>
             </div>
+            <% } %>
         </div>
     </div>
 </div>
