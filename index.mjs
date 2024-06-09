@@ -204,7 +204,9 @@ app.get('/book/:id/details', async (req, res) => {
             const formattedDate = moment(review.createdAt).format('MMMM D, YYYY');
 
             const filteredLikes = review.likes.filter(like => like !== null);
-            const likedByUser = userIdStr ? filteredLikes.map(like => like.toString()).includes(userIdStr) : false;
+            // Determine if the user has liked this review
+            const likedByUser = review.likes.some(like => like.user.equals(userId));
+            console.log(`Review ID: ${review._id}, Likes: ${filteredLikes.length}, Liked by User: ${likedByUser}`);
 
             // Format comment dates
             const commentsWithFormattedDate = review.comments
@@ -436,14 +438,13 @@ app.get('/book/:bookId/review/:reviewId', async (req, res) => {
     }
 });
 
+
 app.post('/book/:bookId/review/:reviewId/like', async (req, res) => {
     try {
         const { bookId, reviewId } = req.params;
-        // Determine user logged in status and get the user ID
         const { loggedIn, userId } = determineLoggedInStatus(req);
-        const userIdStr = userId ? userId.toString() : null;
 
-        if (!userIdStr) {
+        if (!loggedIn) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
@@ -457,18 +458,22 @@ app.post('/book/:bookId/review/:reviewId/like', async (req, res) => {
             return res.status(404).json({ error: 'Review not found' });
         }
 
-        // Filter out null values from the likes array
-        review.likes = review.likes.filter(like => like !== null);
+        // Ensure likes array contains valid entries and remove null values
+        review.likes = review.likes.filter(like => like.user);
 
-        const isLiked = review.likes.map(like => like.toString()).includes(userIdStr);
-        if (isLiked) {
-            review.likes.pull(userIdStr); // Unlike
+        // Check if the current user has already liked the review
+        const existingLike = review.likes.find(like => like.user.toString() === userId.toString());
+
+        if (existingLike) {
+            // If the user has already liked the review, remove the like (unlike)
+            review.likes = review.likes.filter(like => like.user.toString() !== userId.toString());
         } else {
-            review.likes.push(userIdStr); // Like
+            // If the user has not liked the review yet, add the like
+            review.likes.push({ user: userId, likedAt: new Date() });
         }
 
         await book.save();
-        res.json({ likes: review.likes.length, liked: !isLiked });
+        res.json({ likes: review.likes.length, liked: !existingLike });
     } catch (error) {
         console.error('Error liking review:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -1050,13 +1055,23 @@ app.get('/comments/list', async (req, res) => {
     try {
         // Determine user logged in status and get the user ID
         const { loggedIn, userId } = determineLoggedInStatus(req);
-        
+
         if (!loggedIn) {
             return res.redirect('/login'); // Redirect to login if user not logged in
         }
 
+        // Fetch user details to get the full name
+        const user = await User.findById(userId).select('fullName');
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        // Extract the first name from the full name
+        const firstName = user.fullName.split(' ')[0];
+
         // Fetch comments made by the current user
-        const userComments = await Book.find({'reviews.comments.user': userId})
+        const userComments = await Book.find({ 'reviews.comments.user': userId })
             .populate({
                 path: 'reviews',
                 populate: {
@@ -1072,7 +1087,6 @@ app.get('/comments/list', async (req, res) => {
                 path: 'reviews.comments.user',
                 select: 'fullName' // Select only the fullName field of the user who made the comment
             });
-            
 
         // Extract review details from userComments
         const reviewsWithUserComments = userComments.map(book => {
@@ -1105,7 +1119,8 @@ app.get('/comments/list', async (req, res) => {
             title: 'Your Comments',
             comments: filteredComments,
             content: '',
-            formatDate: formatDate // Pass the formatDate function to the template
+            formatDate: formatDate, // Pass the formatDate function to the template
+            firstName: firstName // Pass the first name to the template
         });
     } catch (error) {
         console.error('Error fetching user comments:', error);
@@ -1137,6 +1152,63 @@ app.post('/comments/delete', async (req, res) => {
         res.status(500).json({ success: false });
     }
 });
+
+app.get('/likes/list', async (req, res) => {
+    try {
+        // Determine user logged in status and get the user ID
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+
+        if (!loggedIn) {
+            return res.redirect('/login'); // Redirect to login if user not logged in
+        }
+
+        // Fetch user details to get the full name
+        const user = await User.findById(userId).select('fullName');
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        // Extract the first name from the full name
+        const firstName = user.fullName.split(' ')[0];
+
+        // Fetch books containing reviews liked by the current user
+        const booksWithLikedReviews = await Book.find({ 'reviews.likes.user': userId })
+            .populate({
+                path: 'reviews.user', // Populate the user who authored the review
+                select: 'fullName' // Select only the fullName field of the user who authored the review
+            });
+
+        // Extract review details for the liked reviews
+        const likedReviews = booksWithLikedReviews.map(book => {
+            return book.reviews.filter(review => review.likes.some(like => like.user.equals(userId))).map(review => {
+                const like = review.likes.find(like => like.user.equals(userId));
+                return {
+                    bookTitle: book.title,
+                    reviewContent: review.content,
+                    reviewAuthorName: review.user.fullName, // Access the fullName of the user who authored the review
+                    reviewAuthorId: review.user._id, // Access the ID of the user who authored the review
+                    bookId: book._id,
+                    bookImage: book.image,
+                    likeCreatedAt: like.likedAt // Date when the like was placed
+                };
+            });
+        }).flat(); // Flatten the array of arrays
+
+        // Render the likes list page with the liked reviews
+        res.render('likes', {
+            title: 'Your Likes',
+            likes: likedReviews,
+            content: '',
+            formatDate: formatDate, // Pass the formatDate function to the template
+            firstName: firstName // Pass the first name to the template
+        });
+    } catch (error) {
+        console.error('Error fetching user likes:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 // Start the server
 app.listen(port, () => {
