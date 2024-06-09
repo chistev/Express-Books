@@ -17,16 +17,23 @@
                 <div class="col-2 mt-3" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 11px; line-height: 14px; color: #999999;">
                     <%= formatDate(like.likeCreatedAt) %>
                 </div>
-                <% }); %>
-                <% } %>
                 <div class="col-10 mt-3">
-                    <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">Stephen</span>
+                    <span >
+                        <a class="text-decoration-none" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;" href="/user/<%= userId %>/mybooks"><%= firstName %></a>
+                    </span>
                     <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #181818;" >liked:</span>
-                    <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">Onyango’s review of</span>
-                    <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;">Atheism: The Case Against God</span>
+                    <span>
+                        <a class="text-decoration-none" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;" href="/user/<%= like.reviewAuthorId %>/mybooks"><%= like.reviewAuthorName %>'s review of</a>
+                    </span>
+                    <span>
+                        <a class="text-decoration-none" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #00635d;" href="/book/<%= like.bookId %>/details"><%= like.bookTitle %></a>
+                    </span>
                 </div>
             </div>
             <hr>
+            <% }); %>
+                <% } %>
+                
         </div>
     </div>
 </div>

@@ -1201,7 +1201,8 @@ app.get('/likes/list', async (req, res) => {
             likes: likedReviews,
             content: '',
             formatDate: formatDate, // Pass the formatDate function to the template
-            firstName: firstName // Pass the first name to the template
+            firstName: firstName, // Pass the first name to the template
+            userId: userId // Pass the userId to the template
         });
     } catch (error) {
         console.error('Error fetching user likes:', error);
