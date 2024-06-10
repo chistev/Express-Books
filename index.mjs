@@ -31,8 +31,6 @@ import { body, validationResult } from 'express-validator';
 import moment from 'moment';
 import addUserToLocals from './controllers/authmiddleware.mjs'
 
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -1284,84 +1282,105 @@ app.get('/account_settings', (req, res) => {
 
 app.get('/account_settings/profile', async (req, res) => {
     try {
-        // Fetch user details for account settings
         const { loggedIn, userId } = determineLoggedInStatus(req);
-        const csrfToken = req.csrfToken
+        const csrfToken = req.csrfToken || ''; // a fallback value to prevent undefined error
+        console.log(csrfToken)
 
         if (!loggedIn) {
-            return res.redirect('/login'); // Redirect to login if user not logged in
+            return res.redirect('/signin');
         }
 
-        const user = await User.findById(userId).select('fullName email profilePhoto');
+        const user = await User.findById(userId).select('profilePhoto');
 
         if (!user) {
-            return res.status(404).send('User not found');
+            const errors = ['User not found'];
+            return res.render('/account_settings/profile', { title: 'Account Settings | Myreads',
+                user: user,
+                csrfToken: csrfToken,
+                activeTab: 'profile',
+                loggedIn: loggedIn,
+                content: '',
+                errors: errors
+            });
         }
 
-        // Render the profile tab with user details
         res.render('account_settings', {
-            title: 'Account Settings - Profile',
+            title: 'Account Settings | Myreads',
             user: user,
             csrfToken: csrfToken,
             activeTab: 'profile',
             loggedIn: loggedIn,
-            content: ''
+            content: '',
+            errors: [] 
+            
         });
     } catch (error) {
         console.error('Error fetching user details:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.get('/account_settings/settings', async (req, res) => {
-    try {
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-        const csrfToken = req.csrfToken;
-
-        if (!loggedIn) {
-            return res.redirect('/login');
-        }
-
-        const user = await User.findById(userId).select('email');
-
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
+        const csrfToken = req.csrfToken || '';
         res.render('account_settings', {
-            title: 'Account Settings - Settings',
-            user: user,
+            title: 'Account Settings | Myreads',
+            user: null, 
             csrfToken: csrfToken,
-            activeTab: 'settings',
+            activeTab: 'profile',
             loggedIn: loggedIn,
-            content: ''
+            content: '',
+            errors: ['Internal Server Error']
         });
-    } catch (error) {
-        console.error('Error fetching user details:', error);
-        res.status(500).send('Internal Server Error');
     }
 });
+
 app.post('/upload_profile_photo', upload.single('profilePhoto'), async (req, res) => {
     try {
         const { loggedIn, userId } = determineLoggedInStatus(req);
         if (!loggedIn) {
-            return res.redirect('/login'); // Redirect to login if user not logged in
+            return res.redirect('/signin');
         }
 
         const user = await User.findById(userId);
+
         if (!user) {
-            return res.status(404).send('User not found');
+            const errors = ['User not found'];
+            return res.render('/account_settings/profile', { title: 'Account Settings | Myreads',
+                user: user,
+                csrfToken: csrfToken,
+                activeTab: 'profile',
+                loggedIn: loggedIn,
+                content: '',
+                errors: errors
+            });
         }
 
-        // Update the user's profile photo path
+        if (!req.file) {
+            // Handle case where no file was uploaded
+            const errors = ['No file uploaded'];
+            return res.render('account_settings', {
+                title: 'Account Settings | Myreads',
+                user: user, 
+                csrfToken: req.csrfToken || '',
+                activeTab: 'profile',
+                loggedIn: loggedIn,
+                content: '',
+                errors: errors
+            });
+        }
+
         user.profilePhoto = `/uploads/${req.file.filename}`;
         await user.save();
 
         console.log('Profile photo updated successfully:', user);
         res.redirect('/account_settings');
-    } catch (error) {
+    }catch (error) {
         console.error('Error uploading profile photo:', error);
-        res.status(500).send('Internal Server Error');
+        const csrfToken = req.csrfToken || '';
+        res.render('account_settings', {
+            title: 'Account Settings | Myreads',
+            user: null, 
+            csrfToken: csrfToken,
+            activeTab: 'profile',
+            loggedIn: loggedIn,
+            content: '',
+            errors: ['Internal Server Error']
+        });
     }
 });
 
@@ -1443,6 +1462,37 @@ app.get('/delete_account', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+
+app.get('/account_settings/settings', async (req, res) => {
+    try {
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        const csrfToken = req.csrfToken;
+
+        if (!loggedIn) {
+            return res.redirect('/login');
+        }
+
+        const user = await User.findById(userId).select('email');
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        res.render('account_settings', {
+            title: 'Account Settings - Settings',
+            user: user,
+            csrfToken: csrfToken,
+            activeTab: 'settings',
+            loggedIn: loggedIn,
+            content: ''
+        });
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 app.get('/change_password', async (req, res) => {
     try {

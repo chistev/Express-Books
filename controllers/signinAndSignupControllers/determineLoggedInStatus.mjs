@@ -3,28 +3,27 @@ import crypto from 'crypto';
 
 export function determineLoggedInStatus(req) {
     let loggedIn = false;
-    let userId = null; // Define userId variable
+    let userId = null; 
 
     const token = req.cookies.token;
     console.log("Token from cookies:", token);
 
     if (token) {
         try {
-            const decodedToken = jwt.verify(token, process.env.SECRET); // Verify and decode token
+            const decodedToken = jwt.verify(token, process.env.SECRET); 
             console.log("Decoded token:", decodedToken);
             loggedIn = true;
-            userId = decodedToken.userId; // Assuming user ID is stored in the JWT payload as 'userId'
+            userId = decodedToken.userId;
         } catch (error) {
             console.error('Error verifying token:', error.message);
         }
     } else if (req.session.signInToken) {
         loggedIn = true;
-        // Set userId if available in the session
         userId = req.session.userId;
         console.log("User ID from session:", userId);
     }
     console.log("logged in " + loggedIn + "UserId " + userId)
-    return { loggedIn, userId }; // Return loggedIn status and userId
+    return { loggedIn, userId };
 }
 
 export function generateToken() {

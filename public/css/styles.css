@@ -547,11 +547,61 @@ width: 100%;
  cursor: pointer;
 }
 
-.profile-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* Account Settings */
+
+.account-settings{
+    font-family: Georgia, 'Times New Roman', serif; 
+    font-weight: 700; 
+    font-size: 24px; 
+    line-height: 24px; 
+    color: #382110;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #ddd;
     margin-top: 20px;
+}
+
+
+.nav-tabs .nav-link {
+    font-family: Helvetica, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 32px;
+    color: #333333;
+    margin-right: 10px;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 0;
+}
+
+.nav-tabs .nav-link.active {
+    color: #000;
+    border-color: #ddd #ddd #fff;
+    border-bottom: 2px solid #000;
+}
+
+.delete-account{
+    font-family: Helvetica, Arial, sans-serif; 
+    font-weight: 400; 
+    font-size: 12px; 
+    color: #ff0000;
+}
+
+.login-and-security{
+    font-family: Helvetica, Arial, sans-serif; 
+    font-weight: 400; 
+    font-size: 18px; 
+    line-height: 18px; 
+    color: #382110;
+}
+
+.account-settings-email-and-password{
+    font-family: Helvetica, Arial, sans-serif; 
+    font-weight: 400; 
+    font-size: 12px; 
+    line-height: 18px; 
+    color: #181818;
 }
 
 .profile-image {
@@ -570,45 +620,4 @@ width: 100%;
     height: 100%;
     border-radius: 50%;
     object-fit:cover;
-}
-
-.upload-button {
-    margin-bottom: 10px;
-}
-
-.delete-account {
-    color: red;
-    cursor: pointer;
-}
-
-.account-settings-header {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-weight: 700;
-    font-size: 24px;
-    line-height: 24px;
-    color: #382110;
-    margin-top: 20px;
-}
-
-.nav-tabs {
-    border-bottom: 1px solid #ddd;
-    margin-top: 20px;
-}
-
-.nav-tabs .nav-link {
-    font-family: Helvetica, sans-serif;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 32px;
-    color: #333333;
-    margin-right: 10px;
-    padding: 10px 15px;
-    border: 1px solid transparent;
-    border-radius: 0;
-}
-
-.nav-tabs .nav-link.active {
-    color: #000;
-    border-color: #ddd #ddd #fff;
-    border-bottom: 2px solid #000;
 }

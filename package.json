@@ -36,8 +36,21 @@
   "devDependencies": {
     "@babel/cli": "^7.24.5",
     "@babel/core": "^7.24.5",
-    "@babel/preset-env": "^7.24.5",
-    "@babel/register": "^7.23.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/register": "^7.24.6",
     "jest": "^29.7.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "mjs"
+    ],
+    "testMatch": [
+    "**/__tests__/**/*.mjs",
+    "**/?(*.)+(spec|test).mjs"
+  ],
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    }
   }
 }
