@@ -32,6 +32,7 @@ import moment from 'moment';
 import addUserToLocals from './controllers/authmiddleware.mjs'
 import accountSettingsRouter from './controllers/accountSettings/accountSettings.mjs'
 import addBookController from './controllers/admin/addBookController.mjs';
+import bookDetailsController from './controllers/bookDetails/bookDetailsController.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -69,6 +70,7 @@ app.use('/signin_with_email', signinWithEmailController);
 app.use('/forgot_password', forgotPasswordController)
 app.use('/password_reset', passwordResetController)
 app.use('/', addBookController);
+app.use('/', bookDetailsController);
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
@@ -169,98 +171,6 @@ app.get('/book/:id', async (req, res) => {
         res.json({ description: sanitizedDescription });
     } catch (error) {
         console.error('Error fetching book:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.get('/book/:id/details', async (req, res) => {
-    try {
-        // Determine user logged in status and get the user ID
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-        const userIdStr = userId ? userId.toString() : null;
-
-        // Fetch the book from the database by ID and populate the user field in reviews and comments
-        const book = await Book.findById(req.params.id)
-            .populate('reviews.user', 'fullName')
-            .populate('reviews.comments.user', 'fullName');
-
-        if (!book) {
-            return res.status(404).send('Book not found');
-        }
-
-        // Fetch the total number of reviews for each user
-        const userIds = book.reviews
-            .map(review => review.user ? review.user._id : null)
-            .filter(id => id);  // Remove null values
-        const userReviewCounts = await Book.aggregate([
-            { $unwind: '$reviews' },
-            { $match: { 'reviews.user': { $in: userIds } } },
-            { $group: { _id: '$reviews.user', count: { $sum: 1 } } }
-        ]);
-
-        const reviewCountsMap = {};
-        userReviewCounts.forEach(userReview => {
-            reviewCountsMap[userReview._id.toString()] = userReview.count;
-        });
-
-        // Format the review dates and process likes array
-        const reviewsWithFormattedDate = book.reviews.map(review => {
-            const formattedDate = moment(review.createdAt).format('MMMM D, YYYY');
-
-            const filteredLikes = review.likes.filter(like => like !== null);
-            // Determine if the user has liked this review
-            const likedByUser = review.likes.some(like => like.user && like.user.equals(userId));
-            console.log(`Review ID: ${review._id}, Likes: ${filteredLikes.length}, Liked by User: ${likedByUser}`);
-
-            // Format comment dates
-            const commentsWithFormattedDate = review.comments
-                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-                .map(comment => ({
-                    ...comment._doc,
-                    formattedDate: moment(comment.createdAt).format('MMMM D, YYYY'),
-                    user: comment.user || { fullName: 'Anonymous' }  // Handle deleted user
-                }));
-
-            return {
-                ...review._doc,
-                formattedDate: formattedDate,
-                truncatedContent: review.content.length > 200 ? review.content.slice(0, 200) + '...' : review.content,
-                likedByUser: likedByUser,
-                comments: commentsWithFormattedDate,
-                commentCount: review.comments.length, // Include the total number of comments
-                userReviewCount: review.user ? reviewCountsMap[review.user._id.toString()] || 0 : 0,  // Add total number of reviews for the user
-                user: review.user || { fullName: 'Anonymous' }  // Handle deleted user
-            };
-        });
-
-        // Check the book object to ensure reviews have formattedDate
-        console.log('Book with formatted review dates:', { ...book._doc, reviews: reviewsWithFormattedDate });
-
-        // Create a truncated version of the description
-        const words = book.description.split(' ');
-        book.description = words.slice(0, 50).join(' ');
-        if (words.length > 50) {
-            book.description += ' ...';
-        }
-
-        // Check the book object to ensure reviews have formattedDate
-        console.log('Final reviews sent to template:', reviewsWithFormattedDate);
-
-        // Calculate the total number of reviews
-        const reviewCount = book.reviews.length;
-
-        // Render the book details page
-        res.render('book_details', { 
-            title: book.title, 
-            book: { ...book._doc, reviews: reviewsWithFormattedDate },  
-            content: "", 
-            loggedIn, 
-            reviews: reviewsWithFormattedDate,
-            userId: userIdStr,
-            reviewCount // Pass the review count to the template
-        });
-    } catch (error) {
-        console.error('Error fetching book details:', error);
         res.status(500).send('Internal Server Error');
     }
 });
