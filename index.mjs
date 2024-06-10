@@ -75,11 +75,6 @@ app.use(bodyParser.json());
 // Add middleware to add user to locals
 app.use(addUserToLocals);
 
-// Attach CSRF token to all requests
-app.use(attachCSRFToken);
-
-// Verify CSRF token for all requests
-app.use(verifyCSRFToken);
 // Route for the home page
 app.get('/', async (req, res) => {
     // Determine the loggedIn status
@@ -520,13 +515,6 @@ app.get('/genre/:genre', async (req, res) => {
         console.error('Error fetching books by genre:', error);
         res.status(500).send('Internal Server Error');
     }
-});
-
-app.use(attachCSRFToken);
-app.get('/admin', async (req, res) => {
-    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
-    const csrfToken = req.csrfToken;
-    res.render('admin', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken });
 });
 
 const isAdmin = (req, res, next) => {

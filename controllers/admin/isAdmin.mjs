@@ -4,7 +4,7 @@ export const isAdmin = (req, res, next) => {
     const token = req.cookies.token;
 
     if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        return res.redirect('/signin_with_email?errors=' + encodeURIComponent(JSON.stringify(['Unauthorized'])));
     }
 
     try {
@@ -13,10 +13,10 @@ export const isAdmin = (req, res, next) => {
         if (decoded && decoded.isAdmin) {
             next();
         } else {
-            return res.status(403).json({ message: 'Forbidden' });
+            return res.redirect('/signin_with_email?errors=' + encodeURIComponent(JSON.stringify(['Forbidden'])));
         }
     } catch (error) {
         console.error('Error verifying JWT token:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
+        return res.redirect('/signin_with_email?errors=' + encodeURIComponent(JSON.stringify(['Internal Server Error'])));
     }
 };

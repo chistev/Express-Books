@@ -9,6 +9,11 @@ const router = express.Router();
 
 router.use(attachCSRFToken);
 
+router.get('/admin', async (req, res) => {
+    res.redirect('/admin/add_book');
+});
+
+
 router.get('/admin/add_book', isAdmin, async (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;
