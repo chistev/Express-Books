@@ -22,41 +22,41 @@
                     <%= book.author %>
                 </div>
             </div>
-            <div class="description-container" id="description-container-<%= book._id %>" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 22px; color: #1e1915;">
+            <div class="description-container" id="description-container-<%= book._id %>">
                 <p class="mb-2 short-description">
                     <%- book.description %>
                 </p>
                 <div class="show-more-button">
-                    <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link" data-book-id="<%= book._id %>" href="#">
+                    <a class="text-decoration-none show-more-link" data-book-id="<%= book._id %>" href="#">
                         Show more &#9662;
                     </a>
                 </div>
             </div>
-            <div class="d-flex align-items-center mt-3">
-                <div style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #707070;">Genres:</div>
+            <div class="d-flex align-items-center mt-3 book-details-genres">
+                <div>Genres:</div>
                 <% book.genre.forEach(function(genre) { %>
                     <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px;">
-                        <a class="genre-link" href="/genre/<%= genre %>" style="color: #1e1915; text-decoration: underline; text-decoration-color: #409970; text-decoration-thickness: 2px;">
+                        <a class="genre-link" href="/genre/<%= genre %>">
                             <%= genre %>
                         </a>
                     </div>
                 <% }); %>
             </div>
-            <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #707070;"><%= book.pages %> pages, <%= book.mediaType %></div>
+            <div class="mt-2 book-pages-book-media-type"><%= book.pages %> pages, <%= book.mediaType %></div>
             <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #707070;">
                 First published <%= new Date(book.publishedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
             </div>
             <hr>
             
-            <div style="font-family: Georgia, serif; font-style: italic; font-weight: 600; font-size: 28px; line-height: 38px; color: #1e1915;">Reviews</div>
+            <div class="book-details-reviews">Reviews</div>
             <div class="d-flex align-items-center justify-content-center">
-                <div class="mt-5" style="font-family: Georgia, serif; font-style: italic; font-weight: 600; font-size: 32px; line-height: 46px; color: #1e1915;">
+                <div class="mt-5 what-do-you-think">
                     What do you think?
                 </div>
                 
             </div>
             <div class="d-flex row align-items-center justify-content-center">
-                    <a href="<%= loggedIn ? `/write_review/${book._id}` : '/signup' %>"  class="btn mb-2" style="background-color: #1e1915; color: #ffffff; border-radius: 20%; width: 50%;">
+                    <a href="<%= loggedIn ? `/write_review/${book._id}` : '/signup' %>"  class="btn mb-2 write-a-review">
                     Write a Review
                 </a>
                 <hr>
@@ -91,19 +91,19 @@
                     </div>
                     <div class="review-container">
                         
-                        <div class="mt-2 review-content-short" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+                        <div class="mt-2 review-content-short">
                             <%- review.truncatedContent %>
                             <div class="show-more-button">
-                                <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link" data-review-id="<%= review._id %>" href="#">
+                                <a class="text-decoration-none show-more-link" data-review-id="<%= review._id %>" href="#">
                                     Show more &#9662;
                                 </a>
                             </div>
                         </div>
-                        <div class="mt-2 review-content-full" style="display: none; font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;"></div> <!-- Placeholder for full review content -->
+                        <div class="mt-2 review-content-full"></div>
                     </div>
                     
                     <div class="review-container" data-review-id="<%= review._id %>">
-                        <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                        <div class="mt-2 book-details-likes-and-comments">
                             <span class="like-count"><%= review.likes.length %></span> likes 
                             <span class="comments-toggle" style="cursor: pointer;">
                                 <span class="comment-count"><%= review.comments.length %></span> comments
@@ -131,10 +131,10 @@
                                                     <div class="col-lg-10 col-md-10 mt-2">
                                                         <div class="d-flex justify-content-between">
                                                             <div class="d-flex">
-                                                                <div style="font-family: Arial, sans-serif; font-weight: 700; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                                                <div>
                                                                     <%= comment.user.fullName %>
                                                                 </div>
-                                                                <div class="ms-2" style="font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 19px; color: #707070;">
+                                                                <div class="ms-2 comment-date">
                                                                     <%= comment.formattedDate %>
                                                                 </div>
                                                             </div>
@@ -157,14 +157,14 @@
                                                             <%- truncatedContent %>
                                                             <% if (comment.content.length > 100) { %>
                                                                 <div class="show-more-button">
-                                                                    <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link-comment" data-comment-id="<%= comment._id %>" href="#">
+                                                                    <a class="text-decoration-none show-more-link-comment show-more-link" data-comment-id="<%= comment._id %>" href="#">
                                                                         Show more &#9662;
                                                                     </a>
                                                                 </div>
                                                             <% } %>
                                                         </div>
                 
-                                                        <div class="mt-2 comment-content-full" style="display: none; font-family: Arial, sans-serif; font-weight: 400; font-size: 16px; line-height: 23px; color: #1e1915;">
+                                                        <div class="mt-2 comment-content-full">
                                                             <%- comment.content %>
                                                         </div>
                                                     </div>
@@ -179,7 +179,7 @@
                                         <div class="user-image-placeholder"></div> <!-- User image placeholder -->
                                         <textarea id="comment-input-<%= review._id %>" class="form-control comment-input" rows="2" placeholder="Add a comment" style="border-color: #707070;"></textarea>
                                     </div>
-                                    <button style="background-color: #1e1915; color: #ffffff; border-radius: 30%; display: none;" id="comment-submit-<%= review._id %>" class="btn mt-1 comment-submit ms-auto" data-review-id="<%= review._id %>">Post</button>
+                                    <button id="comment-submit-<%= review._id %>" class="btn mt-1 comment-submit ms-auto" data-review-id="<%= review._id %>">Post</button>
                                 </div>
                             </div>
                         </div>
