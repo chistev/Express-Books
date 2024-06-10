@@ -2,39 +2,10 @@ import express from 'express';
 import User from '../../models/User.mjs';
 import { determineLoggedInStatus } from '../signinAndSignupControllers/determineLoggedInStatus.mjs';
 import { attachCSRFToken, verifyCSRFToken } from '../signinAndSignupControllers/csrfUtils.mjs';
-import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { upload } from '../multerConfig.mjs'
 
 const router = express.Router();
 router.use(attachCSRFToken);
-
-// Set up multer for file upload
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../../uploads/'));
-    },
-    filename: function (req, file, cb) {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
-});
-
-const fileFilter = (req, file, cb) => {
-    // Check if the file is an image
-    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-        return cb(new Error('Only image files are allowed!'), false);
-    }
-    cb(null, true);
-};
-
-const upload = multer({ 
-    storage: storage,
-    fileFilter: fileFilter
-});
 
 // Helper function to render account settings page
 const renderAccountSettings = (res, options) => {
@@ -124,7 +95,7 @@ router.get('/settings', async (req, res) => {
     }
 });
 
-router.post('/upload_profile_photo', upload.single('profilePhoto'), async (req, res) => {
+router.post('/upload_profile_photo', verifyCSRFToken, upload.single('profilePhoto'), async (req, res) => {
     console.log('POST /upload_profile_photo hit');
     try {
         const { loggedIn, userId } = determineLoggedInStatus(req);

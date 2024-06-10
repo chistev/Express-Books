@@ -31,6 +31,7 @@ import { body, validationResult } from 'express-validator';
 import moment from 'moment';
 import addUserToLocals from './controllers/authmiddleware.mjs'
 import accountSettingsRouter from './controllers/accountSettings/accountSettings.mjs'
+import addBookController from './controllers/admin/addBookController.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -67,11 +68,18 @@ app.use('/favorite-genre', favoriteGenreController);
 app.use('/signin_with_email', signinWithEmailController);
 app.use('/forgot_password', forgotPasswordController)
 app.use('/password_reset', passwordResetController)
+app.use('/', addBookController);
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 // Add middleware to add user to locals
 app.use(addUserToLocals);
+
+// Attach CSRF token to all requests
+app.use(attachCSRFToken);
+
+// Verify CSRF token for all requests
+app.use(verifyCSRFToken);
 // Route for the home page
 app.get('/', async (req, res) => {
     // Determine the loggedIn status
@@ -521,6 +529,27 @@ app.get('/admin', async (req, res) => {
     res.render('admin', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken });
 });
 
+const isAdmin = (req, res, next) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.SECRET);
+
+        if (decoded && decoded.isAdmin) {
+            next();
+        } else {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+    } catch (error) {
+        console.error('Error verifying JWT token:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 app.post('/admin', verifyCSRFToken, async (req, res) => {
     const errors = [];
     const { email, password } = req.body;
@@ -574,34 +603,6 @@ const upload = multer({
     fileFilter: fileFilter
 });
 
-// Middleware to check if the user is an admin
-const isAdmin = (req, res, next) => {
-    // Extract the JWT token from the request cookies
-    const token = req.cookies.token;
-
-    // Check if the token exists
-    if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    try {
-        // Verify the token
-        const decoded = jwt.verify(token, process.env.SECRET);
-
-        // Check if the decoded token contains the user's role (isAdmin)
-        if (decoded && decoded.isAdmin) {
-            // User is an admin, proceed to the next middleware
-            next();
-        } else {
-            // User is not an admin, return unauthorized
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-    } catch (error) {
-        console.error('Error verifying JWT token:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
-
 // Route to display the delete book page
 app.get('/admin/delete_book', isAdmin, async (req, res) => {
     try {
@@ -629,11 +630,6 @@ app.post('/admin/delete_book/:id', verifyCSRFToken, async (req, res) => {
     }
 });
 
-app.get('/admin/add_book', isAdmin, async (req, res) => {
-    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
-    const csrfToken = req.csrfToken;
-    res.render('add_book', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken });
-});
 
 app.get('/admin/edit_book', isAdmin, async (req, res) => {
     try {
@@ -737,42 +733,6 @@ app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, asyn
 
 
 
-app.post('/admin/add_book', upload.single('image'), verifyCSRFToken, async (req, res) => {
-    const errors = [];
-    const { title, author, description, genre, pages, mediaType, publishedDate } = req.body;
-    const imagePath = `/uploads/${req.file.filename}`;
-
-    // Sanitize the description
-    const sanitizedDescription = sanitizeHtml(description, {
-        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
-        allowedAttributes: {
-            a: ['href', 'name', 'target'],
-            img: ['src', 'alt'],
-            '*': ['style', 'class']
-        }
-    });
-
-    // Check if pages field is provided and not empty
-    let parsedPages = null;
-    if (pages && pages.trim() !== '') {
-        parsedPages = parseInt(pages, 10);
-    }
-
-    const newBook = new Book({
-        image: imagePath,
-        title,
-        author,
-        description: sanitizedDescription,
-        genre: Array.isArray(genre) ? genre : [genre],
-        pages: parsedPages, // Assign parsedPages, which might be null if pages is empty or not provided
-        mediaType,
-        publishedDate: new Date(publishedDate)
-    });
-
-    await newBook.save();
-    console.log('Book created successfully:', newBook);
-    res.redirect('/');
-});
 
 app.get('/user/:userId', async (req, res) => {
     const { loggedIn } = determineLoggedInStatus(req);
@@ -1477,6 +1437,7 @@ app.post('/delete_account', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Start the server
 app.listen(port, () => {
