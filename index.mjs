@@ -1312,6 +1312,35 @@ app.get('/account_settings/profile', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+app.get('/account_settings/settings', async (req, res) => {
+    try {
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        const csrfToken = req.csrfToken;
+
+        if (!loggedIn) {
+            return res.redirect('/login');
+        }
+
+        const user = await User.findById(userId).select('email');
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        res.render('account_settings', {
+            title: 'Account Settings - Settings',
+            user: user,
+            csrfToken: csrfToken,
+            activeTab: 'settings',
+            loggedIn: loggedIn,
+            content: ''
+        });
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 app.post('/upload_profile_photo', upload.single('profilePhoto'), async (req, res) => {
     try {
         const { loggedIn, userId } = determineLoggedInStatus(req);
@@ -1412,6 +1441,87 @@ app.get('/delete_account', async (req, res) => {
     } catch (error) {
         console.error('Error fetching user comments:', error);
         res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get('/change_password', async (req, res) => {
+    try {
+        const { loggedIn, userId } = determineLoggedInStatus(req);
+        const csrfToken = req.csrfToken;
+        const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+        const token = req.query.token;
+
+        if (!loggedIn) {
+            return res.redirect('/login'); // Redirect to login if user not logged in
+        }
+
+        const user = await User.findById(userId).select('email');
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        res.render('change_password', {
+            title: 'Change Password',
+            user: user,
+            csrfToken: csrfToken,
+            loggedIn: loggedIn,
+            content: '',
+            errors:errors,
+            token:token
+        });
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/change_password', async (req, res) => {
+    const { password: currentPassword, 'new-password': newPassword, 're-enter-password': confirmPassword } = req.body;
+    const errors = [];
+    const { loggedIn, userId } = determineLoggedInStatus(req);
+    const csrfToken = req.csrfToken;
+
+    if (!loggedIn) {
+        errors.push('You must be logged in to change your password.');
+        return res.render('change_password', { title: 'Change Password', errors, csrfToken });
+    }
+
+    if (newPassword !== confirmPassword) {
+        errors.push('New password and confirmation password do not match.');
+        return res.render('change_password', { title: 'Change Password', errors, csrfToken });
+    }
+
+    if (newPassword.length < 6) {
+        errors.push('New password must be at least 6 characters long.');
+        return res.render('change_password', { title: 'Change Password', errors, csrfToken });
+    }
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            errors.push('User not found.');
+            return res.render('change_password', { title: 'Change Password', errors, csrfToken });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isMatch) {
+            errors.push('Current password is incorrect.');
+            return res.render('change_password', { title: 'Change Password', errors, csrfToken });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+
+        await user.save();
+
+        res.redirect('/account_settings');
+    } catch (error) {
+        console.error('Error changing password:', error);
+        errors.push('An unexpected error occurred. Please try again later.');
+        res.status(500).render('change_password', { title: 'Change Password', errors, csrfToken });
     }
 });
 

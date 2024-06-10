@@ -21,7 +21,7 @@
                             </div>
                             <div class="col-md-6 right-menu" style="background-color: #f6f6f6;">
                                 <h6 class="dropdown-header"><%= loggedIn ? 'FAVORITE GENRES' : 'GENRES' %></h6>
-                                <% if (loggedIn && user) { %>
+                                <% if (loggedIn && user && user.selectedGenres) { %>
                                     <% user.selectedGenres.forEach(genre => { %>
                                         <a class="dropdown-item" href="/genre/<%= genre %>"><%= genre %></a>
                                     <% }) %>
@@ -66,10 +66,9 @@
                         <li><a class="dropdown-item" href="/edit_favorite_genre" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 32px; color: #333333;">Favorite genres</a></li>
                         <hr style="margin-top: 5px; margin-bottom: 5px;">
                         <li><a class="dropdown-item" href="/account_settings" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 32px; color: #333333;">Account settings</a></li>
-                        <li><a class="dropdown-item" href="/help">Help</a></li>
                         <li>
                             <form id="logoutForm" action="/logout" method="POST">
-                                <button type="submit" class="dropdown-item">Sign out</button>
+                                <button type="submit" class="dropdown-item" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 32px; color: #333333;">Sign out</button>
                             </form>
                         </li>
 

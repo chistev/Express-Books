@@ -1,6 +1,7 @@
 <%- include('layout') %>
 
 <title><%= title %></title>
+<%- include('navbar') %>
 
 
 <div class="container" style="width: 70%;">
@@ -9,28 +10,10 @@
             <div class="mt-3" style="font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 24px; line-height: 24px; color: #382110;">Account Settings</div>
             <ul class="nav nav-tabs">
                 <li class="nav-item">
-                    <a class="nav-link active" href="/account_settings/profile">Profile</a>
+                    <a class="nav-link <%= activeTab === 'profile' ? 'active' : '' %>" href="/account_settings/profile">Profile</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/account_settings/settings">Settings</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/account_settings/emails">Emails</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/account_settings/feeds">Feeds</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/account_settings/apps">Apps</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/account_settings/widgets">Widgets</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/account_settings/book_links">Book Links</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/account_settings/purchases">Purchases</a>
+                    <a class="nav-link <%= activeTab === 'settings' ? 'active' : '' %>" href="/account_settings/settings">Settings</a>
                 </li>
             </ul>
             <% if (activeTab === 'profile') { %>
@@ -49,6 +32,18 @@
                 </form>
                 <a href="/delete_account" style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; color: #ff0000;" class="delete-account text-decoration-none">Delete my account</a>
             </div>
+            <% } %>
+
+            <% if (activeTab === 'settings') { %>
+            <div class="mt-3">
+                <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 18px; line-height: 18px; color: #382110;">Login & security</div>
+                <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #181818;" class="mt-3">Email: chistev12@gmail.com</div>
+                <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #181818;" class="mt-3">Password: ********</div>
+                <form action="/change_password" method="get" class="mt-3">
+                    <button type="submit">Change your password</button>
+                </form>
+            </div>    
+           
             <% } %>
         </div>
     </div>
