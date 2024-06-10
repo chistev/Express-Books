@@ -30,6 +30,7 @@ import bodyParser from 'body-parser';
 import { body, validationResult } from 'express-validator';
 import moment from 'moment';
 import addUserToLocals from './controllers/authmiddleware.mjs'
+import accountSettingsRouter from './controllers/accountSettings/accountSettings.mjs'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -1280,110 +1281,7 @@ app.get('/account_settings', (req, res) => {
     res.redirect('/account_settings/profile');
 });
 
-app.get('/account_settings/profile', async (req, res) => {
-    try {
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-        const csrfToken = req.csrfToken || ''; // a fallback value to prevent undefined error
-        console.log(csrfToken)
-
-        if (!loggedIn) {
-            return res.redirect('/signin');
-        }
-
-        const user = await User.findById(userId).select('profilePhoto');
-
-        if (!user) {
-            const errors = ['User not found'];
-            return res.render('/account_settings/profile', { title: 'Account Settings | Myreads',
-                user: user,
-                csrfToken: csrfToken,
-                activeTab: 'profile',
-                loggedIn: loggedIn,
-                content: '',
-                errors: errors
-            });
-        }
-
-        res.render('account_settings', {
-            title: 'Account Settings | Myreads',
-            user: user,
-            csrfToken: csrfToken,
-            activeTab: 'profile',
-            loggedIn: loggedIn,
-            content: '',
-            errors: [] 
-            
-        });
-    } catch (error) {
-        console.error('Error fetching user details:', error);
-        const csrfToken = req.csrfToken || '';
-        res.render('account_settings', {
-            title: 'Account Settings | Myreads',
-            user: null, 
-            csrfToken: csrfToken,
-            activeTab: 'profile',
-            loggedIn: loggedIn,
-            content: '',
-            errors: ['Internal Server Error']
-        });
-    }
-});
-
-app.post('/upload_profile_photo', upload.single('profilePhoto'), async (req, res) => {
-    try {
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-        if (!loggedIn) {
-            return res.redirect('/signin');
-        }
-
-        const user = await User.findById(userId);
-
-        if (!user) {
-            const errors = ['User not found'];
-            return res.render('/account_settings/profile', { title: 'Account Settings | Myreads',
-                user: user,
-                csrfToken: csrfToken,
-                activeTab: 'profile',
-                loggedIn: loggedIn,
-                content: '',
-                errors: errors
-            });
-        }
-
-        if (!req.file) {
-            // Handle case where no file was uploaded
-            const errors = ['No file uploaded'];
-            return res.render('account_settings', {
-                title: 'Account Settings | Myreads',
-                user: user, 
-                csrfToken: req.csrfToken || '',
-                activeTab: 'profile',
-                loggedIn: loggedIn,
-                content: '',
-                errors: errors
-            });
-        }
-
-        user.profilePhoto = `/uploads/${req.file.filename}`;
-        await user.save();
-
-        console.log('Profile photo updated successfully:', user);
-        res.redirect('/account_settings');
-    }catch (error) {
-        console.error('Error uploading profile photo:', error);
-        const csrfToken = req.csrfToken || '';
-        res.render('account_settings', {
-            title: 'Account Settings | Myreads',
-            user: null, 
-            csrfToken: csrfToken,
-            activeTab: 'profile',
-            loggedIn: loggedIn,
-            content: '',
-            errors: ['Internal Server Error']
-        });
-    }
-});
-
+app.use('/account_settings', accountSettingsRouter);
 app.get('/delete_account', async (req, res) => {
     try {
         // Determine user logged in status and get the user ID
@@ -1464,34 +1362,6 @@ app.get('/delete_account', async (req, res) => {
 });
 
 
-app.get('/account_settings/settings', async (req, res) => {
-    try {
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-        const csrfToken = req.csrfToken;
-
-        if (!loggedIn) {
-            return res.redirect('/login');
-        }
-
-        const user = await User.findById(userId).select('email');
-
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        res.render('account_settings', {
-            title: 'Account Settings - Settings',
-            user: user,
-            csrfToken: csrfToken,
-            activeTab: 'settings',
-            loggedIn: loggedIn,
-            content: ''
-        });
-    } catch (error) {
-        console.error('Error fetching user details:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
 
 app.get('/change_password', async (req, res) => {
