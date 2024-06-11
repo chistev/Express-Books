@@ -914,3 +914,21 @@ width: 100%;
     line-height: 18px; 
     color: #00635d;
 }
+
+/* Navbar */
+
+.loggedin-navbar-dropdown-name{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 700; 
+    font-size: 14px; 
+    line-height: 32px; 
+    color: #333333;
+}
+
+.loggedin-navbar-dropdown{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 32px; 
+    color: #333333;
+}

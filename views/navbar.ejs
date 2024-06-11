@@ -61,17 +61,16 @@
                 <div class="dropdown me-5">
                     <i class="bi bi-person-circle fs-3" style="color: #372213;" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"></i>
                     <ul class="dropdown-menu me-5" aria-labelledby="userDropdown">
-                        <h6 class="dropdown-header" style="font-family: Helvetica, sans-serif; font-weight: 700; font-size: 14px; line-height: 32px; color: #333333;"> <%= firstName %> <%= lastName %></h6>
-                        <li><a class="dropdown-item" href="/comments/list" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 32px; color: #333333;">Comments</a></li>
-                        <li><a class="dropdown-item" href="/edit_favorite_genre" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 32px; color: #333333;">Favorite genres</a></li>
+                        <h6 class="dropdown-header loggedin-navbar-dropdown-name"> <%= firstName %> <%= lastName %></h6>
+                        <li><a class="dropdown-item loggedin-navbar-dropdown" href="/comments/list">Comments</a></li>
+                        <li><a class="dropdown-item loggedin-navbar-dropdown" href="/edit_favorite_genre" >Favorite genres</a></li>
                         <hr style="margin-top: 5px; margin-bottom: 5px;">
-                        <li><a class="dropdown-item" href="/account_settings" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 32px; color: #333333;">Account settings</a></li>
+                        <li><a class="dropdown-item loggedin-navbar-dropdown" href="/account_settings" >Account settings</a></li>
                         <li>
                             <form id="logoutForm" action="/logout" method="POST">
-                                <button type="submit" class="dropdown-item" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 32px; color: #333333;">Sign out</button>
+                                <button type="submit" class="dropdown-item loggedin-navbar-dropdown">Sign out</button>
                             </form>
                         </li>
-
                     </ul>
                 </div>
             <% } %>
@@ -90,7 +89,7 @@
             return;
         }
 
-        fetch(`/search?query=${query}`)
+        fetch(`/search/json?query=${query}`)
             .then(response => response.json())
             .then(data => {
                 suggestions.innerHTML = '';
@@ -118,5 +117,14 @@
                 }
             })
             .catch(error => console.error('Error fetching search results:', error));
+    });
+
+    // Allow form submission for full search
+    document.querySelector('.search').addEventListener('submit', function(event) {
+        const query = document.getElementById('search-input').value;
+        if (!query.trim()) {
+            event.preventDefault();
+            return false;
+        }
     });
 </script>

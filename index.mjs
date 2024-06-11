@@ -608,8 +608,26 @@ async (req, res) => {
     }
 });
 
+app.get('/search/json', async (req, res) => {
+    const query = req.query.query || '';
+    try {
+        console.log(`Search query (AJAX): ${query}`);
+        const books = await Book.find({
+            $or: [
+                { title: new RegExp(query, 'i') },
+                { author: new RegExp(query, 'i') }
+            ]
+        }).limit(10);
+
+        res.json(books);
+    } catch (err) {
+        console.error('Error fetching search results (AJAX):', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 app.get('/search', async (req, res) => {
-    const query = req.query.query;
+    const query = req.query.query || '';
     try {
         const books = await Book.find({
             $or: [
@@ -618,34 +636,21 @@ app.get('/search', async (req, res) => {
             ]
         }).limit(10);
 
-        // Determine the loggedIn status
-        const { loggedIn } = determineLoggedInStatus(req);
-
-        // Modify the description of each book to include only the first 20 words
-        books.forEach(book => {
-            const words = book.description.split(' ');
-            book.description = words.slice(0, 20).join(' ');
-            if (words.length > 20) {
-                book.description += ' ...';
-            }
-        });
-
-        
-        // Render the new_releases template with the search results
         res.render('new_releases', { 
             title: 'Search Results for: ' + query, 
-            loggedIn, 
             content: '',
             books,
-            currentPage: 1, // Assuming it's the first page
-            totalPages: 1, // Assuming all results fit on one page
-            isSearchResult: true, // Flag to indicate it's a search result page
+            currentPage: 1, 
+            totalPages: 1, // all results fit on one page
+            isSearchResult: true,
             query
         });
     } catch (err) {
+        console.error('Error fetching search results (Page):', err);
         res.status(500).send(err);
     }
 });
+
 
 app.get('/account_settings', (req, res) => {
     res.redirect('/account_settings/profile');
