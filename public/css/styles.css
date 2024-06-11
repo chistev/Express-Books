@@ -879,3 +879,38 @@ width: 100%;
     line-height: 14px; 
     color: #999999;
 }
+
+/* my books */
+
+.mybooks-cover{
+    font-family: Helvetica, Arial, sans-serif; 
+    font-weight: 700; 
+    font-size: 12px; 
+    line-height: 18px; 
+    color: #382110;
+}
+
+.mybooks-none{
+    font-family: Helvetica, Arial, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #999999;
+}
+
+.mybooks-title{
+    font-family: Helvetica, Arial, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #00635d;
+}
+
+.isOwner{
+    cursor: pointer; 
+    font-family: Helvetica, Arial, sans-serif; 
+    font-weight: 400; 
+    font-size: 12px; 
+    line-height: 18px; 
+    color: #00635d;
+}

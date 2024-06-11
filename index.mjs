@@ -41,6 +41,7 @@ import editBookController from './controllers/admin/editBookController.mjs'
 import editFavoriteGenreController from './controllers/editFavoriteGenre/editFavoriteGenre.mjs'
 import editGenreController from './controllers/admin/editGenreController.mjs'
 import likesController from './controllers/likes/likesController.mjs'
+import myBooksController from './controllers/myBooks/myBooksController.mjs'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -87,6 +88,8 @@ app.use('/', editBookController)
 app.use('/edit_favorite_genre', editFavoriteGenreController);
 app.use('/', editGenreController)
 app.use('/likes/list', likesController)
+app.use('/', myBooksController)
+
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 // Add middleware to add user to locals
@@ -373,34 +376,6 @@ app.post('/book/:reviewId/comment', async (req, res) => {
     }
 });
 
-
-
-app.get('/book/:bookId/review/:reviewId', async (req, res) => {
-    try {
-        const bookId = req.params.bookId;
-        const reviewId = req.params.reviewId;
-
-        // Find the book by ID
-        const book = await Book.findById(bookId);
-        if (!book) {
-            return res.status(404).json({ error: 'Book not found' });
-        }
-
-        // Find the review within the book's reviews array
-        const review = book.reviews.find(review => review._id.equals(reviewId));
-        if (!review) {
-            return res.status(404).json({ error: 'Review not found' });
-        }
-
-        // Return the review content
-        res.json({ content: review.content });
-    } catch (error) {
-        console.error('Error fetching review:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-
 app.post('/book/:bookId/review/:reviewId/like', async (req, res) => {
     try {
         const { bookId, reviewId } = req.params;
@@ -467,80 +442,6 @@ app.get('/genre/:genre', async (req, res) => {
     }
 });
 
-const isAdmin = (req, res, next) => {
-    const token = req.cookies.token;
-
-    if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.SECRET);
-
-        if (decoded && decoded.isAdmin) {
-            next();
-        } else {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-    } catch (error) {
-        console.error('Error verifying JWT token:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
-
-app.post('/admin', verifyCSRFToken, async (req, res) => {
-    const errors = [];
-    const { email, password } = req.body;
-    try {
-        const user = await User.findOne({ email: email });
-        if (user) { 
-            if (user.password) { 
-                const passwordMatch = await bcrypt.compare(password, user.password);
-                if (!passwordMatch) {
-                    errors.push("Your password is incorrect");
-                    return res.redirect('/admin?errors=' + encodeURIComponent(JSON.stringify(errors)));
-                }
-                if (user.isAdmin) {
-                    res.redirect('/admin/add_book');
-                } else {
-                    errors.push("User is not an admin");
-                    return res.redirect('/admin?errors=' + encodeURIComponent(JSON.stringify(errors)));
-                }
-            } 
-        } else {
-            errors.push("User does not exist.");
-            return res.redirect('/admin?errors=' + encodeURIComponent(JSON.stringify(errors)));
-            }
-        }
-    catch (error) {
-        errors.push("Error during sign in:", error);
-        return res.redirect('/admin?errors=' + encodeURIComponent(JSON.stringify(errors)));
-        }
-});
-
-// Set up multer for file upload
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
-});
-
-const fileFilter = (req, file, cb) => {
-    // Check if the file is an image
-    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-        return cb(new Error('Only image files are allowed!'), false);
-    }
-    cb(null, true);
-};
-
-const upload = multer({ 
-    storage: storage,
-    fileFilter: fileFilter
-});
-
 app.get('/user/:userId', async (req, res) => {
     const { loggedIn } = determineLoggedInStatus(req);
     const userId = req.params.userId;
@@ -570,47 +471,6 @@ app.get('/user/:userId', async (req, res) => {
         console.error('Error fetching user profile:', error);
         res.status(500).send('Internal Server Error');
     }
-});
-
-app.get('/mybooks', async (req, res) => {
-    const { loggedIn, userId } = determineLoggedInStatus(req);
-    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
-    const csrfToken = req.csrfToken;
-
-    const searchQuery = req.query.search || '';
-
-    const reviewedBooks = await Book.find({
-        'reviews.user': new mongoose.Types.ObjectId(userId),
-        $or: [
-            { title: { $regex: searchQuery, $options: 'i' } },
-            { author: { $regex: searchQuery, $options: 'i' } },
-            { 'reviews.content': { $regex: searchQuery, $options: 'i' } }
-        ]
-    });
-
-    // Extract the user's review for each book and include the review ID
-    const booksWithUserReviews = reviewedBooks.map(book => {
-        const userReview = book.reviews.find(review => review.user.equals(userId));
-        return {
-            ...book.toObject(),
-            userReview: userReview ? {
-                _id: userReview._id,
-                fullContent: userReview.content,
-                truncatedContent: userReview.content.length > 200 ? userReview.content.slice(0, 200) + '...' : userReview.content
-            } : null
-        };
-    });
-
-    res.render('mybooks', { 
-        title: "Stephen Owabie's books on Myreads", 
-        errors: errors, 
-        content: '', 
-        csrfToken: csrfToken, 
-        loggedIn, 
-        isOwner: true, // Default value for isOwner
-        books: booksWithUserReviews, 
-        searchQuery: searchQuery
-    });
 });
 
 app.get('/user/:userId/mybooks', async (req, res) => {
@@ -669,30 +529,6 @@ app.get('/user/:userId/mybooks', async (req, res) => {
         });
     }
 });
-
-app.delete('/book/:bookId/review/:reviewId', async (req, res) => {
-    const { bookId, reviewId } = req.params;
-    const { userId } = determineLoggedInStatus(req);
-
-    try {
-        // Find the book by ID and the review by ID, ensuring the review belongs to the user
-        const book = await Book.findOneAndUpdate(
-            { _id: bookId, 'reviews._id': reviewId, 'reviews.user': userId },
-            { $pull: { reviews: { _id: reviewId } } },
-            { new: true }
-        );
-
-        if (!book) {
-            return res.status(404).json({ message: 'Book or review not found' });
-        }
-
-        res.json({ message: 'Review deleted successfully', book });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
 
 app.get('/write_review/:bookId', async (req, res) => {
     const loggedIn = determineLoggedInStatus(req);
