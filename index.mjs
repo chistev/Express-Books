@@ -36,6 +36,7 @@ import bookDetailsController from './controllers/bookDetails/bookDetailsControll
 import changePasswordController from './controllers/accountSettings/changePasswordController.mjs'
 import commentsController from './controllers/comments/commentsController.mjs'
 import deleteAccountController from './controllers/accountSettings/deleteAccountController.mjs'
+import deleteBookController from './controllers/admin/deleteBookController.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -77,6 +78,7 @@ app.use('/', bookDetailsController);
 app.use('/', changePasswordController);
 app.use('/comments', commentsController);
 app.use('/delete_account', deleteAccountController)
+app.use('/', deleteBookController)
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 // Add middleware to add user to locals
@@ -499,34 +501,6 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter
 });
-
-// Route to display the delete book page
-app.get('/admin/delete_book', isAdmin, async (req, res) => {
-    try {
-        const books = await Book.find({});
-        const csrfToken = req.csrfToken;
-        res.render('delete_book', { title: 'Delete Book', books, csrfToken, content:''});
-    } catch (error) {
-        console.error('Error fetching books:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-// Route to handle book deletion
-app.post('/admin/delete_book/:id', verifyCSRFToken, async (req, res) => {
-    try {
-        const book = await Book.findByIdAndDelete(req.params.id);
-        if (!book) {
-            return res.status(404).send('Book not found');
-        }
-        console.log('Book deleted successfully:', book);
-        res.redirect('/admin/delete_book');
-    } catch (error) {
-        console.error('Error deleting book:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
 
 app.get('/admin/edit_book', isAdmin, async (req, res) => {
     try {
