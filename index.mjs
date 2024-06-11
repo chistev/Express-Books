@@ -794,7 +794,6 @@ function formatDate(dateString) {
     return formattedDate;
 }
 
-
 app.get('/likes/list', async (req, res) => {
     try {
         // Determine user logged in status and get the user ID

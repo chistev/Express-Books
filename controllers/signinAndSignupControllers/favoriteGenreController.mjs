@@ -15,7 +15,7 @@ router.get('/', (req, res) => {
 
     const csrfToken = req.csrfToken;
     
-    res.render('favorite-genre', { title: 'Select Your Favorite Genre', content: '', csrfToken: csrfToken});
+    res.render('registration/favorite-genre', { title: 'Select Your Favorite Genre', content: '', csrfToken: csrfToken});
 });
 
 router.post('/', verifyCSRFToken, async (req, res) => {
@@ -25,9 +25,8 @@ router.post('/', verifyCSRFToken, async (req, res) => {
     const { fullName, email, password } = req.session;
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10); // 10 is the number of salt rounds
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create a new user document with session data
         const newUser = new User({
             fullName,
             email,
@@ -39,7 +38,6 @@ router.post('/', verifyCSRFToken, async (req, res) => {
 
         const token = jwt.sign({ userId: newUser._id, email: newUser.email }, process.env.SECRET, { expiresIn: '7d' });
 
-         // Set token in response headers or cookies
          res.cookie('token', token);
 
         res.redirect('/');

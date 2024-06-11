@@ -1,0 +1,57 @@
+<%- include('../layout') %>
+
+<title><%= title %></title>
+
+<body class="favorite-genre-body">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid favorite-genre-container-myreads">
+            <a class="navbar-brand fs-3 custom-navbar-brand" href="/myreads">my<span class="fw-bold">reads</span></a>
+            <span class="navbar-text fs-5 ms-5">Getting Started</span>
+        </div>
+    </nav>
+    <div class="favorite-genre-message fw-bold mt-2 fs-4 text-center">
+        Next, select your favorite genres.
+    </div>
+    <div class="container">
+        <div class="favorite-genre-second-message fw-bold mt-2 text-center">
+            We use your favorite genres to make better book recommendations and tailor what you see in your Updates feed.
+        </div>
+    </div>
+    <div class="container">
+        <form action="/favorite-genre" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="row">
+                <% const genres = [
+                    { id: 'art', name: 'Art' },
+                    { id: 'classics', name: 'Classics' },
+                    { id: 'contemporary', name: 'Contemporary' },
+                    { id: 'crime', name: 'Crime' },
+                    { id: 'fiction', name: 'Fiction' },
+                    { id: 'historicalFiction', name: 'Historical Fiction' },
+                    { id: 'history', name: 'History' },
+                    { id: 'humor', name: 'Humor and Comedy' },
+                    { id: 'nonfiction', name: 'Nonfiction' },
+                    { id: 'religion', name: 'Religion' },
+                    { id: 'science', name: 'Science' },
+                    { id: 'thriller', name: 'Thriller' }
+                ]; %>
+
+                <% genres.forEach(genre => { %>
+                <div class="col-md-3">
+                    <div class="favorite-genre-custom-checkbox" onclick="toggleCheckbox('<%= genre.id %>Checkbox')">
+                        <input type="checkbox" id="<%= genre.id %>Checkbox" name="genre" value="<%= genre.id %>">
+                        <label for="<%= genre.id %>Checkbox"><%= genre.name %></label>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+
+            <div class="row mt-5 mb-5">
+                <div class="col-md-12 text-center">
+                    <button id="submitButton" class="btn favorite-genre-disabled-button" disabled>Select at least one genre to continue</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script src="/js/toggleCheckbox.js"></script>
+</body>
