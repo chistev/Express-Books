@@ -90,12 +90,43 @@ app.use(bodyParser.json());
 // Add middleware to add user to locals
 app.use(addUserToLocals);
 
-// Route for the home page
 app.get('/', async (req, res) => {
-    // Determine the loggedIn status
-    const { loggedIn } = determineLoggedInStatus(req);
+    try {
+        const { loggedIn, userId } = determineLoggedInStatus(req);
 
-    res.render('index', { title: 'Free Online Books', loggedIn, content: '' });
+        if (!loggedIn) {
+            return res.redirect('/new_releases');
+        }
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        const selectedGenresLower = user.selectedGenres.map(genre => genre.toLowerCase());
+
+        const books = await Book.find().lean(); // lean() to get plain JavaScript objects
+        const filteredBooks = books.filter(book => {
+            const bookGenresLower = book.genre.map(genre => genre.toLowerCase());
+            return bookGenresLower.some(genre => selectedGenresLower.includes(genre));
+        });
+
+        console.log('Books to be rendered:', filteredBooks);
+
+        res.render('index', { 
+            title: 'Free Online Books', 
+            loggedIn, 
+            books: filteredBooks, 
+            isSearchResult: false, 
+            currentPage: 1, 
+            totalPages: 1.,
+            content:''
+        });
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        res.status(500).send('Error fetching books');
+    }
 });
 
 app.post('/logout', (req, res) => {

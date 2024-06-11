@@ -8,8 +8,7 @@ const router = express.Router();
 
 router.use(attachCSRFToken);
 
-
-router.get('/', attachCSRFToken, (req, res) => {
+router.get('/', (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;
     const siteKey = process.env.RECAPTCHA_SITE_KEY;
@@ -17,7 +16,6 @@ router.get('/', attachCSRFToken, (req, res) => {
 });
 
 router.post('/', verifyCSRFToken, async (req, res) => {
-    // Get the reCAPTCHA token from the request body
     const token = req.body['g-recaptcha-response'];
     const secretKey = process.env.RECAPTCHA_SECRET;
     const email = req.body.email
@@ -50,6 +48,8 @@ router.post('/', verifyCSRFToken, async (req, res) => {
             res.redirect('/password_reset_email_sent');
         } else {
             console.log("failed recaptcha")
+            errors.push("failed recaptch");
+            return res.redirect('/forgot_password?errors=' + encodeURIComponent(JSON.stringify(errors)));
         }
     } catch (error) {
         console.error('Error processing forgot password request:', error);
