@@ -3,25 +3,10 @@ import User from '../../models/User.mjs';
 import Book from '../../models/Book.mjs';
 import { attachCSRFToken, verifyCSRFToken } from '../signinAndSignupControllers/csrfUtils.mjs';
 import { determineLoggedInStatus } from '../signinAndSignupControllers/determineLoggedInStatus.mjs';
+import formatDate from '../dateUtils.mjs'
 
 const router = express.Router();
 router.use(attachCSRFToken);
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    
-    const options = {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    };
-    const formattedDate = date.toLocaleDateString('en-US', options);
-    return formattedDate;
-}
-
 
 router.get('/list', async (req, res) => {
     try {

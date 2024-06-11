@@ -40,6 +40,7 @@ import deleteBookController from './controllers/admin/deleteBookController.mjs';
 import editBookController from './controllers/admin/editBookController.mjs'
 import editFavoriteGenreController from './controllers/editFavoriteGenre/editFavoriteGenre.mjs'
 import editGenreController from './controllers/admin/editGenreController.mjs'
+import likesController from './controllers/likes/likesController.mjs'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -85,6 +86,7 @@ app.use('/', deleteBookController)
 app.use('/', editBookController)
 app.use('/edit_favorite_genre', editFavoriteGenreController);
 app.use('/', editGenreController)
+app.use('/likes/list', likesController)
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 // Add middleware to add user to locals
@@ -806,79 +808,6 @@ app.get('/search', async (req, res) => {
         });
     } catch (err) {
         res.status(500).send(err);
-    }
-});
-
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    
-    const options = {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    };
-    const formattedDate = date.toLocaleDateString('en-US', options);
-    return formattedDate;
-}
-
-app.get('/likes/list', async (req, res) => {
-    try {
-        // Determine user logged in status and get the user ID
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-
-        if (!loggedIn) {
-            return res.redirect('/login'); // Redirect to login if user not logged in
-        }
-
-        // Fetch user details to get the full name
-        const user = await User.findById(userId).select('fullName');
-
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        // Extract the first name from the full name
-        const firstName = user.fullName.split(' ')[0];
-
-        // Fetch books containing reviews liked by the current user
-        const booksWithLikedReviews = await Book.find({ 'reviews.likes.user': userId })
-            .populate({
-                path: 'reviews.user', // Populate the user who authored the review
-                select: 'fullName' // Select only the fullName field of the user who authored the review
-            });
-
-        // Extract review details for the liked reviews
-        const likedReviews = booksWithLikedReviews.map(book => {
-            return book.reviews.filter(review => review.likes.some(like => like.user.equals(userId))).map(review => {
-                const like = review.likes.find(like => like.user.equals(userId));
-                return {
-                    bookTitle: book.title,
-                    reviewContent: review.content,
-                    reviewAuthorName: review.user.fullName, // Access the fullName of the user who authored the review
-                    reviewAuthorId: review.user._id, // Access the ID of the user who authored the review
-                    bookId: book._id,
-                    bookImage: book.image,
-                    likeCreatedAt: like.likedAt // Date when the like was placed
-                };
-            });
-        }).flat(); // Flatten the array of arrays
-
-        // Render the likes list page with the liked reviews
-        res.render('likes', {
-            title: 'Your Likes',
-            likes: likedReviews,
-            content: '',
-            formatDate: formatDate, // Pass the formatDate function to the template
-            firstName: firstName, // Pass the first name to the template
-            userId: userId // Pass the userId to the template
-        });
-    } catch (error) {
-        console.error('Error fetching user likes:', error);
-        res.status(500).send('Internal Server Error');
     }
 });
 

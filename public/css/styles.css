@@ -853,3 +853,29 @@ width: 100%;
     line-height: 18px; 
     color: #181818;
 }
+
+/* Likes */
+
+.recent-likes{
+    font-family: Georgia, 'Times New Roman', serif; 
+    font-weight: 700; 
+    font-size: 24px; 
+    line-height: 24px; 
+    color: #382110;
+}
+
+.no-likes{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #181818;
+}
+
+.like-date{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 11px; 
+    line-height: 14px; 
+    color: #999999;
+}
