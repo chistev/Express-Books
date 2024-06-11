@@ -37,6 +37,7 @@ import changePasswordController from './controllers/accountSettings/changePasswo
 import commentsController from './controllers/comments/commentsController.mjs'
 import deleteAccountController from './controllers/accountSettings/deleteAccountController.mjs'
 import deleteBookController from './controllers/admin/deleteBookController.mjs';
+import editBookController from './controllers/admin/editBookController.mjs'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -79,6 +80,7 @@ app.use('/', changePasswordController);
 app.use('/comments', commentsController);
 app.use('/delete_account', deleteAccountController)
 app.use('/', deleteBookController)
+app.use('/', editBookController)
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 // Add middleware to add user to locals
@@ -551,59 +553,6 @@ app.post('/admin/update_genre', verifyCSRFToken, async (req, res) => {
         res.redirect(`/admin/edit_genre/${genre}?errors=${errors}`);
     }
 });
-
-
-
-// Route to display the edit form for a specific book
-app.get('/admin/edit_book/:id', isAdmin, async (req, res) => {
-    try {
-        const book = await Book.findById(req.params.id);
-        if (!book) {
-            return res.status(404).send('Book not found');
-        }
-        const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
-        const csrfToken = req.csrfToken;
-        res.render('edit_book_form', { title: 'Edit Book', book, errors, csrfToken, content: '', });
-    } catch (error) {
-        console.error('Error fetching book:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.post('/admin/update_book/:id', upload.single('image'), verifyCSRFToken, async (req, res) => {
-    try {
-        const { title, author, description, genre, pages, mediaType, publishedDate } = req.body;
-        const book = await Book.findById(req.params.id);
-
-        if (!book) {
-            return res.status(404).send('Book not found');
-        }
-
-        // Update book fields
-        book.title = title;
-        book.author = author;
-        book.description = description;
-        book.genre = Array.isArray(genre) ? genre : [genre];
-        book.pages = parseInt(pages, 10);
-        book.mediaType = mediaType;
-        book.publishedDate = new Date(publishedDate);
-
-        // If a new image is uploaded, update the image field
-        if (req.file) {
-            book.image = `/uploads/${req.file.filename}`;
-        }
-
-        await book.save();
-        console.log('Book updated successfully:', book);
-        res.redirect('/admin/edit_book');
-    } catch (error) {
-        console.error('Error updating book:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-
-
 
 app.get('/user/:userId', async (req, res) => {
     const { loggedIn } = determineLoggedInStatus(req);
