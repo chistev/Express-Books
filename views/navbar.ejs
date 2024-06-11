@@ -59,7 +59,11 @@
             </form>
             <% if (loggedIn) { %>
                 <div class="dropdown me-5">
-                    <i class="bi bi-person-circle fs-3" style="color: #372213;" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                    <% if (user && user.profilePhoto) { %>
+                        <img src="<%= user.profilePhoto %>" alt="Profile Photo" class="rounded-circle fs-3" style="width: 50px; height: 50px; object-fit: cover;" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <% } else { %>
+                        <i class="bi bi-person-circle fs-3" style="color: #372213;" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                    <% } %>
                     <ul class="dropdown-menu me-5" aria-labelledby="userDropdown">
                         <h6 class="dropdown-header loggedin-navbar-dropdown-name"> <%= firstName %> <%= lastName %></h6>
                         <li><a class="dropdown-item loggedin-navbar-dropdown" href="/comments/list">Comments</a></li>
