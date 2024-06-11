@@ -34,6 +34,7 @@ import accountSettingsRouter from './controllers/accountSettings/accountSettings
 import addBookController from './controllers/admin/addBookController.mjs';
 import bookDetailsController from './controllers/bookDetails/bookDetailsController.mjs';
 import changePasswordController from './controllers/accountSettings/changePasswordController.mjs'
+import commentsController from './controllers/comments/commentsController.mjs'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -73,6 +74,7 @@ app.use('/password_reset', passwordResetController)
 app.use('/', addBookController);
 app.use('/', bookDetailsController);
 app.use('/', changePasswordController);
+app.use('/comments', commentsController);
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
@@ -900,9 +902,8 @@ app.get('/search', async (req, res) => {
     }
 });
 
-// Define formatDate function to format the date
+
 function formatDate(dateString) {
-    // Ensure dateString is parsed into a Date object
     const date = new Date(dateString);
     
     const options = {
@@ -917,107 +918,6 @@ function formatDate(dateString) {
     return formattedDate;
 }
 
-app.get('/comments/list', async (req, res) => {
-    try {
-        // Determine user logged in status and get the user ID
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-
-        if (!loggedIn) {
-            return res.redirect('/login'); // Redirect to login if user not logged in
-        }
-
-        // Fetch user details to get the full name
-        const user = await User.findById(userId).select('fullName');
-
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        // Extract the first name from the full name
-        const firstName = user.fullName.split(' ')[0];
-
-        // Fetch comments made by the current user
-        const userComments = await Book.find({ 'reviews.comments.user': userId })
-            .populate({
-                path: 'reviews',
-                populate: {
-                    path: 'user',
-                    select: 'fullName' // Select only the fullName field of the user who authored the review
-                }
-            })
-            .populate({
-                path: 'reviews.user', // Populate the user who authored the review
-                select: 'fullName _id' // Select fullName and _id
-            })
-            .populate({
-                path: 'reviews.comments.user',
-                select: 'fullName' // Select only the fullName field of the user who made the comment
-            });
-
-        // Extract review details from userComments
-        const reviewsWithUserComments = userComments.map(book => {
-            return book.reviews.map(review => {
-                const userComment = review.comments.find(comment => comment.user._id.equals(userId));
-                if (userComment) {
-                    return {
-                        bookTitle: book.title,
-                        reviewContent: review.content,
-                        commenterName: userComment.user.fullName, // Access the commenter's fullName from the user object
-                        commenterId: userComment.user._id, // Access the commenter's ID from the user object
-                        commentCreatedAt: formatDate(userComment.createdAt), // Format the creation date of the comment
-                        reviewAuthorName: review.user.fullName, // Access the fullName of the user who authored the review
-                        reviewAuthorId: review.user._id, // Access the ID of the user who authored the review
-                        bookId: book._id,
-                        bookImage: book.image,
-                        commentContent: userComment.content
-                    };
-                }
-                // If userComment is undefined, return an empty object
-                return {};
-            });
-        }).flat(); // Flatten the array of arrays
-
-        // Remove empty objects from the array
-        const filteredComments = reviewsWithUserComments.filter(comment => Object.keys(comment).length !== 0);
-
-        // Render the comments list page with formatted dates
-        res.render('comments', {
-            title: 'Your Comments',
-            comments: filteredComments,
-            content: '',
-            formatDate: formatDate, // Pass the formatDate function to the template
-            firstName: firstName // Pass the first name to the template
-        });
-    } catch (error) {
-        console.error('Error fetching user comments:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.post('/comments/delete', async (req, res) => {
-    const { commenterId, bookId } = req.body;
-
-    try {
-        const book = await Book.findById(bookId);
-
-        if (book) {
-            for (let review of book.reviews) {
-                const commentIndex = review.comments.findIndex(comment => comment.user.equals(commenterId));
-
-                if (commentIndex > -1) {
-                    review.comments.splice(commentIndex, 1);
-                    await book.save();
-                    return res.json({ success: true });
-                }
-            }
-        }
-
-        res.json({ success: false });
-    } catch (error) {
-        console.error('Error deleting comment:', error);
-        res.status(500).json({ success: false });
-    }
-});
 
 app.get('/likes/list', async (req, res) => {
     try {

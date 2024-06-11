@@ -761,3 +761,69 @@ width: 100%;
     line-height: 18px; 
     color: #181818;
 }
+
+/* Comments */
+.no-comments{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #181818;
+}
+
+.comment-author{
+    text-decoration: none; 
+    color: #00635d; 
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px;
+}
+
+.review-of{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #181818;
+}
+
+.comment-title{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px;
+}
+
+.comment-date{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #181818;
+}
+
+.comment-content{
+    font-family: Helvetica, Arial, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #181818;
+}
+
+.comment-delete{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 11px; 
+    line-height: 14px; 
+    color: #00635d;
+}
+
+.items-liked{
+    text-decoration: none; 
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 11px; 
+    line-height: 14px;
+    color: #00635d;
+}

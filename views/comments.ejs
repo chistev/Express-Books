@@ -9,25 +9,25 @@
             <div class="mt-3" style="font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 24px; line-height: 24px; color: #382110;">My Recent Posts</div>
 
             <% if (comments.length === 0) { %>
-                <div class="mt-3" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
+                <div class="mt-3 no-comments">
                     You have no comments.
                 </div>
             <% } else { %>
                 <% comments.forEach(comment => { %>
                     <div style="background-color: #f4f1ea;" class="mt-3 ms-2 d-flex p-2 justify-content-between align-items-center">
                         <div>
-                            <a href="/user/<%= comment.reviewAuthorId %>/mybooks" style="text-decoration: none; color: #00635d; font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px;">
+                            <a class="comment-author" href="/user/<%= comment.reviewAuthorId %>/mybooks">
                                 <%= comment.reviewAuthorName %>'s
                             </a>
 
-                            <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;"> review of </span>
+                            <span class="review-of"> review of </span>
             
                             <a href="/book/<%= comment.bookId %>/details" style="text-decoration: none; color: #00635d;">
-                                <span style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px;"><%= comment.bookTitle %>.</span>
+                                <span class="comment-title"><%= comment.bookTitle %>.</span>
                             </a>
                         </div>
 
-                        <div style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;"> <%= formatDate(comment.commentCreatedAt) %></div>
+                        <div class="comment-date"> <%= formatDate(comment.commentCreatedAt) %></div>
                     </div>
 
                     <div class="row ms-1">
@@ -35,17 +35,17 @@
                             <img src="<%= comment.bookImage %>" alt="<%= comment.bookTitle %>" style="width: 100%; height: auto;">
                         </div>
                         <div class="col-9 mt-1 ms-2 ">
-                            <div style="font-family: Helvetica, Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 18px; color: #181818;">
+                            <div class="comment-content">
                                 <%- comment.commentContent %>
                             </div>
-                            <a class="text-decoration-none" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 11px; line-height: 14px; color: #00635d;" href="#" onclick="confirmDelete('<%= comment.commenterId %>', '<%= comment.bookId %>')">delete</a>
+                            <a class="text-decoration-none comment-delete" href="#" onclick="confirmDelete('<%= comment.commenterId %>', '<%= comment.bookId %>')">delete</a>
                         </div>
                     </div>
                 <% }); %>
             <% } %>
         </div>
         <div class="col-md-4 mt-5">
-            <a href="/likes/list" style="text-decoration: none; font-family: Helvetica, sans-serif; font-weight: 400; font-size: 11px; line-height: 14px; color: #00635d;">
+            <a href="/likes/list" class="items-liked">
                 items <%= firstName %> liked
             </a>
         </div>
