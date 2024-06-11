@@ -827,3 +827,29 @@ width: 100%;
     line-height: 14px;
     color: #00635d;
 }
+
+/* Delete Account */
+
+.delete-account-recent-posts{
+    font-family: Georgia, 'Times New Roman', serif; 
+    font-weight: 700; 
+    font-size: 24px; 
+    line-height: 24px; 
+    color: #382110;
+}
+
+.delete-account-warning{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #181818;
+}
+
+.keepPostsAnonymously{
+    font-family: Helvetica, sans-serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 18px; 
+    color: #181818;
+}

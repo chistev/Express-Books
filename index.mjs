@@ -35,6 +35,7 @@ import addBookController from './controllers/admin/addBookController.mjs';
 import bookDetailsController from './controllers/bookDetails/bookDetailsController.mjs';
 import changePasswordController from './controllers/accountSettings/changePasswordController.mjs'
 import commentsController from './controllers/comments/commentsController.mjs'
+import deleteAccountController from './controllers/accountSettings/deleteAccountController.mjs'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -75,7 +76,7 @@ app.use('/', addBookController);
 app.use('/', bookDetailsController);
 app.use('/', changePasswordController);
 app.use('/comments', commentsController);
-
+app.use('/delete_account', deleteAccountController)
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 // Add middleware to add user to locals
@@ -89,7 +90,6 @@ app.get('/', async (req, res) => {
     res.render('index', { title: 'Free Online Books', loggedIn, content: '' });
 });
 
-// Add a route to handle logout
 app.post('/logout', (req, res) => {
     // Clear the token cookie
     res.clearCookie('token');
@@ -1037,117 +1037,6 @@ app.get('/account_settings', (req, res) => {
 });
 
 app.use('/account_settings', accountSettingsRouter);
-app.get('/delete_account', async (req, res) => {
-    try {
-        // Determine user logged in status and get the user ID
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-        const csrfToken = req.csrfToken;
-
-        if (!loggedIn) {
-            return res.redirect('/login'); // Redirect to login if user not logged in
-        }
-
-        // Fetch user details to get the full name
-        const user = await User.findById(userId).select('fullName');
-
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        // Extract the first name from the full name
-        const firstName = user.fullName.split(' ')[0];
-
-        // Fetch comments made by the current user
-        const userComments = await Book.find({ 'reviews.comments.user': userId })
-            .populate({
-                path: 'reviews',
-                populate: {
-                    path: 'user',
-                    select: 'fullName' // Select only the fullName field of the user who authored the review
-                }
-            })
-            .populate({
-                path: 'reviews.user', // Populate the user who authored the review
-                select: 'fullName _id' // Select fullName and _id
-            })
-            .populate({
-                path: 'reviews.comments.user',
-                select: 'fullName' // Select only the fullName field of the user who made the comment
-            });
-
-        // Extract review details from userComments
-        const reviewsWithUserComments = userComments.map(book => {
-            return book.reviews.map(review => {
-                const userComment = review.comments.find(comment => comment.user._id.equals(userId));
-                if (userComment) {
-                    return {
-                        bookTitle: book.title,
-                        reviewContent: review.content,
-                        commenterName: userComment.user.fullName, // Access the commenter's fullName from the user object
-                        commenterId: userComment.user._id, // Access the commenter's ID from the user object
-                        commentCreatedAt: formatDate(userComment.createdAt), // Format the creation date of the comment
-                        reviewAuthorName: review.user.fullName, // Access the fullName of the user who authored the review
-                        reviewAuthorId: review.user._id, // Access the ID of the user who authored the review
-                        bookId: book._id,
-                        bookImage: book.image,
-                        commentContent: userComment.content
-                    };
-                }
-                // If userComment is undefined, return an empty object
-                return {};
-            });
-        }).flat(); // Flatten the array of arrays
-
-        // Remove empty objects from the array
-        const filteredComments = reviewsWithUserComments.filter(comment => Object.keys(comment).length !== 0);
-
-        // Render the comments list page with formatted dates
-        res.render('delete_account', {
-            title: 'Your Comments',
-            comments: filteredComments,
-            content: '',
-            formatDate: formatDate, // Pass the formatDate function to the template
-            firstName: firstName, // Pass the first name to the template
-            csrfToken:csrfToken
-        });
-    } catch (error) {
-        console.error('Error fetching user comments:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.post('/delete_account', async (req, res) => {
-    try {
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-        if (!loggedIn) {
-            return res.redirect('/login'); // Redirect to login if user not logged in
-        }
-
-        const { keepPostsAnonymously } = req.body;
-
-        if (keepPostsAnonymously) {
-            // Anonymize the user's reviews and comments
-            await Book.updateMany(
-                { 'reviews.user': userId },
-                { '$set': { 'reviews.$[elem].user': null } }, // Set user to null
-                { arrayFilters: [{ 'elem.user': userId }] }
-            );
-            await Book.updateMany(
-                { 'reviews.comments.user': userId },
-                { '$set': { 'reviews.$[review].comments.$[comment].user': null } }, // Set user to null
-                { arrayFilters: [{ 'review.comments.user': userId }, { 'comment.user': userId }] }
-            );
-        }
-
-        // Delete the user account
-        await User.findByIdAndDelete(userId);
-
-        res.redirect('/'); // Redirect to the homepage after account deletion
-    } catch (error) {
-        console.error('Error deleting account:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
 
 // Start the server
