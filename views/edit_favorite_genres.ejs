@@ -47,7 +47,6 @@
             var checkboxes = document.querySelectorAll('input[name="genre"]');
             var checked = Array.from(checkboxes).some(checkbox => checkbox.checked);
 
-            // Enable or disable the button based on checkbox status
             var submitButton = document.getElementById('submitButton');
             if (checked) {
                 submitButton.classList.remove('favorite-genre-disabled-button');

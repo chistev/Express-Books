@@ -8,16 +8,6 @@
     </div>
 </nav>
 
-<div id="register-error-message" class="mx-auto p-2 fw-bold" style="display: <% if(errors && errors.length > 0) { %>block<% } else { %>none<% } %>;">
-    <% if(errors && errors.length > 0) { %>
-        <ul>
-            <% errors.forEach(error => { %>
-                <li><%= error %></li>
-            <% }); %>
-        </ul>
-    <% } %>
-</div>
-
 <div class="container mt-4">
     <h1>Edit Books</h1>
     <% if (books.length > 0) { %>
@@ -27,7 +17,6 @@
                     <th>Image</th>
                     <th>Title</th>
                     <th>Author</th>
-                    <th>Rating</th>
                     <th>Description</th>
                     <th>Genres</th>
                 </tr>
@@ -44,8 +33,6 @@
                             <a href="/admin/edit_book/<%= book._id %>"><%= book.title %></a>
                         </td>
                         <td><%= book.author %></td>
-                        <td><%= book.rating %></td>
-                        <td><%- book.description %></td>
                         <td><%= book.genre.join(', ') %></td>
                     </tr>
                 <% }); %>

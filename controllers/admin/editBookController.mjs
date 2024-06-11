@@ -8,6 +8,19 @@ const router = express.Router();
 
 router.use(attachCSRFToken);
 
+router.get('/admin/edit_book', isAdmin, async (req, res) => {
+    try {
+        const books = await Book.find();
+        const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
+        const csrfToken = req.csrfToken;
+        res.render('edit_book', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken, books });
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 router.get('/admin/edit_book/:id', isAdmin, async (req, res) => {
     try {
         const book = await Book.findById(req.params.id);
