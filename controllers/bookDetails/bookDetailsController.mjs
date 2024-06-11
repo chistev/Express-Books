@@ -3,10 +3,12 @@ import Book from '../../models/Book.mjs';
 import moment from 'moment';
 import { determineLoggedInStatus } from '../signinAndSignupControllers/determineLoggedInStatus.mjs'
 import { attachCSRFToken, verifyCSRFToken } from '../signinAndSignupControllers/csrfUtils.mjs'
+import addUserToLocals from '../../controllers/authmiddleware.mjs'
 
 const router = express.Router();
 
 router.use(attachCSRFToken);
+router.use(addUserToLocals);
 
 router.get('/book/:id/details', async (req, res) => {
     try {
@@ -78,7 +80,8 @@ router.get('/book/:id/details', async (req, res) => {
             loggedIn, 
             reviews: reviewsWithFormattedDate,
             userId: userIdStr,
-            reviewCount: book.reviews.length
+            reviewCount: book.reviews.length,
+            
         });
     } catch (error) {
         console.error('Error fetching book details:', error);

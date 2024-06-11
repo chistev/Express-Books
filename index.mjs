@@ -30,9 +30,10 @@ import bodyParser from 'body-parser';
 import { body, validationResult } from 'express-validator';
 import moment from 'moment';
 import addUserToLocals from './controllers/authmiddleware.mjs'
-import accountSettingsRouter from './controllers/accountSettings/accountSettings.mjs'
+import accountSettingsRouter from './controllers/accountSettings/accountSettingsController.mjs'
 import addBookController from './controllers/admin/addBookController.mjs';
 import bookDetailsController from './controllers/bookDetails/bookDetailsController.mjs';
+import changePasswordController from './controllers/accountSettings/changePasswordController.mjs'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -71,6 +72,7 @@ app.use('/forgot_password', forgotPasswordController)
 app.use('/password_reset', passwordResetController)
 app.use('/', addBookController);
 app.use('/', bookDetailsController);
+app.use('/', changePasswordController);
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
@@ -396,7 +398,6 @@ app.post('/book/:bookId/review/:reviewId/like', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
 
 app.get('/genre/:genre', async (req, res) => {
     const { genre } = req.params;
@@ -1212,90 +1213,6 @@ app.get('/delete_account', async (req, res) => {
     } catch (error) {
         console.error('Error fetching user comments:', error);
         res.status(500).send('Internal Server Error');
-    }
-});
-
-
-
-
-app.get('/change_password', async (req, res) => {
-    try {
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-        const csrfToken = req.csrfToken;
-        const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
-        const token = req.query.token;
-
-        if (!loggedIn) {
-            return res.redirect('/login'); // Redirect to login if user not logged in
-        }
-
-        const user = await User.findById(userId).select('email');
-
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        res.render('change_password', {
-            title: 'Change Password',
-            user: user,
-            csrfToken: csrfToken,
-            loggedIn: loggedIn,
-            content: '',
-            errors:errors,
-            token:token
-        });
-    } catch (error) {
-        console.error('Error fetching user details:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.post('/change_password', async (req, res) => {
-    const { password: currentPassword, 'new-password': newPassword, 're-enter-password': confirmPassword } = req.body;
-    const errors = [];
-    const { loggedIn, userId } = determineLoggedInStatus(req);
-    const csrfToken = req.csrfToken;
-
-    if (!loggedIn) {
-        errors.push('You must be logged in to change your password.');
-        return res.render('change_password', { title: 'Change Password', errors, csrfToken });
-    }
-
-    if (newPassword !== confirmPassword) {
-        errors.push('New password and confirmation password do not match.');
-        return res.render('change_password', { title: 'Change Password', errors, csrfToken });
-    }
-
-    if (newPassword.length < 6) {
-        errors.push('New password must be at least 6 characters long.');
-        return res.render('change_password', { title: 'Change Password', errors, csrfToken });
-    }
-
-    try {
-        const user = await User.findById(userId);
-
-        if (!user) {
-            errors.push('User not found.');
-            return res.render('change_password', { title: 'Change Password', errors, csrfToken });
-        }
-
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
-
-        if (!isMatch) {
-            errors.push('Current password is incorrect.');
-            return res.render('change_password', { title: 'Change Password', errors, csrfToken });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(newPassword, salt);
-
-        await user.save();
-
-        res.redirect('/account_settings');
-    } catch (error) {
-        console.error('Error changing password:', error);
-        errors.push('An unexpected error occurred. Please try again later.');
-        res.status(500).render('change_password', { title: 'Change Password', errors, csrfToken });
     }
 });
 
