@@ -141,10 +141,6 @@ app.post('/logout', (req, res) => {
     res.redirect('/');
 });
 
-app.get('/myreads', (req, res) => {
-    res.redirect('/');
-});
-
 app.get('/signup', (req, res) => {
     res.render('signup', { title: 'Sign Up', message: 'Sign up for MyReads!' });
 });
@@ -169,7 +165,6 @@ app.get('/privacy_policy', (req, res) => {
 });
 
 app.get('/new_releases', async (req, res) => {
-    // Determine the loggedIn status
     const { loggedIn } = determineLoggedInStatus(req);
     const page = parseInt(req.query.page) || 1;
     const limit = 10; // Number of books per page
@@ -179,26 +174,21 @@ app.get('/new_releases', async (req, res) => {
         const totalBooks = await Book.countDocuments();
         const books = await Book.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-        // Modify the description of each book to include only the first 20 words
         books.forEach(book => {
-            // Split the description into words
             const words = book.description.split(' ');
-            // Take the first 20 words and join them back into a string
-            book.description = words.slice(0, 20).join(' ');
-            // Add "..." at the end
-            if (words.length > 20) {
+            // Take the first 40 words and join them back into a string
+            book.description = words.slice(0, 40).join(' ');
+            if (words.length > 40) {
                 book.description += ' ...';
             }
         });
 
-        // Render the template with the books
         res.render('new_releases', { title: 'New Releases', loggedIn, content: '', books, currentPage: page, 
         totalPages: Math.ceil(totalBooks / limit), isSearchResult: false });
     } catch (error) {
         console.error('Error fetching books:', error);
         res.status(500).send('Internal Server Error');
     }
-
 });
 
 const window = new JSDOM('').window;

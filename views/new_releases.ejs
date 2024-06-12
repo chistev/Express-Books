@@ -34,16 +34,13 @@
                                         <%= book.author %>
                                     </a>
                                 </div>
-                                <div class="mb-1">
-                                    <i style="color: #e87400;" class="bi bi-star"></i> <span class="rating"><%= book.rating %></span>
-                                </div>
-                                <button class="btn fw-bold mt-2 mb-1 btn-want-to-read" style="background-color: #3f8363; color: #ffffff; border-radius: 15%;">Want to read</button>
+                                
                                 <div class="description-container" id="description-container-<%= book._id %>">
                                     <p class="mb-2 short-description">
                                         <%- book.description %>
                                     </p>
                                     <div class="show-more-button">
-                                        <a style="font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" class="text-decoration-none show-more-link" data-book-id="<%= book._id %>" href="#">
+                                        <a  class="text-decoration-none show-more-link" data-book-id="<%= book._id %>" href="#">
                                             Show more &#9662;
                                         </a>
                                     </div>
@@ -69,3 +66,4 @@
         </div>
     </div>
 </div>
+<
