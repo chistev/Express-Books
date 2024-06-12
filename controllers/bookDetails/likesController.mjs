@@ -2,13 +2,15 @@ import express from 'express';
 import Book from '../../models/Book.mjs';
 import { determineLoggedInStatus } from '../signinAndSignupControllers/determineLoggedInStatus.mjs'
 import { attachCSRFToken, verifyCSRFToken } from '../signinAndSignupControllers/csrfUtils.mjs'
+import bodyParser from 'body-parser';
 
 const router = express.Router();
 
 router.use(attachCSRFToken);
-router.use(addUserToLocals);
+router.use(bodyParser.json());
 
 router.post('/book/:bookId/review/:reviewId/like', verifyCSRFToken, async (req, res) => {
+    console.log("router reached")
     try {
         const { bookId, reviewId } = req.params;
         const { loggedIn, userId } = determineLoggedInStatus(req);

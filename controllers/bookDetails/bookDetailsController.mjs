@@ -16,8 +16,8 @@ router.get('/book/:id/details', async (req, res) => {
         const userIdStr = userId ? userId.toString() : null;
 
         const book = await Book.findById(req.params.id)
-            .populate('reviews.user', 'fullName')
-            .populate('reviews.comments.user', 'fullName');
+            .populate('reviews.user', 'fullName profilePhoto')
+            .populate('reviews.comments.user', 'fullName profilePhoto');
 
         if (!book) {
             return res.status(404).send('Book not found');
@@ -54,6 +54,8 @@ router.get('/book/:id/details', async (req, res) => {
                     user: comment.user || { fullName: 'Anonymous' }
                 }));
 
+                console.log("review.user " + review.user)
+
             return {
                 ...review._doc,
                 formattedDate: formattedDate,
@@ -65,6 +67,8 @@ router.get('/book/:id/details', async (req, res) => {
                 user: review.user || { fullName: 'Anonymous' }
             };
         });
+
+        
 
         console.log('Book with formatted review dates:', { ...book._doc, reviews: reviewsWithFormattedDate });
 

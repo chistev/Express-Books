@@ -17,15 +17,15 @@
                 <div class="container">
                     <div class="row">
                         <% books.forEach((book, index) => { %>
-                            <div class="col-md-3">
+                            <div class="col-md-3 mb-5">
                                 <a href="/book/<%= book._id %>/details" class="image-link">
                                     <img src="<%= book.image %>" alt="<%= book.title %>" class="image" style="width: 65%;">
                                 </a>
                             </div>
                             <div class="col-md-8 new-releases mb-5">
-                                <div class="mb-1 book-number">#<%= index + 1 %></div>
+                                <div class="mb-1 book-number">#<%= (currentPage - 1) * 10 + index + 1 %></div>
                                 <div class="mb-1">
-                                    <a class="text-decoration-none book-description" href="">
+                                    <a class="text-decoration-none book-description" href="/book/<%= book._id %>/details">
                                         <%= book.title %>
                                     </a>
                                 </div>

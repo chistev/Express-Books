@@ -433,7 +433,7 @@ width: 100%;
     margin-top: 5% !important;
 }
 
-.bi-person-circle:hover{
+.navbar-bi-person-circle:hover{
  color: white !important;
  background-color: #382110;
  padding: 5px;
@@ -571,13 +571,6 @@ width: 100%;
     font-size: 32px; 
     line-height: 46px; 
     color: #1e1915;
-}
-
-.write-a-review{
-    background-color: #1e1915; 
-    color: #ffffff; 
-    border-radius: 20%; 
-    width: 50%;
 }
 
 .review-content-short{

@@ -13,7 +13,7 @@ router.get('/admin/edit_book', isAdmin, async (req, res) => {
         const books = await Book.find();
         const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
         const csrfToken = req.csrfToken;
-        res.render('edit_book', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken, books });
+        res.render('admin/edit_book', { title: 'admin', errors: errors, content: '', csrfToken: csrfToken, books });
     } catch (error) {
         console.error('Error fetching books:', error);
         res.status(500).send('Internal Server Error');

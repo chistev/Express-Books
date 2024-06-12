@@ -36,6 +36,8 @@ import likesController from './controllers/likes/likesController.mjs'
 import myBooksController from './controllers/myBooks/myBooksController.mjs'
 import writeReviewController from './controllers/writeReview/writeReviewController.mjs'
 import bookDetailscommentsController from './controllers/bookDetails/commentsController.mjs'
+import bookDetailsLikesController from './controllers/bookDetails/likesController.mjs'
+import helmet from 'helmet';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -43,6 +45,9 @@ const __dirname = dirname(__filename);
 dotenv.config();
 const app = express();
 const port = 3000;
+
+// Use Helmet to set various HTTP headers for security
+app.use(helmet());
 
 // Configure express-session middleware
 app.use(session({
@@ -89,6 +94,7 @@ app.use('/likes/list', likesController)
 app.use('/', myBooksController)
 app.use('/', writeReviewController)
 app.use('/', bookDetailscommentsController)
+app.use('/', bookDetailsLikesController)
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
@@ -111,14 +117,21 @@ app.get('/', async (req, res) => {
 
         const selectedGenresLower = user.selectedGenres.map(genre => genre.toLowerCase());
 
-        const books = await Book.find().lean(); // lean() to get plain JavaScript objects
-        const filteredBooks = books.filter(book => {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10; // Number of books per page
+        const skip = (page - 1) * limit;
+
+        const allBooks = await Book.find().sort({ createdAt: -1 }).lean();
+        const filteredBooks = allBooks.filter(book => {
             const bookGenresLower = book.genre.map(genre => genre.toLowerCase());
             return bookGenresLower.some(genre => selectedGenresLower.includes(genre));
         });
 
+        const totalBooks = filteredBooks.length;
+        const paginatedBooks = filteredBooks.slice(skip, skip + limit);
+
         // Truncate descriptions
-        filteredBooks.forEach(book => {
+        paginatedBooks.forEach(book => {
             const words = book.description.split(' ');
             book.description = words.slice(0, 40).join(' ');
             if (words.length > 40) {
@@ -126,16 +139,16 @@ app.get('/', async (req, res) => {
             }
         });
 
-        console.log('Books to be rendered:', filteredBooks);
+        console.log('Books to be rendered:', paginatedBooks);
 
         res.render('index', { 
             title: 'Free Online Books', 
             loggedIn, 
-            books: filteredBooks, 
+            books: paginatedBooks, 
             isSearchResult: false, 
-            currentPage: 1, 
-            totalPages: 1,
-            content:''
+            currentPage: page, 
+            totalPages: Math.ceil(totalBooks / limit),
+            content: ''
         });
     } catch (error) {
         console.error('Error fetching books:', error);
@@ -183,7 +196,7 @@ app.get('/new_releases', async (req, res) => {
 
     try {
         const totalBooks = await Book.countDocuments();
-        const books = await Book.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
+        const books = await Book.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
 
         books.forEach(book => {
             const words = book.description.split(' ');
@@ -194,8 +207,17 @@ app.get('/new_releases', async (req, res) => {
             }
         });
 
-        res.render('new_releases', { title: 'New Releases', loggedIn, content: '', books, currentPage: page, 
-        totalPages: Math.ceil(totalBooks / limit), isSearchResult: false });
+        console.log('Books to be rendered (new releases):', books);
+
+        res.render('new_releases', { 
+            title: 'New Releases', 
+            loggedIn, 
+            content: '', 
+            books, 
+            currentPage: page, 
+            totalPages: Math.ceil(totalBooks / limit), 
+            isSearchResult: false 
+        });
     } catch (error) {
         console.error('Error fetching books:', error);
         res.status(500).send('Internal Server Error');

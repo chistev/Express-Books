@@ -1,13 +1,17 @@
 import express from 'express';
 import Book from '../../models/Book.mjs';
+import User from '../../models/User.mjs';
 import { determineLoggedInStatus } from '../signinAndSignupControllers/determineLoggedInStatus.mjs'
 import { attachCSRFToken, verifyCSRFToken } from '../signinAndSignupControllers/csrfUtils.mjs'
 import addUserToLocals from '../authmiddleware.mjs'
+import bodyParser from 'body-parser';
+import sanitizeHtml from 'sanitize-html';
 
 const router = express.Router();
 
 router.use(attachCSRFToken);
 router.use(addUserToLocals);
+router.use(bodyParser.json());
 
 router.get('/comment/:commentId', async (req, res) => {
     try {
@@ -39,6 +43,7 @@ router.post('/book/:reviewId/comment', verifyCSRFToken, async (req, res) => {
 
         console.log('User logged in:', loggedIn);
         console.log('User ID:', userId);
+        console.log('Request body:', req.body); // Add this line to log the request body
 
         if (!loggedIn || !userId) {
             console.log('User not logged in or userId not found.');

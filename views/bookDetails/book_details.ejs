@@ -56,7 +56,10 @@
                 
             </div>
             <div class="d-flex row align-items-center justify-content-center">
-                    <a href="<%= loggedIn ? `/write_review/${book._id}` : '/signup' %>"  class="btn mb-2 write-a-review">
+                    <a href="<%= loggedIn ? `/write_review/${book._id}` : '/signup' %>"  class="btn mb-2" style="background-color: #1e1915; 
+                        color: #ffffff; 
+                        border-radius: 20%; 
+                        width: 50%;">
                     Write a Review
                 </a>
                 <hr>
@@ -72,7 +75,12 @@
                 <% reviews.forEach(review => { %>
                     <div class="row mt-3">
                 <div class="col-2">
-                    <img src="https://images.gr-assets.com/users/1714842419p6/154684875.jpg" style="border-radius: 50%; width: 60%; object-fit: contain;" >
+                    <% if (review.user && review.user.profilePhoto) { %>
+                        <img src="<%= review.user.profilePhoto %>" style="border-radius: 50%; width: 60%; object-fit: contain;">
+                      <% } else { %>
+                        <i class="bi bi-person-circle" style="font-size: 40px;"></i>
+                    <% } %>
+                    
                         <div style="font-family: Georgia, serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
                             <%= review.user.fullName %>
                         </div>
@@ -93,11 +101,13 @@
                         
                         <div class="mt-2 review-content-short">
                             <%- review.truncatedContent %>
-                            <div class="show-more-button">
-                                <a class="text-decoration-none show-more-link" data-review-id="<%= review._id %>" href="#">
-                                    Show more &#9662;
-                                </a>
-                            </div>
+                            <% if (review.truncatedContent.length > 200) { %>
+                                <div class="show-more-button">
+                                    <a class="text-decoration-none show-more-link" data-review-id="<%= review._id %>" href="#">
+                                        Show more &#9662;
+                                    </a>
+                                </div>
+                            <% } %>
                         </div>
                         <div class="mt-2 review-content-full"></div>
                     </div>
@@ -110,12 +120,23 @@
                             </span>
                         </div>
                         <div class="mt-2" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
-                            <button style="color: <%= review.likedByUser ? '#377458' : '#1e1915' %>; font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; background: none; border: none;" class="text-decoration-none like-link" data-review-id="<%= review._id %>" data-liked="<%= review.likedByUser %>">
-                                <i class="bi bi-hand-thumbs-up"></i> Like
-                            </button>
-                            <a id="comment-link-<%= review._id %>" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" href="<%= loggedIn ? '' : '/signup' %>" class="text-decoration-none ms-3">
-                                <i class="bi bi-chat"></i> Comment
-                            </a>
+                            <% if (loggedIn) { %>
+                                <button style="color: <%= review.likedByUser ? '#377458' : '#1e1915' %>; font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; background: none; border: none;" class="text-decoration-none like-link" data-review-id="<%= review._id %>" data-liked="<%= review.likedByUser %>">
+                                  <i class="bi bi-hand-thumbs-up"></i> Like
+                                </button>
+                                <a id="comment-link-<%= review._id %>" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" href="" class="text-decoration-none ms-3">
+                                  <i class="bi bi-chat"></i> Comment
+                                </a>
+                              <% } else { %>
+                                <button style="color: #1e1915; font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; background: none; border: none;" class="text-decoration-none" onclick="location.href='/signin';">
+                                  <i class="bi bi-hand-thumbs-up"></i> Like
+                                </button>
+                                <a id="comment-link-<%= review._id %>" style="font-family: Arial, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;" href="/signin" class="text-decoration-none ms-3">
+                                  <i class="bi bi-chat"></i> Comment
+                                </a>
+                              <% } %>
+                            </div>
+                          
                             
                             <div id="comments-container-<%= review._id %>" class="comments-container" style="display: none;">
                                 <div class="row">
@@ -126,12 +147,16 @@
                                             <div class="col-12 mb-3 comment-container">
                                                 <div class="row">
                                                     <div class="col-lg-1 col-md-2 col-1 mt-2">
-                                                        <div class="user-image-placeholder"></div>
+                                                        <% if (comment.user && comment.user.profilePhoto) { %>
+                                                            <img src="<%= review.user.profilePhoto %>" style="border-radius: 50%; width: 100%; object-fit: contain;">
+                                                        <% } else { %>
+                                                            <div class="user-image-placeholder"></div>
+                                                        <% } %>
                                                     </div>
                                                     <div class="col-lg-10 col-md-10 mt-2">
                                                         <div class="d-flex justify-content-between">
                                                             <div class="d-flex">
-                                                                <div>
+                                                                <div style="font-family: Georgia, serif; font-weight: 600; font-size: 14px; line-height: 20px; color: #1e1915;">
                                                                     <%= comment.user.fullName %>
                                                                 </div>
                                                                 <div class="ms-2 comment-date">
