@@ -6,7 +6,7 @@
 <div class="container " style="width: 70%;">
 <div class="row">
     <div class="col-12">
-        <a href="<%= `/book/${book._id}/details` %>" class="review_title_link" style="font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 20px; line-height: 24px; color: #00635d; text-decoration: none;">
+        <a href="<%= `/book/${book._id}/details` %>" class="review_title_link write-review-title">
             <%= book.title %>
         </a>
         
@@ -14,7 +14,7 @@
             <div class="col-4 col-md-2">
                 <img src="<%= book.image %>" alt="<%= book.title %>" class="img-fluid rounded">
             </div>
-            <div class="col-8 col-md-10" style="font-family: Georgia, serif; font-weight: 400; font-size: 14px; line-height: 21px; color: #333333;">
+            <div class="col-8 col-md-10 write-review-author">
                 <p class="text-muted mb-0"> <%= book.author %></p>
             </div>
         </div>
@@ -31,14 +31,8 @@
                 Post
             </button>
         </form>
-        
-        <a href="#" class="mt-2 me-2 preview-link" style="font-family: Helvetica, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; color: #999999; text-decoration: none;">
-            preview
-        </a>
-        
     </div>
 <script>
-        // Initialize TinyMCE
         tinymce.init({
             selector: '#review',
             plugins: 'link advlist autolink lists charmap print preview hr anchor pagebreak',
@@ -55,20 +49,16 @@
 </script>
 
 <script>
-    // Function to validate the form before submission
     function validateForm() {
         // Trigger TinyMCE to save content to the textarea
     tinymce.triggerSave();
     
-        // Get the value of the textarea
         const reviewContent = document.getElementById('review').value;
         
-        // Trim whitespace and check if empty
         if (!reviewContent.trim()) {
-            // Show alert if textarea is empty
             alert('Please fill in the required field.');
-            return false; // Prevent form submission
+            return false;
         }
-        return true; // Allow form submission
+        return true;
     }
 </script>

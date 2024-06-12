@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../../models/User.mjs';
+import Book from '../../models/Book.mjs';
 import { attachCSRFToken, verifyCSRFToken } from '../signinAndSignupControllers/csrfUtils.mjs';
 import { determineLoggedInStatus } from '../signinAndSignupControllers/determineLoggedInStatus.mjs';
 

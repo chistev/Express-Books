@@ -932,3 +932,22 @@ width: 100%;
     line-height: 32px; 
     color: #333333;
 }
+
+/* Write Review */
+
+.write-review-title{
+    font-family: Georgia, 'Times New Roman', serif; 
+    font-weight: 700; 
+    font-size: 20px; 
+    line-height: 24px; 
+    color: #00635d; 
+    text-decoration: none;
+}
+
+.write-review-author{
+    font-family: Georgia, serif; 
+    font-weight: 400; 
+    font-size: 14px; 
+    line-height: 21px; 
+    color: #333333;
+}

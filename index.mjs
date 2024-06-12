@@ -42,6 +42,7 @@ import editFavoriteGenreController from './controllers/editFavoriteGenre/editFav
 import editGenreController from './controllers/admin/editGenreController.mjs'
 import likesController from './controllers/likes/likesController.mjs'
 import myBooksController from './controllers/myBooks/myBooksController.mjs'
+import writeReviewController from './controllers/writeReview/writeReviewController.mjs'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -93,6 +94,7 @@ app.use('/edit_favorite_genre', editFavoriteGenreController);
 app.use('/', editGenreController)
 app.use('/likes/list', likesController)
 app.use('/', myBooksController)
+app.use('/', writeReviewController)
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
@@ -145,12 +147,19 @@ app.post('/logout', (req, res) => {
     res.redirect('/');
 });
 
+app.get('/logout', (req, res) => {
+    // Clear the token cookie
+    res.clearCookie('token');
+    // Redirect the user to the sign-in page
+    res.redirect('/');
+});
+
 app.get('/signup', (req, res) => {
-    res.render('signup', { title: 'Sign Up', message: 'Sign up for MyReads!' });
+    res.render('registration/signup', { title: 'Sign Up', message: 'Sign up for MyReads!' });
 });
 
 app.get('/signin', (req, res) => {
-    res.render('signin', { title: 'Sign in', content: ''});
+    res.render('signin/signin', { title: 'Sign in', content: ''});
 });
 
 app.get('/terms_of_service', (req, res) => {
@@ -212,35 +221,6 @@ app.get('/book/:id', async (req, res) => {
     }
 });
 
-// Route to get more comments for a specific review
-app.get('/reviews/:reviewId/comments', async (req, res) => {
-    try {
-        const { reviewId } = req.params;
-        const { offset } = req.query;
-
-        // Fetch the review with the specified ID and populate the comments
-        const review = await Book.findOne({ 'reviews._id': reviewId }, { 'reviews.$': 1 })
-            .populate('reviews.comments.user', 'fullName')
-            .lean();
-
-        if (!review) {
-            return res.status(404).send('Review not found');
-        }
-
-        const comments = review.reviews[0].comments
-        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-            .slice(offset, offset + 5)
-            .map(comment => ({
-                ...comment,
-                formattedDate: moment(comment.createdAt).format('MMMM D, YYYY'),
-            }));
-
-        res.json({ comments });
-    } catch (error) {
-        console.error('Error fetching more comments:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
 app.delete('/comment/:commentId', async (req, res) => {
     try {
@@ -516,84 +496,6 @@ app.get('/user/:userId/mybooks', async (req, res) => {
             books: booksWithUserReviews, 
             searchQuery: searchQuery 
         });
-    }
-});
-
-app.get('/write_review/:bookId', async (req, res) => {
-    const loggedIn = determineLoggedInStatus(req);
-    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
-    const csrfToken = req.csrfToken;
-
-    try {
-        const book = await Book.findById(req.params.bookId);
-        if (!book) {
-            return res.status(404).send('Book not found');
-        }
-        // Determine user logged in status and get the user ID
-        const loggedInStatus = determineLoggedInStatus(req);
-        const userId = loggedInStatus.loggedIn ? loggedInStatus.userId : null;
-        
-        console.log('User ID:', userId);
-
-        // Find the user's review for this book
-        let userReview = null;
-        if (userId) {
-            userReview = userId ? book.reviews.find(review => review.user && review.user.toString() === userId.toString()) : null;
-        }
-
-        res.render('write_review', { title: "Review", errors: errors, csrfToken: csrfToken, loggedIn, book, content: '', review: userReview ? userReview.content : '', bookId: req.params.bookId    });
-    } catch (error) {
-        console.error('Error fetching book details for review:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.post('/save_review_content/:bookId', 
-async (req, res) => {
-    try {
-        console.log("reading")
-        const bookId = req.params.bookId;
-        let content = req.body.content;
-
-           // Log incoming data
-           console.log(`Book ID: ${bookId}`);
-           console.log(`Content: ${content}`);
-           
-         // Determine user logged in status and get the user ID
-        const loggedInStatus = determineLoggedInStatus(req);
-        const userId = loggedInStatus.loggedIn ? loggedInStatus.userId : null;
-        
-         console.log(userId + "this is it")
-
-         // Check if bookId is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(bookId)) {
-            return res.status(400).json({ error: 'Invalid book ID' });
-        }
-
-        // Check if the user has already reviewed the book
-        const book = await Book.findById(bookId);
-        if (!book) {
-            return res.status(404).json({ error: 'Book not found' });
-        }
-
-        let userReview = book.reviews.find(review => review.user && review.user.toString() === userId.toString());
-
-        if (userReview) {
-            // Update the existing review
-            userReview.content = content;
-        } else {
-            // Add a new review
-            book.reviews.push({ content: content, user:  new mongoose.Types.ObjectId(userId) });
-        }
-
-        await book.save();
-
-        // Send a success response
-        console.log('Review content saved successfully');
-        res.status(200).json({ message: 'Review content saved successfully' });
-    } catch (error) {
-        console.error('Error saving review content:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 

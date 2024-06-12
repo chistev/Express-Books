@@ -11,7 +11,7 @@ router.use(attachCSRFToken);
 router.get('/', (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;
-    res.render('signin/Ssignin_with_email', { title: 'Myreads Sign in', content: '', errors: errors, csrfToken: csrfToken});
+    res.render('signin/signin_with_email', { title: 'Myreads Sign in', content: '', errors: errors, csrfToken: csrfToken});
 });
 
 router.post('/', verifyCSRFToken, async (req, res) => {
