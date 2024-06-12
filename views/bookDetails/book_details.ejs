@@ -512,7 +512,7 @@
     }
 
     function confirmDeleteComment(event, commentId) {
-        event.preventDefault(); // Prevent the default action of the link
+        event.preventDefault(); 
         commentIdToDelete = commentId;
         var deleteModal = new bootstrap.Modal(document.getElementById('deleteCommentModal'));
         deleteModal.show();

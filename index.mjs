@@ -43,6 +43,7 @@ import editGenreController from './controllers/admin/editGenreController.mjs'
 import likesController from './controllers/likes/likesController.mjs'
 import myBooksController from './controllers/myBooks/myBooksController.mjs'
 import writeReviewController from './controllers/writeReview/writeReviewController.mjs'
+import bookDetailscommentsController from './controllers/bookDetails/commentsController.mjs'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -95,6 +96,7 @@ app.use('/', editGenreController)
 app.use('/likes/list', likesController)
 app.use('/', myBooksController)
 app.use('/', writeReviewController)
+app.use('/', bookDetailscommentsController)
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
@@ -221,171 +223,6 @@ app.get('/book/:id', async (req, res) => {
     }
 });
 
-
-app.delete('/comment/:commentId', async (req, res) => {
-    try {
-        const { commentId } = req.params;
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-
-        if (!loggedIn || !userId) {
-            return res.status(401).json({ success: false, error: 'User not logged in' });
-        }
-
-        const book = await Book.findOne({ 'reviews.comments._id': commentId });
-
-        if (!book) {
-            return res.status(404).json({ success: false, error: 'Comment not found' });
-        }
-
-        const review = book.reviews.find(review => review.comments.id(commentId));
-        const comment = review.comments.id(commentId);
-
-        if (comment.user.toString() !== userId.toString()) {
-            return res.status(403).json({ success: false, error: 'User not authorized to delete this comment' });
-        }
-
-        review.comments.pull(commentId);
-        await book.save();
-
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Error deleting comment:', error);
-        res.status(500).json({ success: false, error: 'Internal Server Error' });
-    }
-});
-
-app.get('/comment/:commentId', async (req, res) => {
-    try {
-        const { commentId } = req.params;
-        const book = await Book.findOne({ 'reviews.comments._id': commentId }, { 'reviews.$': 1 });
-
-        if (!book) {
-            return res.status(404).json({ success: false, error: 'Comment not found' });
-        }
-
-        const review = book.reviews[0];
-        const comment = review.comments.id(commentId);
-
-        if (!comment) {
-            return res.status(404).json({ success: false, error: 'Comment not found' });
-        }
-
-        res.json({ success: true, content: comment.content });
-    } catch (error) {
-        console.error('Error fetching comment:', error);
-        res.status(500).json({ success: false, error: 'Internal Server Error' });
-    }
-});
-
-
-app.post('/book/:reviewId/comment', async (req, res) => {
-    try {
-        const { content } = req.body;
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-
-        console.log('User logged in:', loggedIn);
-        console.log('User ID:', userId);
-
-        if (!loggedIn || !userId) {
-            console.log('User not logged in or userId not found.');
-            return res.status(401).json({ success: false, error: 'User not logged in' });
-        }
-
-        // Fetch the user from the database
-        const user = await User.findById(userId);
-        console.log('User found:', user);
-        if (!user) {
-            console.log('User not found.');
-            return res.status(404).json({ success: false, error: 'User not found' });
-        }
-
-        const book = await Book.findOne({ 'reviews._id': req.params.reviewId });
-        console.log('Book found:', book);
-        if (!book) {
-            console.log('Book not found.');
-            return res.status(404).json({ success: false, error: 'Book not found' });
-        }
-
-        const review = book.reviews.id(req.params.reviewId);
-
-        if (typeof content !== 'string') {
-            console.log('Invalid content type:', typeof content);
-            return res.status(400).json({ success: false, error: 'Invalid content type' });
-        }
-
-        const trimmedContent = content.trim();
-
-        if (!trimmedContent) {
-            console.log('Comment content is empty.');
-            return res.status(400).json({ success: false, error: 'Comment content cannot be empty' });
-        }
-
-        // Sanitize content to prevent XSS
-        const sanitizedContent = sanitizeHtml(trimmedContent, {
-            allowedTags: ['p', 'br', 'i', 'b', 'u'], // Allow only paragraph and line break tags
-            allowedAttributes: {}
-        });
-
-        // Replace newlines with paragraph tags
-        const formattedContent = sanitizedContent.split('\n').map(line => `<p>${line}</p>`).join('');
-
-        // Push the comment with the user field properly set
-        review.comments.push({ content: formattedContent, user: user._id });
-
-        console.log('Comment added to review:', review.comments);
-
-        await book.save();
-
-        const formattedDate = new Date().toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' });
-
-        res.json({ success: true, comment: { content: formattedContent, userFullName: user.fullName, formattedDate } });
-    } catch (error) {
-        console.error('Error submitting comment:', error);
-        res.status(500).json({ success: false, error: 'Internal Server Error' });
-    }
-});
-
-app.post('/book/:bookId/review/:reviewId/like', async (req, res) => {
-    try {
-        const { bookId, reviewId } = req.params;
-        const { loggedIn, userId } = determineLoggedInStatus(req);
-
-        if (!loggedIn) {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-
-        const book = await Book.findById(bookId);
-        if (!book) {
-            return res.status(404).json({ error: 'Book not found' });
-        }
-
-        const review = book.reviews.id(reviewId);
-        if (!review) {
-            return res.status(404).json({ error: 'Review not found' });
-        }
-
-        // Ensure likes array contains valid entries and remove null values
-        review.likes = review.likes.filter(like => like.user);
-
-        // Check if the current user has already liked the review
-        const existingLike = review.likes.find(like => like.user.toString() === userId.toString());
-
-        if (existingLike) {
-            // If the user has already liked the review, remove the like (unlike)
-            review.likes = review.likes.filter(like => like.user.toString() !== userId.toString());
-        } else {
-            // If the user has not liked the review yet, add the like
-            review.likes.push({ user: userId, likedAt: new Date() });
-        }
-
-        await book.save();
-        res.json({ likes: review.likes.length, liked: !existingLike });
-    } catch (error) {
-        console.error('Error liking review:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
 app.get('/genre/:genre', async (req, res) => {
     const { genre } = req.params;
 
@@ -407,37 +244,6 @@ app.get('/genre/:genre', async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching books by genre:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.get('/user/:userId', async (req, res) => {
-    const { loggedIn } = determineLoggedInStatus(req);
-    const userId = req.params.userId;
-    const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
-    const csrfToken = req.csrfToken;
-
-    try {
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        // Calculate the total number of reviews made by the user
-        const totalReviews = await Book.countDocuments({ 'reviews.user': userId });
-
-        res.render('user', { 
-            title: 'User Profile', 
-            user, 
-            totalReviews, // Pass the total number of reviews to the view
-            errors: errors, 
-            content: '', 
-            csrfToken: csrfToken, 
-            loggedIn, 
-            book: ''
-        });
-    } catch (error) {
-        console.error('Error fetching user profile:', error);
         res.status(500).send('Internal Server Error');
     }
 });
