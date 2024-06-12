@@ -38,6 +38,10 @@ import writeReviewController from './controllers/writeReview/writeReviewControll
 import bookDetailscommentsController from './controllers/bookDetails/commentsController.mjs'
 import bookDetailsLikesController from './controllers/bookDetails/likesController.mjs'
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import compression from 'compression';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -46,8 +50,40 @@ dotenv.config();
 const app = express();
 const port = 3000;
 
+
 // Use Helmet to set various HTTP headers for security
 app.use(helmet());
+
+// Use Compression middleware to gzip responses
+app.use(compression());
+
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'public, max-age=31557600'); // 1 year
+    next();
+  });
+  
+
+// Configure rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+
+app.use(limiter);
+
+// Use express-mongo-sanitize to prevent NoSQL injection
+app.use(mongoSanitize());
+
+// Use xss-clean to prevent XSS attacks
+app.use(xss());
+
+// centralized error handling mechanism.
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+  });
+  
 
 // Configure express-session middleware
 app.use(session({
@@ -64,7 +100,11 @@ app.use(session({
 app.use(express.static('public'));
 
 // Set EJS as the view engine
-app.set('view engine', 'ejs');
+app.use(express.static('public', {
+    maxAge: '1y',
+    etag: false,
+  }));
+  
 
 // Middleware to parse URL-encoded form data
 app.use(express.urlencoded({ extended: true }));
