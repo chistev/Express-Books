@@ -6,29 +6,21 @@ import otpRequestController from './controllers/signinAndSignupControllers/otpRe
 import otpResendController from './controllers/signinAndSignupControllers/otpResendController.mjs'
 import favoriteGenreController from './controllers/signinAndSignupControllers/favoriteGenreController.mjs'
 import User from './models/User.mjs';
-import { attachCSRFToken, verifyCSRFToken } from './controllers/signinAndSignupControllers/csrfUtils.mjs';
-import bcrypt from 'bcryptjs'; 
-import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
-import crypto from 'crypto';
 import { determineLoggedInStatus } from './controllers/signinAndSignupControllers/determineLoggedInStatus.mjs'
 import signinWithEmailController from './controllers/signinAndSignupControllers/signInWithEmailController.mjs'
 import forgotPasswordController from './controllers/signinAndSignupControllers/forgotPasswordController.mjs'
 import passwordResetController from './controllers/signinAndSignupControllers/passwordResetController.mjs'
-import multer from 'multer';
 import Book from './models/Book.mjs';
 import Genre from './models/Genre.mjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import _ from 'lodash';
-import sanitizeHtml from 'sanitize-html';
 import { JSDOM } from 'jsdom';
 import createDOMPurify from 'dompurify';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
-import { body, validationResult } from 'express-validator';
-import moment from 'moment';
 import addUserToLocals from './controllers/authmiddleware.mjs'
 import accountSettingsRouter from './controllers/accountSettings/accountSettingsController.mjs'
 import addBookController from './controllers/admin/addBookController.mjs';
@@ -125,6 +117,15 @@ app.get('/', async (req, res) => {
             return bookGenresLower.some(genre => selectedGenresLower.includes(genre));
         });
 
+        // Truncate descriptions
+        filteredBooks.forEach(book => {
+            const words = book.description.split(' ');
+            book.description = words.slice(0, 40).join(' ');
+            if (words.length > 40) {
+                book.description += ' ...';
+            }
+        });
+
         console.log('Books to be rendered:', filteredBooks);
 
         res.render('index', { 
@@ -133,7 +134,7 @@ app.get('/', async (req, res) => {
             books: filteredBooks, 
             isSearchResult: false, 
             currentPage: 1, 
-            totalPages: 1.,
+            totalPages: 1,
             content:''
         });
     } catch (error) {
@@ -354,7 +355,6 @@ app.get('/account_settings', (req, res) => {
 });
 
 app.use('/account_settings', accountSettingsRouter);
-
 
 // Start the server
 app.listen(port, () => {
