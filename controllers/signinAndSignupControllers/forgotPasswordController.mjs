@@ -8,6 +8,12 @@ const router = express.Router();
 
 router.use(attachCSRFToken);
 
+router.get('/password_reset_email_sent', (req, res) => {
+    const csrfToken = req.csrfToken;
+    res.render('signin/password_reset_email_sent', { title: 'Myreads Password Assistance', content: '', csrfToken: csrfToken });
+});
+
+
 router.get('/', (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;

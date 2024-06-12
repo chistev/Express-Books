@@ -13,7 +13,7 @@ router.get('/', attachCSRFToken, (req, res) => {
     const csrfToken = req.csrfToken;
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const token = req.query.token;
-    res.render('password_reset', { title: 'Myreads Password Assistance', content: '', csrfToken: csrfToken, token:token, errors: errors });
+    res.render('signin/password_reset', { title: 'Myreads Password Assistance', content: '', csrfToken: csrfToken, token:token, errors: errors });
 });
 
 router.post('/', verifyCSRFToken, async (req, res) => {

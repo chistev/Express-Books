@@ -8,10 +8,10 @@ const router = express.Router();
 
 router.use(attachCSRFToken);
 
-router.get('/', attachCSRFToken, (req, res) => {
+router.get('/', (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
     const csrfToken = req.csrfToken;
-    res.render('signin_with_email', { title: 'Myreads Sign in', content: '', errors: errors, csrfToken: csrfToken});
+    res.render('signin/Ssignin_with_email', { title: 'Myreads Sign in', content: '', errors: errors, csrfToken: csrfToken});
 });
 
 router.post('/', verifyCSRFToken, async (req, res) => {
@@ -35,26 +35,21 @@ router.post('/', verifyCSRFToken, async (req, res) => {
             }
         } 
 
-        // Authentication successful, generate JWT token
         if (keepSignedIn) {
             let tokenPayload = { userId: user._id, email: user.email };
 
-            // Check if the user is an admin before including the isAdmin property in the token payload
             if (user.isAdmin) {
                 tokenPayload.isAdmin = true;
             }
             const token = jwt.sign(tokenPayload, process.env.SECRET, { expiresIn: '7d' });
             console.log(tokenPayload)
-            // Send JWT token to the client
-            res.cookie('token', token, { maxAge: 7 * 24 * 60 * 60 * 1000 });
-            // Set the user ID in the session
+            res.cookie('token', token, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true});
             req.session.userId = user._id;
         } else{
-            // Generate a random token to sign the user in without keeping them signed in
             const signInToken = generateToken();
             req.session.signInToken = signInToken;
+            req.session.cookie.expires = false; // Set session cookie to expire on browser close
 
-            // Set the user ID in the session
             req.session.userId = user._id;
         }
 
@@ -63,7 +58,7 @@ router.post('/', verifyCSRFToken, async (req, res) => {
         console.error('Error finding user:', error);
         errors.push("An unexpected error occurred. Please try again later.");
         const csrfToken = req.csrfToken;
-        return res.render('signin_with_email', { errors, title: 'Myreads Sign in', content: '', csrfToken: csrfToken});
+        return res.render('signin/signin_with_email', { errors, title: 'Myreads Sign in', content: '', csrfToken: csrfToken});
     }
 });
 

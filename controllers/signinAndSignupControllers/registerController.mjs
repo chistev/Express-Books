@@ -17,7 +17,7 @@ router.post('/', verifyCSRFToken, async (req, res) => {
     const fullName = req.body.fullName;
     const email = req.body.email;
     const password = req.body.password;
-    const reEnteredPassword = req.body['re-enter-password']; // Accessing using bracket notation since the key contains hyphens
+    const reEnteredPassword = req.body['re-enter-password']; 
 
     const errors = [];
 
@@ -38,7 +38,6 @@ router.post('/', verifyCSRFToken, async (req, res) => {
         errors.push('Passwords must be at least 6 characters long and match.');
     }
 
-    // Check if the email already exists in the database
     try {
         const existingUser = await User.findOne({ email: email });
         if (existingUser) {
@@ -49,7 +48,6 @@ router.post('/', verifyCSRFToken, async (req, res) => {
         errors.push('Error checking existing user');
     }
 
-    // If there are validation errors, redirect back to the registration page with errors in query parameters
     if (errors.length > 0) {
         return res.redirect('/register?errors=' + encodeURIComponent(JSON.stringify(errors)));
     }
@@ -59,7 +57,7 @@ router.post('/', verifyCSRFToken, async (req, res) => {
     req.session.password = password
     req.session.fullName = fullName;
     req.session.email = email;
-    req.session.otpAttempts = 0; // Initialize OTP attempts counter
+    req.session.otpAttempts = 0;
 
     try {
         await sendEmail(email, fullName, otp);

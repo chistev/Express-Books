@@ -54,7 +54,11 @@ const port = 3000;
 app.use(session({
     secret: process.env.SECRET, 
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
+        maxAge: null // Session cookie by default
+    }
 }));
 
 // Use express.static middleware to serve static files
@@ -147,11 +151,6 @@ app.get('/signup', (req, res) => {
 
 app.get('/signin', (req, res) => {
     res.render('signin', { title: 'Sign in', content: ''});
-});
-
-app.get('/password_reset_email_sent', attachCSRFToken, (req, res) => {
-    const csrfToken = req.csrfToken;
-    res.render('password_reset_email_sent', { title: 'Myreads Password Assistance', content: '', csrfToken: csrfToken });
 });
 
 app.get('/terms_of_service', (req, res) => {

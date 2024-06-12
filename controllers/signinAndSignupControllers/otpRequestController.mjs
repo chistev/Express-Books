@@ -6,7 +6,6 @@ const router = express.Router();
 
 router.use(attachCSRFToken);
 
-// Set the maximum number of OTP attempts allowed
 const MAX_OTP_ATTEMPTS = 3;
 
 
@@ -17,13 +16,13 @@ router.get('/', (req, res) => {
     const csrfToken = req.csrfToken;
     const email = req.session.email; 
     const errors = req.query.errors ? JSON.parse(req.query.errors) : []; 
-    const otpAttempts = req.session.otpAttempts || 0; // Get the number of OTP attempts from the session or initialize to 0
-    const newOTPRequest = req.session.newOTPRequest; // Check if a new OTP request has been made
+    const otpAttempts = req.session.otpAttempts || 0; 
+    const newOTPRequest = req.session.newOTPRequest;
 
     // Clear the newOTPRequest flag from the session
     req.session.newOTPRequest = false;
 
-    res.render('otp-request', { title: 'Verify email address', email: email,  errors: errors, otpAttempts: otpAttempts, newOTPRequest: newOTPRequest, content: '', csrfToken: csrfToken});
+    res.render('registration/otp-request', { title: 'Verify email address', email: email,  errors: errors, otpAttempts: otpAttempts, newOTPRequest: newOTPRequest, content: '', csrfToken: csrfToken});
 });
 
 router.post('/', verifyCSRFToken, async (req, res) => {
