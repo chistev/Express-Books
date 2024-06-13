@@ -110,7 +110,7 @@ app.use(session({
     store: store,
     cookie: {
         secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
-        maxAge: null // Session cookie by default
+        maxAge: 1000 * 60 * 60 * 24 * 30 // 30 days
     }
 }));
 
