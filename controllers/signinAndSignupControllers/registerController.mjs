@@ -1,4 +1,5 @@
 import express from 'express';
+import session from 'express-session';
 import { validateEmail, generateOTP, sendEmail } from './registerUtils.mjs';
 import { attachCSRFToken, verifyCSRFToken } from './csrfUtils.mjs'
 import User from '../../models/User.mjs';
@@ -6,6 +7,16 @@ import User from '../../models/User.mjs';
 const router = express.Router();
 
 router.use(attachCSRFToken);
+router.use(session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: true,
+    store: store,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
+        maxAge: 1000 * 60 * 60 * 24 * 30 // 30 days
+    }
+}));
 
 router.get('/', (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
@@ -58,6 +69,9 @@ router.post('/', verifyCSRFToken, async (req, res) => {
     req.session.fullName = fullName;
     req.session.email = email;
     req.session.otpAttempts = 0;
+
+    console.log('Session Data:', req.session);
+
 
     try {
         await sendEmail(email, fullName, otp);
