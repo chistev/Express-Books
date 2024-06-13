@@ -7,16 +7,6 @@ import User from '../../models/User.mjs';
 const router = express.Router();
 
 router.use(attachCSRFToken);
-router.use(session({
-    secret: process.env.SECRET,
-    resave: false,
-    saveUninitialized: true,
-    store: store,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
-        maxAge: 1000 * 60 * 60 * 24 * 30 // 30 days
-    }
-}));
 
 router.get('/', (req, res) => {
     const errors = req.query.errors ? JSON.parse(req.query.errors) : [];
