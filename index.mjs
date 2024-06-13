@@ -101,7 +101,7 @@ store.on('connected', function() {
   store.on('error', function (error) {
     console.log('Session store error:', error);
   });
-  
+
 // Configure express-session middleware
 app.use(session({
     secret: process.env.SECRET, 
@@ -113,6 +113,12 @@ app.use(session({
         maxAge: null // Session cookie by default
     }
 }));
+
+// Additional logging for session data
+app.use((req, res, next) => {
+    console.log('Session Data:', req.session);
+    next();
+});
 
 // Use express.static middleware to serve static files
 app.use(express.static('public'));
