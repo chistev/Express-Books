@@ -10,6 +10,7 @@ const MAX_OTP_ATTEMPTS = 3;
 
 
 router.get('/', (req, res) => {
+    console.log('Session Data Retrieved:', req.session);
     if (!req.session.fullName || !req.session.email || !req.session.otp) {
         return res.redirect('/register?errors=' + encodeURIComponent(JSON.stringify(['Session data missing. Please complete the registration process.'])));
     }
