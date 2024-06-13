@@ -41,6 +41,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
 import compression from 'compression';
+import connectMongoDBSession from 'connect-mongodb-session';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -79,12 +80,34 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
   });
   
+// MongoDB session store
+const MongoDBStore = connectMongoDBSession(session);
 
+// MongoDB session store
+const store = new MongoDBStore({
+    uri: process.env.MONGODB_URI,
+    collection: 'sessions',
+    expires: 1000 * 60 * 60 * 24 * 30, // 30 days
+    connectionOptions: {
+      serverSelectionTimeoutMS: 10000
+    }
+  });
+
+  // Logging for session store connection
+store.on('connected', function() {
+    console.log('Session store connected successfully');
+  });
+
+  store.on('error', function (error) {
+    console.log('Session store error:', error);
+  });
+  
 // Configure express-session middleware
 app.use(session({
     secret: process.env.SECRET, 
     resave: false,
     saveUninitialized: true,
+    store: store,
     cookie: {
         secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
         maxAge: null // Session cookie by default
