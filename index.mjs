@@ -40,7 +40,6 @@ import bookDetailsLikesController from './controllers/bookDetails/likesControlle
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
-import xss from 'xss-clean';
 import compression from 'compression';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -49,10 +48,8 @@ const __dirname = dirname(__filename);
 dotenv.config();
 const app = express();
 const port = 3000;
-
-
-// Use Helmet to set various HTTP headers for security
-app.use(helmet());
+// Set the view engine to ejs
+app.set('view engine', 'ejs');
 
 // Use Compression middleware to gzip responses
 app.use(compression());
@@ -75,8 +72,6 @@ app.use(limiter);
 // Use express-mongo-sanitize to prevent NoSQL injection
 app.use(mongoSanitize());
 
-// Use xss-clean to prevent XSS attacks
-app.use(xss());
 
 // centralized error handling mechanism.
 app.use((err, req, res, next) => {
