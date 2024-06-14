@@ -43,6 +43,7 @@ import mongoSanitize from 'express-mongo-sanitize';
 import compression from 'compression';
 import connectMongoDBSession from 'connect-mongodb-session';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -98,13 +99,13 @@ app.use(compression());
   
 
 // Configure rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again after 15 minutes'
-});
+// const limiter = rateLimit({
+//     windowMs: 15 * 60 * 1000, // 15 minutes
+//     max: 100, // Limit each IP to 100 requests per windowMs
+//     message: 'Too many requests from this IP, please try again after 15 minutes'
+// });
 
-app.use(limiter);
+// app.use(limiter);
 
 // Use express-mongo-sanitize to prevent NoSQL injection
 app.use(mongoSanitize());

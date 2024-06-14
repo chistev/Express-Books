@@ -97,10 +97,11 @@
                             <%= review.formattedDate %>
                         </div>
                     </div>
-                    <div class="review-container">
-                        
-                        <div class="mt-2 review-content-short">
-                            <%- review.truncatedContent %>
+                    <div class="review-container_" id="review-container-<%= review._id %>">
+                        <div class="review-content-short">
+                            <p class="mb-2">
+                                <%- review.truncatedContent %>
+                            </p>
                             <% if (review.truncatedContent.length > 200) { %>
                                 <div class="show-more-button">
                                     <a class="text-decoration-none show-more-link" data-review-id="<%= review._id %>" href="#">
@@ -109,9 +110,9 @@
                                 </div>
                             <% } %>
                         </div>
-                        <div class="mt-2 review-content-full"></div>
                     </div>
-                    
+                     
+                     
                     <div class="review-container" data-review-id="<%= review._id %>">
                         <div class="mt-2 book-details-likes-and-comments">
                             <span class="like-count"><%= review.likes.length %></span> likes 
@@ -217,7 +218,7 @@
             </div>
         </div>
     </div>
-</div>
+
 
 <div id="loggedInStatus" data-logged-in="<%= loggedIn %>"></div>
 
@@ -242,37 +243,49 @@
 
   <%- include('../footer') %>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var showMoreReviewLinks = document.querySelectorAll(".show-more-link");
-
-        showMoreReviewLinks.forEach(function(link) {
-            link.addEventListener("click", function(event) {
-                event.preventDefault();
-                var reviewId = this.getAttribute("data-review-id");
-                var reviewContentShort = this.closest('.review-container').querySelector('.review-content-short');
-                var reviewContentFull = this.closest('.review-container').querySelector('.review-content-full');
-
-                console.log('Review ID:', reviewId); // Log the review ID
-                console.log('Short review content element:', reviewContentShort); // Log the short review content element
-                console.log('Full review content element:', reviewContentFull); // Log the full review content element
-
-                fetch(`/book/<%= book._id %>/review/${reviewId}`) // Update the URL to include the book ID
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Response from server:', data); // Log the response from the server
-
-                        // Replace the short review content with the full review content
-                        reviewContentShort.style.display = 'none';
-                        reviewContentFull.innerHTML = data.content;
-                        reviewContentFull.style.display = 'block';
-                    })
-                    .catch(error => console.error('Error fetching review:', error));
+ 
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      function getBookIdFromUrl() {
+        const urlParts = window.location.pathname.split('/');
+        return urlParts[urlParts.indexOf('book') + 1];
+      }
+  
+      document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('show-more-link')) {
+          event.preventDefault();
+          const reviewId = event.target.dataset.reviewId;
+          const bookId = getBookIdFromUrl();
+          const reviewContainer = document.getElementById(`review-container-${reviewId}`);
+  
+          console.log('Fetching full review for Book ID:', bookId, 'Review ID:', reviewId);
+  
+          fetch(`/book/${bookId}/review/${reviewId}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log('Full review content received:', data.content);
+              if (data.content) {
+                // Find the review content short element inside the review container
+                const reviewContentShort = reviewContainer.querySelector('.review-content-short');
+                // Update only the content of the review content short element
+                reviewContentShort.innerHTML = `<p class="mb-2">${data.content}</p>`;
+              } else {
+                console.log('No content received');
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching full review:', error);
             });
-        });
+        }
+      });
     });
-</script>
-
+  </script>
+    
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         console.log("Script loaded and DOM content is ready.");
