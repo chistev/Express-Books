@@ -44,14 +44,18 @@ router.post('/', verifyCSRFToken, async (req, res) => {
             const token = jwt.sign(tokenPayload, process.env.SECRET, { expiresIn: '7d' });
             console.log(tokenPayload)
             res.cookie('token', token, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true});
-            req.session.userId = user._id;
+            // Store the userId as a string
+        req.session.userId = user._id.toString();
         } else{
             const signInToken = generateToken();
             req.session.signInToken = signInToken;
             req.session.cookie.expires = false; // Set session cookie to expire on browser close
 
-            req.session.userId = user._id;
+            // Store the userId as a string
+        req.session.userId = user._id.toString();
         }
+
+        console.log("User ID saved in session:", req.session.userId);
 
         res.redirect('/');
     } catch (error) {

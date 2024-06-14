@@ -223,17 +223,31 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-    // Clear the token cookie
-    res.clearCookie('token');
-    // Redirect the user to the sign-in page
-    res.redirect('/');
+    // Destroy the session
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            return res.status(500).send('Something went wrong while logging out.');
+        }
+        // Clear the token cookie
+        res.clearCookie('token');
+        res.clearCookie('connect.sid'); // Clear the session ID cookie
+        res.redirect('/');
+    });
 });
 
 app.get('/logout', (req, res) => {
-    // Clear the token cookie
-    res.clearCookie('token');
-    // Redirect the user to the sign-in page
-    res.redirect('/');
+    // Destroy the session
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            return res.status(500).send('Something went wrong while logging out.');
+        }
+        // Clear the token cookie
+        res.clearCookie('token');
+        res.clearCookie('connect.sid'); // Clear the session ID cookie
+        res.redirect('/');
+    });
 });
 
 app.get('/signup', (req, res) => {
