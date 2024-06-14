@@ -95,11 +95,6 @@ app.set('view engine', 'ejs');
 
 // Use Compression middleware to gzip responses
 app.use(compression());
-
-app.use((req, res, next) => {
-    res.set('Cache-Control', 'public, max-age=31557600'); // 1 year
-    next();
-  });
   
 
 // Configure rate limiting
