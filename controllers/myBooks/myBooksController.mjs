@@ -43,7 +43,7 @@ router.get('/mybooks', async (req, res) => {
             userReview: userReview ? {
                 _id: userReview._id,
                 fullContent: userReview.content,
-                truncatedContent: userReview.content.length > 200 ? userReview.content.slice(0, 200) + '...' : userReview.content
+                truncatedContent: userReview.content.length > 300 ? userReview.content.slice(0, 300) + '...' : userReview.content
             } : null
         };
     });
