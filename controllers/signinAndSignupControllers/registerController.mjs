@@ -3,6 +3,7 @@ import session from 'express-session';
 import { validateEmail, generateOTP, sendEmail } from './registerUtils.mjs';
 import { attachCSRFToken, verifyCSRFToken } from './csrfUtils.mjs'
 import User from '../../models/User.mjs';
+import connectMongoDBSession from 'connect-mongodb-session';
 
 const router = express.Router();
 

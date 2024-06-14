@@ -49,6 +49,47 @@ const __dirname = dirname(__filename);
 dotenv.config();
 const app = express();
 const port = 3000;
+
+// MongoDB session store
+const MongoDBStore = connectMongoDBSession(session);
+
+// MongoDB session store
+const store = new MongoDBStore({
+    uri: process.env.MONGODB_URI,
+    collection: 'sessions',
+    expires: 1000 * 60 * 60 * 24 * 30, // 30 days
+    connectionOptions: {
+      serverSelectionTimeoutMS: 10000
+    }
+  });
+
+  // Logging for session store connection
+store.on('connected', function() {
+    console.log('Session store connected successfully');
+  });
+
+  store.on('error', function (error) {
+    console.log('Session store error:', error);
+  });
+
+// Configure express-session middleware
+app.use(session({
+    secret: process.env.SECRET, 
+    resave: false,
+    saveUninitialized: true,
+    store: store,
+    cookie: {
+        secure: process.env.NODE_ENV === 'true', // Set to true if using HTTPS, production if using http
+        maxAge: 1000 * 60 * 60 * 24 * 30 // 30 days
+    }
+}));
+
+// Additional logging for session data
+app.use((req, res, next) => {
+    console.log('Session Data:', req.session);
+    next();
+});
+
 // Set the view engine to ejs
 app.set('view engine', 'ejs');
 
@@ -80,45 +121,6 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
   });
   
-// MongoDB session store
-const MongoDBStore = connectMongoDBSession(session);
-
-// MongoDB session store
-const store = new MongoDBStore({
-    uri: process.env.MONGODB_URI,
-    collection: 'sessions',
-    expires: 1000 * 60 * 60 * 24 * 30, // 30 days
-    connectionOptions: {
-      serverSelectionTimeoutMS: 10000
-    }
-  });
-
-  // Logging for session store connection
-store.on('connected', function() {
-    console.log('Session store connected successfully');
-  });
-
-  store.on('error', function (error) {
-    console.log('Session store error:', error);
-  });
-
-// Configure express-session middleware
-app.use(session({
-    secret: process.env.SECRET, 
-    resave: false,
-    saveUninitialized: true,
-    store: store,
-    cookie: {
-        secure: true, // Set to true if using HTTPS
-        maxAge: 1000 * 60 * 60 * 24 * 30 // 30 days
-    }
-}));
-
-// Additional logging for session data
-app.use((req, res, next) => {
-    console.log('Session Data:', req.session);
-    next();
-});
 
 // Use express.static middleware to serve static files
 app.use(express.static('public'));
