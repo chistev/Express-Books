@@ -322,18 +322,25 @@ app.get('/book/:id', async (req, res) => {
 });
 
 app.get('/genre/:genre', async (req, res) => {
-    const { genre } = req.params;
+    const genreParam = req.params.genre; // Retrieve genre parameter
 
     try {
         const { loggedIn } = determineLoggedInStatus(req);
-        const books = await Book.find({ genre });
 
-        const genreDescription = await Genre.findOne({ name: genre });
+        // Construct regex pattern for case-insensitive match
+        const genreRegex = new RegExp(genreParam.replace(/-/g, ' '), 'i');
 
+        // Find books where genre names match case-insensitively
+        const books = await Book.find({ genre: { $regex: genreRegex } });
+
+        // Find genre description (if available)
+        const genreDescription = await Genre.findOne({ name: { $regex: genreRegex } });
+
+        // Fetch all genres (for sidebar, etc.)
         const allGenres = await Genre.find({});
 
         res.render('category', { 
-            title: genre.charAt(0).toUpperCase() + genre.slice(1),
+            title: genreParam.charAt(0).toUpperCase() + genreParam.slice(1), // Capitalize genre name
             description: genreDescription ? genreDescription.description : 'No description available.',
             content: '', 
             loggedIn, 

@@ -2,6 +2,7 @@ import express from 'express';
 import { isAdmin } from './isAdmin.mjs';
 import { attachCSRFToken, verifyCSRFToken } from '../signinAndSignupControllers/csrfUtils.mjs';
 import Genre from '../../models/Genre.mjs';
+import Book from '../../models/Book.mjs';
 
 const router = express.Router();
 
