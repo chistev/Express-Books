@@ -59,7 +59,7 @@ router.get('/book/:id/details', async (req, res) => {
             return {
                 ...review._doc,
                 formattedDate: formattedDate,
-                truncatedContent: review.content.length > 200 ? review.content.slice(0, 200) + '...' : review.content,
+                truncatedContent: review.content.length > 300 ? review.content.slice(0, 300) + '...' : review.content,
                 likedByUser: likedByUser,
                 comments: commentsWithFormattedDate,
                 commentCount: review.comments.length, 
